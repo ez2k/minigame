@@ -280,55 +280,107 @@
     }
     
     .sword-visual {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 5px;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 10px;
         transition: all 0.3s;
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+    }
+    
+    .sword-visual::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, transparent 70%);
+        animation: breathe 3s ease-in-out infinite;
+    }
+    
+    @keyframes breathe {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
     }
     
     .sword-visual.shaking {
-        animation: shake 0.1s infinite;
+        animation: shake 0.08s infinite;
+    }
+    
+    .sword-visual.shaking::before {
+        background: radial-gradient(circle, rgba(255,165,0,0.4) 0%, transparent 70%);
+        animation: chargeUp 0.8s ease-out;
+    }
+    
+    @keyframes chargeUp {
+        0% { transform: scale(0.8); opacity: 0.3; }
+        100% { transform: scale(1.5); opacity: 0.8; }
     }
     
     .sword-visual.success {
-        animation: successPop 0.6s ease-out;
+        animation: successPop 0.8s ease-out;
+    }
+    
+    .sword-visual.success::before {
+        background: radial-gradient(circle, rgba(78,205,196,0.6) 0%, rgba(255,215,0,0.3) 50%, transparent 70%);
+        animation: successBurst 0.8s ease-out;
+    }
+    
+    @keyframes successBurst {
+        0% { transform: scale(0.5); opacity: 1; }
+        50% { transform: scale(2); opacity: 0.8; }
+        100% { transform: scale(2.5); opacity: 0; }
     }
     
     .sword-visual.fail {
-        animation: failShake 0.4s ease-out;
+        animation: failShake 0.5s ease-out;
     }
     
     .sword-visual.destroy {
-        animation: explode 0.8s ease-out forwards;
+        animation: explode 1s ease-out forwards;
+    }
+    
+    .sword-visual.destroy::before {
+        background: radial-gradient(circle, rgba(255,0,0,0.8) 0%, rgba(255,100,0,0.5) 50%, transparent 70%);
+        animation: explosionWave 1s ease-out;
+    }
+    
+    @keyframes explosionWave {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(4); opacity: 0; }
     }
     
     @keyframes shake {
         0%, 100% { transform: translateX(0) rotate(0); }
-        25% { transform: translateX(-3px) rotate(-1deg); }
-        75% { transform: translateX(3px) rotate(1deg); }
+        25% { transform: translateX(-5px) rotate(-2deg); }
+        75% { transform: translateX(5px) rotate(2deg); }
     }
     
     @keyframes successPop {
-        0% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
-        50% { transform: scale(1.3); filter: drop-shadow(0 0 50px rgba(78,205,196,1)); }
-        100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
+        0% { transform: scale(1); filter: brightness(1); }
+        30% { transform: scale(1.4) rotate(-5deg); filter: brightness(1.5) drop-shadow(0 0 30px rgba(78,205,196,1)); }
+        50% { transform: scale(1.5) rotate(5deg); filter: brightness(2) drop-shadow(0 0 50px rgba(255,215,0,1)); }
+        70% { transform: scale(1.3) rotate(-3deg); filter: brightness(1.5) drop-shadow(0 0 40px rgba(78,205,196,0.8)); }
+        100% { transform: scale(1) rotate(0); filter: brightness(1) drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
     }
     
     @keyframes failShake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-15px); }
-        40% { transform: translateX(15px); }
-        60% { transform: translateX(-10px); }
-        80% { transform: translateX(10px); }
+        0%, 100% { transform: translateX(0); filter: brightness(1); }
+        10% { transform: translateX(-20px) rotate(-5deg); filter: brightness(0.7); }
+        30% { transform: translateX(20px) rotate(5deg); filter: brightness(0.8); }
+        50% { transform: translateX(-15px) rotate(-3deg); }
+        70% { transform: translateX(15px) rotate(3deg); }
+        90% { transform: translateX(-5px); }
     }
     
     @keyframes explode {
-        0% { transform: scale(1); opacity: 1; }
-        30% { transform: scale(1.5); filter: brightness(2) hue-rotate(30deg); }
-        100% { transform: scale(0); opacity: 0; }
+        0% { transform: scale(1) rotate(0); opacity: 1; filter: brightness(1); }
+        20% { transform: scale(1.3) rotate(10deg); filter: brightness(2) hue-rotate(30deg); }
+        40% { transform: scale(1.5) rotate(-10deg); filter: brightness(3) hue-rotate(60deg); }
+        60% { transform: scale(1.2) rotate(5deg); filter: brightness(2) saturate(2); opacity: 0.8; }
+        100% { transform: scale(0) rotate(180deg); opacity: 0; }
     }
     
     .sword-name {
@@ -1186,12 +1238,44 @@
     .particle {
         position: absolute;
         border-radius: 50%;
-        animation: particleFly 1s ease-out forwards;
+        animation: particleFly 1.2s ease-out forwards;
+        box-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
     }
     
     @keyframes particleFly {
         0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        50% { opacity: 1; }
         100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+    
+    .spark {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 0 6px white, 0 0 12px white;
+        animation: sparkFly 0.8s ease-out forwards;
+    }
+    
+    @keyframes sparkFly {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--tx), var(--ty)) scale(0.5); opacity: 0; }
+    }
+    
+    .ring-effect {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 3px solid;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: ringExpand 0.6s ease-out forwards;
+    }
+    
+    @keyframes ringExpand {
+        0% { width: 20px; height: 20px; opacity: 1; border-width: 3px; }
+        100% { width: 200px; height: 200px; opacity: 0; border-width: 1px; }
     }
     
     /* 등급 색상 */
@@ -1397,181 +1481,296 @@
     };
     
     // 레벨별 검 이모지/이미지
-    // 레벨별 SVG 검 이미지
-    function getSwordSVG(level, size = 70) {
-        const uniqueId = Math.random().toString(36).substr(2, 9);
+    // 플레이어별 검 색상 저장
+    let mySwordColor = null;
+    
+    // 랜덤 색상 팔레트
+    const swordColorPalettes = [
+        { name: 'ruby', primary: '#E53935', secondary: '#FF8A80', accent: '#B71C1C' },
+        { name: 'sapphire', primary: '#1E88E5', secondary: '#82B1FF', accent: '#0D47A1' },
+        { name: 'emerald', primary: '#43A047', secondary: '#69F0AE', accent: '#1B5E20' },
+        { name: 'amethyst', primary: '#8E24AA', secondary: '#EA80FC', accent: '#4A148C' },
+        { name: 'topaz', primary: '#FB8C00', secondary: '#FFD180', accent: '#E65100' },
+        { name: 'diamond', primary: '#90CAF9', secondary: '#FFFFFF', accent: '#42A5F5' },
+        { name: 'obsidian', primary: '#37474F', secondary: '#78909C', accent: '#263238' },
+        { name: 'gold', primary: '#FFD700', secondary: '#FFF8DC', accent: '#B8860B' },
+        { name: 'rose', primary: '#EC407A', secondary: '#FF80AB', accent: '#AD1457' },
+        { name: 'cyan', primary: '#00BCD4', secondary: '#84FFFF', accent: '#006064' },
+    ];
+    
+    function getRandomSwordColor() {
+        return swordColorPalettes[Math.floor(Math.random() * swordColorPalettes.length)];
+    }
+    
+    // 레벨별 SVG 검 이미지 - 고퀄리티 버전
+    function getSwordSVG(level, size = 120, colorOverride = null) {
+        const uid = Math.random().toString(36).substr(2, 9);
+        const color = colorOverride || mySwordColor || getRandomSwordColor();
         
-        // 레벨 25: 신화의 검 (황금빛 + 불꽃 오라)
+        // +25 신화의 검 - 천상의 황금검
         if (level >= 25) {
             return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
                 <defs>
-                    <linearGradient id="blade25_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#FFF8DC"/>
-                        <stop offset="50%" style="stop-color:#FFD700"/>
-                        <stop offset="100%" style="stop-color:#FFF8DC"/>
+                    <linearGradient id="b25_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="${color.secondary}"/>
+                        <stop offset="25%" stop-color="${color.primary}"/>
+                        <stop offset="50%" stop-color="#FFFFFF"/>
+                        <stop offset="75%" stop-color="${color.primary}"/>
+                        <stop offset="100%" stop-color="${color.secondary}"/>
                     </linearGradient>
-                    <filter id="glow25_${uniqueId}" x="-100%" y="-100%" width="300%" height="300%">
-                        <feGaussianBlur stdDeviation="3" result="blur"/>
-                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
-                    <radialGradient id="aura25_${uniqueId}">
-                        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.8"/>
-                        <stop offset="100%" style="stop-color:#FF4500;stop-opacity:0"/>
-                    </radialGradient>
+                    <linearGradient id="h25_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#DAA520"/>
+                        <stop offset="50%" stop-color="#8B4513"/>
+                        <stop offset="100%" stop-color="#4A2810"/>
+                    </linearGradient>
+                    <filter id="g25_${uid}"><feGaussianBlur stdDeviation="2"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                 </defs>
-                <!-- 오라 -->
-                <ellipse cx="50" cy="45" rx="25" ry="35" fill="url(#aura25_${uniqueId})">
-                    <animate attributeName="rx" values="22;28;22" dur="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" values="0.6;0.9;0.6" dur="1.5s" repeatCount="indefinite"/>
+                <!-- 후광 -->
+                <ellipse cx="50" cy="40" rx="35" ry="40" fill="url(#r25_${uid})" opacity="0.6">
+                    <animate attributeName="opacity" values="0.4;0.7;0.4" dur="2s" repeatCount="indefinite"/>
                 </ellipse>
-                <g filter="url(#glow25_${uniqueId})">
-                    <!-- 블레이드 -->
-                    <polygon points="50,2 58,45 50,52 42,45" fill="url(#blade25_${uniqueId})" stroke="#FFD700" stroke-width="1.5"/>
-                    <line x1="50" y1="8" x2="50" y2="42" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
-                    <!-- 가드 (날개형) -->
-                    <path d="M25,47 Q38,42 50,50 Q62,42 75,47 Q62,56 50,52 Q38,56 25,47" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
-                    <!-- 손잡이 -->
-                    <rect x="46" y="52" width="8" height="22" rx="2" fill="#8B4513"/>
-                    <line x1="46" y1="58" x2="54" y2="58" stroke="#FFD700" stroke-width="2"/>
-                    <line x1="46" y1="65" x2="54" y2="65" stroke="#FFD700" stroke-width="2"/>
-                    <!-- 폼멜 (왕관) -->
-                    <path d="M42,74 L45,82 L47,77 L50,85 L53,77 L55,82 L58,74 Z" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                <radialGradient id="r25_${uid}"><stop offset="0%" stop-color="${color.primary}" stop-opacity="0.8"/><stop offset="100%" stop-color="${color.accent}" stop-opacity="0"/></radialGradient>
+                
+                <g filter="url(#g25_${uid})">
+                    <!-- 블레이드 외곽 -->
+                    <path d="M50,2 L42,8 L40,42 L44,48 L50,52 L56,48 L60,42 L58,8 Z" fill="url(#b25_${uid})" stroke="${color.accent}" stroke-width="0.5"/>
+                    <!-- 블레이드 중앙 그루브 -->
+                    <path d="M50,6 L48,40 L50,46 L52,40 Z" fill="rgba(255,255,255,0.4)"/>
+                    <!-- 블레이드 엣지 하이라이트 -->
+                    <path d="M42,8 L40,42 L44,48" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    
+                    <!-- 가드 - 천사 날개형 -->
+                    <path d="M20,48 Q30,40 40,46 L44,50 L40,54 Q30,58 22,52 Z" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                    <path d="M80,48 Q70,40 60,46 L56,50 L60,54 Q70,58 78,52 Z" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                    <ellipse cx="50" cy="50" rx="8" ry="4" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                    
                     <!-- 중앙 보석 -->
-                    <circle cx="50" cy="50" r="5" fill="#FF0000" stroke="#FFD700" stroke-width="1">
-                        <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+                    <circle cx="50" cy="50" r="5" fill="${color.primary}"/>
+                    <circle cx="50" cy="50" r="4" fill="${color.secondary}"/>
+                    <circle cx="48" cy="48" r="1.5" fill="#FFFFFF" opacity="0.8"/>
+                    <circle cx="50" cy="50" r="5" fill="none" stroke="#FFD700" stroke-width="1">
+                        <animate attributeName="r" values="5;6;5" dur="1s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
                     </circle>
-                    <circle cx="50" cy="50" r="2" fill="#FF6B6B"/>
+                    
+                    <!-- 손잡이 -->
+                    <rect x="46" y="54" width="8" height="24" rx="1" fill="url(#h25_${uid})"/>
+                    <rect x="44" y="58" width="12" height="2" rx="1" fill="#FFD700"/>
+                    <rect x="44" y="64" width="12" height="2" rx="1" fill="#FFD700"/>
+                    <rect x="44" y="70" width="12" height="2" rx="1" fill="#FFD700"/>
+                    
+                    <!-- 폼멜 - 왕관 -->
+                    <path d="M42,78 L44,84 L46,80 L48,86 L50,82 L52,86 L54,80 L56,84 L58,78 Q50,82 42,78" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                    <circle cx="50" cy="80" r="2" fill="${color.primary}"/>
                 </g>
-                <!-- 파티클 -->
-                <circle cx="35" cy="25" r="2" fill="#FFD700"><animate attributeName="cy" values="25;10;25" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite"/></circle>
-                <circle cx="65" cy="30" r="1.5" fill="#FFA500"><animate attributeName="cy" values="30;15;30" dur="1.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.7s" repeatCount="indefinite"/></circle>
-                <circle cx="50" cy="15" r="1.5" fill="#FFFF00"><animate attributeName="cy" values="15;0;15" dur="2.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2.3s" repeatCount="indefinite"/></circle>
+                
+                <!-- 마법 파티클 -->
+                <circle cx="30" cy="25" r="2" fill="${color.primary}"><animate attributeName="cy" values="25;5;25" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="3s" repeatCount="indefinite"/></circle>
+                <circle cx="70" cy="20" r="1.5" fill="${color.secondary}"><animate attributeName="cy" values="20;0;20" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2.5s" repeatCount="indefinite"/></circle>
+                <circle cx="40" cy="15" r="1" fill="${color.secondary}"><animate attributeName="cy" values="15;-5;15" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2.8s" repeatCount="indefinite"/></circle>
+                <circle cx="60" cy="30" r="1.5" fill="${color.primary}"><animate attributeName="cy" values="30;10;30" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2.2s" repeatCount="indefinite"/></circle>
             </svg>`;
         }
         
-        // 레벨 20+: 전설의 검 (핑크빛 마법검)
+        // +20 전설의 검 - 마법의 크리스탈 소드
         if (level >= 20) {
             return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
                 <defs>
-                    <linearGradient id="blade20_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#FFB6C1"/>
-                        <stop offset="50%" style="stop-color:#FF1493"/>
-                        <stop offset="100%" style="stop-color:#FFB6C1"/>
+                    <linearGradient id="b20_${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="${color.secondary}"/>
+                        <stop offset="30%" stop-color="${color.primary}"/>
+                        <stop offset="50%" stop-color="#FFFFFF"/>
+                        <stop offset="70%" stop-color="${color.primary}"/>
+                        <stop offset="100%" stop-color="${color.secondary}"/>
                     </linearGradient>
-                    <filter id="glow20_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="2.5" result="blur"/>
-                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
+                    <linearGradient id="h20_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="${color.accent}"/>
+                        <stop offset="100%" stop-color="#1a1a1a"/>
+                    </linearGradient>
+                    <filter id="g20_${uid}"><feGaussianBlur stdDeviation="1.5"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                 </defs>
-                <ellipse cx="50" cy="40" rx="20" ry="30" fill="rgba(255,20,147,0.2)">
-                    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+                <ellipse cx="50" cy="35" rx="25" ry="35" fill="${color.primary}" opacity="0.15">
+                    <animate attributeName="opacity" values="0.1;0.25;0.1" dur="2s" repeatCount="indefinite"/>
                 </ellipse>
-                <g filter="url(#glow20_${uniqueId})">
-                    <polygon points="50,5 56,48 50,54 44,48" fill="url(#blade20_${uniqueId})" stroke="#FF1493" stroke-width="1"/>
-                    <line x1="50" y1="10" x2="50" y2="44" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-                    <ellipse cx="50" cy="54" rx="14" ry="5" fill="#C0C0C0" stroke="#A0A0A0" stroke-width="1"/>
-                    <rect x="46" y="56" width="8" height="18" rx="1" fill="#4A3728"/>
-                    <circle cx="50" cy="78" r="4" fill="#C0C0C0"/>
-                    <circle cx="50" cy="54" r="4" fill="#9333EA" stroke="#FFD700" stroke-width="1">
-                        <animate attributeName="r" values="3;5;3" dur="1.5s" repeatCount="indefinite"/>
-                    </circle>
+                <g filter="url(#g20_${uid})">
+                    <!-- 크리스탈 블레이드 -->
+                    <path d="M50,3 L44,10 L42,45 L46,50 L50,54 L54,50 L58,45 L56,10 Z" fill="url(#b20_${uid})" stroke="${color.accent}" stroke-width="0.5"/>
+                    <path d="M50,8 L48,42 L50,48 L52,42 Z" fill="rgba(255,255,255,0.5)"/>
+                    <path d="M44,10 L42,45 L46,50" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+                    
+                    <!-- 가드 - 크리스탈형 -->
+                    <path d="M28,48 L38,44 L44,50 L38,56 L28,52 Z" fill="#C0C0C0" stroke="#808080" stroke-width="0.5"/>
+                    <path d="M72,48 L62,44 L56,50 L62,56 L72,52 Z" fill="#C0C0C0" stroke="#808080" stroke-width="0.5"/>
+                    <ellipse cx="50" cy="52" rx="10" ry="4" fill="#C0C0C0" stroke="#808080" stroke-width="0.5"/>
+                    
+                    <!-- 보석 -->
+                    <circle cx="50" cy="52" r="4" fill="${color.primary}"/>
+                    <circle cx="50" cy="52" r="3" fill="${color.secondary}"/>
+                    <circle cx="48" cy="50" r="1" fill="#FFFFFF" opacity="0.8"/>
+                    
+                    <!-- 손잡이 -->
+                    <rect x="46" y="56" width="8" height="20" rx="1" fill="url(#h20_${uid})"/>
+                    <rect x="44" y="60" width="12" height="2" rx="1" fill="${color.primary}"/>
+                    <rect x="44" y="66" width="12" height="2" rx="1" fill="${color.primary}"/>
+                    
+                    <!-- 폼멜 -->
+                    <ellipse cx="50" cy="78" rx="6" ry="4" fill="${color.accent}" stroke="#333" stroke-width="0.5"/>
+                    <circle cx="50" cy="78" r="2" fill="${color.primary}"/>
                 </g>
             </svg>`;
         }
         
-        // 레벨 15+: 달인의 검 (보라빛)
+        // +15 달인의 검 - 룬 소드
         if (level >= 15) {
             return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
                 <defs>
-                    <linearGradient id="blade15_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#D8B4FE"/>
-                        <stop offset="50%" style="stop-color:#8B5CF6"/>
-                        <stop offset="100%" style="stop-color:#D8B4FE"/>
+                    <linearGradient id="b15_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="${color.primary}"/>
+                        <stop offset="50%" stop-color="${color.secondary}"/>
+                        <stop offset="100%" stop-color="${color.primary}"/>
                     </linearGradient>
-                    <filter id="glow15_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="2" result="blur"/>
-                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
+                    <linearGradient id="h15_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#1E3A5F"/>
+                        <stop offset="100%" stop-color="#0F1C2E"/>
+                    </linearGradient>
+                    <filter id="g15_${uid}"><feGaussianBlur stdDeviation="1"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                 </defs>
-                <g filter="url(#glow15_${uniqueId})">
-                    <polygon points="50,8 55,48 50,54 45,48" fill="url(#blade15_${uniqueId})" stroke="#8B5CF6" stroke-width="1"/>
-                    <line x1="50" y1="12" x2="50" y2="44" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <rect x="36" y="52" width="28" height="5" rx="2" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
-                    <rect x="46" y="57" width="8" height="16" rx="1" fill="#4A3728"/>
-                    <ellipse cx="50" cy="76" rx="5" ry="3" fill="#FFD700"/>
-                    <circle cx="50" cy="54" r="3" fill="#3B82F6">
-                        <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
-                    </circle>
+                <g filter="url(#g15_${uid})">
+                    <!-- 블레이드 -->
+                    <path d="M50,5 L45,12 L43,46 L47,52 L50,55 L53,52 L57,46 L55,12 Z" fill="url(#b15_${uid})" stroke="${color.accent}" stroke-width="0.5"/>
+                    <path d="M50,10 L48,44 L50,50 L52,44 Z" fill="rgba(255,255,255,0.3)"/>
+                    <!-- 룬 문양 -->
+                    <path d="M48,20 L52,20 M50,18 L50,28 M48,25 L52,25" stroke="${color.secondary}" stroke-width="0.8" fill="none" opacity="0.8">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                    </path>
+                    <path d="M48,32 L52,32 M50,30 L50,38" stroke="${color.secondary}" stroke-width="0.8" fill="none" opacity="0.8">
+                        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+                    </path>
+                    
+                    <!-- 가드 -->
+                    <rect x="32" y="52" width="36" height="5" rx="2" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                    <circle cx="35" cy="54.5" r="2" fill="${color.primary}"/>
+                    <circle cx="65" cy="54.5" r="2" fill="${color.primary}"/>
+                    
+                    <!-- 보석 -->
+                    <circle cx="50" cy="54" r="3.5" fill="${color.primary}"/>
+                    <circle cx="48.5" cy="52.5" r="1" fill="#FFFFFF" opacity="0.7"/>
+                    
+                    <!-- 손잡이 -->
+                    <rect x="46" y="57" width="8" height="18" rx="1" fill="url(#h15_${uid})"/>
+                    <path d="M46,61 L54,61 M46,65 L54,65 M46,69 L54,69" stroke="#FFD700" stroke-width="1.5"/>
+                    
+                    <!-- 폼멜 -->
+                    <ellipse cx="50" cy="77" rx="5" ry="3" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
                 </g>
             </svg>`;
         }
         
-        // 레벨 10+: 숙련자의 검 (파란빛)
+        // +10 숙련자의 검 - 강철 롱소드
         if (level >= 10) {
             return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
                 <defs>
-                    <linearGradient id="blade10_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#93C5FD"/>
-                        <stop offset="50%" style="stop-color:#3B82F6"/>
-                        <stop offset="100%" style="stop-color:#93C5FD"/>
+                    <linearGradient id="b10_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="${color.primary}"/>
+                        <stop offset="50%" stop-color="${color.secondary}"/>
+                        <stop offset="100%" stop-color="${color.primary}"/>
                     </linearGradient>
-                    <filter id="glow10_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="1.5" result="blur"/>
-                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
+                    <linearGradient id="h10_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#78350F"/>
+                        <stop offset="100%" stop-color="#451A03"/>
+                    </linearGradient>
+                    <filter id="g10_${uid}"><feGaussianBlur stdDeviation="0.8"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                 </defs>
-                <g filter="url(#glow10_${uniqueId})">
-                    <polygon points="50,10 54,48 50,54 46,48" fill="url(#blade10_${uniqueId})" stroke="#3B82F6" stroke-width="1"/>
-                    <line x1="50" y1="14" x2="50" y2="44" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-                    <rect x="38" y="52" width="24" height="4" rx="1" fill="#C0C0C0" stroke="#A0A0A0" stroke-width="1"/>
-                    <rect x="46" y="56" width="8" height="15" rx="1" fill="#4A3728"/>
-                    <circle cx="50" cy="74" r="3" fill="#C0C0C0"/>
-                    <circle cx="50" cy="54" r="2.5" fill="#10B981"/>
+                <g filter="url(#g10_${uid})">
+                    <!-- 블레이드 -->
+                    <path d="M50,8 L46,14 L44,48 L48,53 L50,56 L52,53 L56,48 L54,14 Z" fill="url(#b10_${uid})" stroke="${color.accent}" stroke-width="0.5"/>
+                    <path d="M50,12 L48,46 L50,52 L52,46 Z" fill="rgba(255,255,255,0.3)"/>
+                    
+                    <!-- 가드 -->
+                    <rect x="36" y="54" width="28" height="4" rx="1" fill="#9CA3AF" stroke="#6B7280" stroke-width="0.5"/>
+                    
+                    <!-- 보석 -->
+                    <circle cx="50" cy="56" r="3" fill="${color.primary}"/>
+                    <circle cx="48.5" cy="54.5" r="1" fill="#FFFFFF" opacity="0.6"/>
+                    
+                    <!-- 손잡이 -->
+                    <rect x="46" y="58" width="8" height="16" rx="1" fill="url(#h10_${uid})"/>
+                    <path d="M46,62 L54,62 M46,66 L54,66 M46,70 L54,70" stroke="#92400E" stroke-width="1"/>
+                    
+                    <!-- 폼멜 -->
+                    <circle cx="50" cy="76" r="4" fill="#9CA3AF" stroke="#6B7280" stroke-width="0.5"/>
                 </g>
             </svg>`;
         }
         
-        // 레벨 5+: 수련자의 검 (초록빛)
+        // +5 수련자의 검 - 청동검
         if (level >= 5) {
             return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
                 <defs>
-                    <linearGradient id="blade5_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#6EE7B7"/>
-                        <stop offset="50%" style="stop-color:#10B981"/>
-                        <stop offset="100%" style="stop-color:#6EE7B7"/>
+                    <linearGradient id="b5_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="${color.primary}"/>
+                        <stop offset="50%" stop-color="${color.secondary}"/>
+                        <stop offset="100%" stop-color="${color.primary}"/>
+                    </linearGradient>
+                    <linearGradient id="h5_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#5D4037"/>
+                        <stop offset="100%" stop-color="#3E2723"/>
                     </linearGradient>
                 </defs>
-                <polygon points="50,12 53,48 50,54 47,48" fill="url(#blade5_${uniqueId})" stroke="#10B981" stroke-width="1"/>
-                <line x1="50" y1="16" x2="50" y2="44" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-                <rect x="40" y="52" width="20" height="4" rx="1" fill="#8B7355"/>
-                <rect x="46" y="56" width="8" height="14" rx="1" fill="#4A3728"/>
-                <circle cx="50" cy="73" r="3" fill="#8B7355"/>
-                <circle cx="50" cy="54" r="2" fill="#F59E0B"/>
+                <!-- 블레이드 -->
+                <path d="M50,10 L46,16 L45,50 L48,54 L50,57 L52,54 L55,50 L54,16 Z" fill="url(#b5_${uid})" stroke="${color.accent}" stroke-width="0.5"/>
+                <path d="M50,14 L48,48 L50,53 L52,48 Z" fill="rgba(255,255,255,0.25)"/>
+                
+                <!-- 가드 -->
+                <rect x="38" y="55" width="24" height="4" rx="1" fill="#92400E" stroke="#78350F" stroke-width="0.5"/>
+                
+                <!-- 보석 -->
+                <circle cx="50" cy="57" r="2.5" fill="${color.primary}"/>
+                
+                <!-- 손잡이 -->
+                <rect x="46" y="59" width="8" height="14" rx="1" fill="url(#h5_${uid})"/>
+                <path d="M46,63 L54,63 M46,67 L54,67" stroke="#8B5A2B" stroke-width="1"/>
+                
+                <!-- 폼멜 -->
+                <circle cx="50" cy="75" r="3.5" fill="#92400E" stroke="#78350F" stroke-width="0.5"/>
             </svg>`;
         }
         
-        // 기본 검 (회색)
+        // +0 기본 검 - 낡은 철검
         return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
             <defs>
-                <linearGradient id="blade0_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#E5E7EB"/>
-                    <stop offset="50%" style="stop-color:#9CA3AF"/>
-                    <stop offset="100%" style="stop-color:#E5E7EB"/>
+                <linearGradient id="b0_${uid}" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#9CA3AF"/>
+                    <stop offset="50%" stop-color="#D1D5DB"/>
+                    <stop offset="100%" stop-color="#9CA3AF"/>
+                </linearGradient>
+                <linearGradient id="h0_${uid}" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#6B5344"/>
+                    <stop offset="100%" stop-color="#3D2E24"/>
                 </linearGradient>
             </defs>
-            <polygon points="50,15 52,48 50,54 48,48" fill="url(#blade0_${uniqueId})" stroke="#9CA3AF" stroke-width="1"/>
-            <rect x="42" y="52" width="16" height="4" rx="1" fill="#8B7355"/>
-            <rect x="46" y="56" width="8" height="13" rx="1" fill="#4A3728"/>
-            <circle cx="50" cy="72" r="3" fill="#8B7355"/>
+            <!-- 블레이드 -->
+            <path d="M50,15 L47,20 L46,52 L48,55 L50,58 L52,55 L54,52 L53,20 Z" fill="url(#b0_${uid})" stroke="#6B7280" stroke-width="0.5"/>
+            <path d="M50,18 L49,50 L50,54 L51,50 Z" fill="rgba(255,255,255,0.2)"/>
+            
+            <!-- 가드 -->
+            <rect x="40" y="56" width="20" height="3" rx="1" fill="#78716C" stroke="#57534E" stroke-width="0.5"/>
+            
+            <!-- 손잡이 -->
+            <rect x="46" y="59" width="8" height="12" rx="1" fill="url(#h0_${uid})"/>
+            <path d="M46,63 L54,63 M46,67 L54,67" stroke="#5D4E42" stroke-width="1"/>
+            
+            <!-- 폼멜 -->
+            <circle cx="50" cy="73" r="3" fill="#78716C" stroke="#57534E" stroke-width="0.5"/>
         </svg>`;
     }
     
     function getSwordIcon(level) {
-        return getSwordSVG(level, 70);
+        return getSwordSVG(level, 120);
     }
     
     function getSwordIconSmall(level) {
-        return getSwordSVG(level, 24);
+        return getSwordSVG(level, 28);
     }
     
     function getSwordStyle(level) {
@@ -1598,7 +1797,8 @@
             status: '',
             statusType: '',
             isAI: true,
-            lastAction: Date.now() - Math.random() * 3000
+            lastAction: Date.now() - Math.random() * 3000,
+            swordColor: getRandomSwordColor()
         };
         players[id].maxLevel = players[id].level;
         return players[id].name;
@@ -1672,6 +1872,8 @@
                         result = 'success';
                         player.level++;
                         if (player.level > player.maxLevel) player.maxLevel = player.level;
+                        // 성공 시 랜덤 색상 변경
+                        player.swordColor = getRandomSwordColor();
                         player.status = `+${player.level} 성공! ✨`;
                         player.statusType = 'success';
                         addChat('upgrade-success', `${player.name}님이 +${player.level} 강화에 성공!`);
@@ -1843,7 +2045,7 @@
                     <span class="player-level">${p.destroyed ? '💀' : '+' + p.level}</span>
                 </div>
                 <div class="player-sword">
-                    <span class="player-sword-icon">${p.destroyed ? '💔' : getSwordIconSmall(p.level)}</span>
+                    <span class="player-sword-icon">${p.destroyed ? '💔' : getSwordSVG(p.level, 28, p.swordColor)}</span>
                     <span>${p.destroyed ? '파괴됨' : getSwordName(p.level)}</span>
                 </div>
                 <div class="player-status ${p.statusType}">${p.status}</div>
@@ -2005,10 +2207,13 @@
                 myState.level++;
                 if (myState.level > myState.maxLevel) myState.maxLevel = myState.level;
                 
-                sword.classList.add('success');
-                setTimeout(() => sword.classList.remove('success'), 600);
+                // 성공할 때마다 검 색상 랜덤 변경
+                mySwordColor = getRandomSwordColor();
                 
-                createParticles('#4ecdc4', 30);
+                sword.classList.add('success');
+                setTimeout(() => sword.classList.remove('success'), 800);
+                
+                createParticles('#4ecdc4', 50);
                 showResult('success', `✨ 성공!<br>+${myState.level}`);
                 addChat('upgrade-success', `${myName}님이 +${myState.level} 강화에 성공!`);
                 
@@ -2124,21 +2329,63 @@
         const container = document.getElementById('particles');
         const sword = document.getElementById('mySword');
         const rect = sword.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
         
+        // 메인 파티클
         for (let i = 0; i < count; i++) {
             const particle = document.createElement('div');
             particle.className = 'particle';
-            particle.style.backgroundColor = color;
-            particle.style.width = (5 + Math.random() * 10) + 'px';
-            particle.style.height = particle.style.width;
-            particle.style.left = (rect.left + rect.width / 2) + 'px';
-            particle.style.top = (rect.top + rect.height / 2) + 'px';
-            particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
-            particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
-            container.appendChild(particle);
             
-            setTimeout(() => particle.remove(), 1000);
+            // 다양한 색상 변형
+            const hueShift = (Math.random() - 0.5) * 40;
+            particle.style.backgroundColor = color;
+            particle.style.filter = `hue-rotate(${hueShift}deg)`;
+            
+            const size = 6 + Math.random() * 14;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = centerX + 'px';
+            particle.style.top = centerY + 'px';
+            
+            // 방사형으로 퍼지기
+            const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+            const distance = 80 + Math.random() * 150;
+            particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+            particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+            
+            // 지연 시간
+            particle.style.animationDelay = (Math.random() * 0.2) + 's';
+            
+            container.appendChild(particle);
+            setTimeout(() => particle.remove(), 1200);
         }
+        
+        // 스파크 효과 (작은 빛)
+        for (let i = 0; i < count / 2; i++) {
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+            spark.style.left = centerX + 'px';
+            spark.style.top = centerY + 'px';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 50 + Math.random() * 100;
+            spark.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+            spark.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+            spark.style.animationDelay = (Math.random() * 0.3) + 's';
+            
+            container.appendChild(spark);
+            setTimeout(() => spark.remove(), 800);
+        }
+        
+        // 링 이펙트
+        const ring = document.createElement('div');
+        ring.className = 'ring-effect';
+        ring.style.left = centerX + 'px';
+        ring.style.top = centerY + 'px';
+        ring.style.borderColor = color;
+        container.appendChild(ring);
+        setTimeout(() => ring.remove(), 600);
     }
     
     // 옵션 체크박스 토글
