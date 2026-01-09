@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -8,986 +9,820 @@
     <title>검 강화 시뮬레이터 - 멀티플레이</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: white;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-        
-        /* 시작 화면 */
-        #startScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
+
+```
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        min-height: 100vh;
+        color: white;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    /* 시작 화면 */
+    #startScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    #startScreen h1 {
+        font-size: 3rem;
+        color: #ffd700;
+        margin-bottom: 10px;
+        text-shadow: 0 0 30px rgba(255,215,0,0.5);
+    }
+    
+    #startScreen .subtitle {
+        color: #888;
+        margin-bottom: 40px;
+        font-size: 1.1rem;
+    }
+    
+    #startScreen input {
+        padding: 15px 30px;
+        font-size: 1.2rem;
+        border: 2px solid #ffd700;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        text-align: center;
+        width: 300px;
+        margin-bottom: 20px;
+    }
+    
+    #startScreen input:focus {
+        outline: none;
+        background: rgba(255,255,255,0.15);
+    }
+    
+    #startScreen button {
+        padding: 15px 50px;
+        font-size: 1.3rem;
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        border: none;
+        border-radius: 10px;
+        color: #1a1a2e;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    #startScreen button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 30px rgba(255,215,0,0.5);
+    }
+    
+    @media (max-width: 600px) {
         #startScreen h1 {
-            font-size: 3rem;
-            color: #ffd700;
-            margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(255,215,0,0.5);
+            font-size: 1.8rem;
         }
         
         #startScreen .subtitle {
-            color: #888;
-            margin-bottom: 40px;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
+            padding: 0 20px;
+            text-align: center;
         }
         
         #startScreen input {
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border: 2px solid #ffd700;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            text-align: center;
-            width: 300px;
-            margin-bottom: 20px;
-        }
-        
-        #startScreen input:focus {
-            outline: none;
-            background: rgba(255,255,255,0.15);
+            width: 80%;
+            max-width: 250px;
+            padding: 12px 20px;
+            font-size: 1rem;
         }
         
         #startScreen button {
-            padding: 15px 50px;
-            font-size: 1.3rem;
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            border: none;
-            border-radius: 10px;
-            color: #1a1a2e;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 12px 40px;
+            font-size: 1.1rem;
+        }
+    }
+    
+    /* 헤더 */
+    .header {
+        background: rgba(0,0,0,0.5);
+        padding: 8px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .header h1 {
+        font-size: 1.1rem;
+        color: #ffd700;
+    }
+    
+    .header-stats {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+    
+    .header-stat {
+        text-align: center;
+    }
+    
+    .header-stat .label {
+        font-size: 0.65rem;
+        color: #888;
+    }
+    
+    .header-stat .value {
+        font-size: 0.95rem;
+        font-weight: bold;
+        color: #ffd700;
+    }
+    
+    .online-count {
+        background: rgba(78,205,196,0.2);
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.75rem;
+    }
+    
+    .online-count span {
+        color: #4ecdc4;
+        font-weight: bold;
+    }
+    
+    /* 메인 레이아웃 */
+    .main-container {
+        display: flex;
+        height: calc(100vh - 45px);
+        flex-wrap: wrap;
+    }
+    
+    /* 왼쪽: 다른 플레이어들 */
+    .players-panel {
+        width: 240px;
+        min-width: 240px;
+        background: rgba(0,0,0,0.3);
+        border-right: 1px solid rgba(255,255,255,0.1);
+        overflow-y: auto;
+        padding: 10px;
+    }
+    
+    .players-title {
+        font-size: 0.85rem;
+        color: #ffd700;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .player-card {
+        background: rgba(255,255,255,0.05);
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 6px;
+        transition: all 0.3s;
+        border: 1px solid transparent;
+    }
+    
+    .player-card:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .player-card.upgrading {
+        border-color: #ffd700;
+        animation: pulse 0.5s infinite;
+    }
+    
+    .player-card.success {
+        border-color: #4ecdc4;
+        background: rgba(78,205,196,0.1);
+    }
+    
+    .player-card.fail {
+        border-color: #ffa502;
+        background: rgba(255,165,2,0.1);
+    }
+    
+    .player-card.destroy {
+        border-color: #ff6b6b;
+        background: rgba(255,107,107,0.1);
+    }
+    
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+        50% { box-shadow: 0 0 20px rgba(255,215,0,0.6); }
+    }
+    
+    .player-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+    
+    .player-name {
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+    
+    .player-level {
+        color: #ffd700;
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+    
+    .player-sword {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.7rem;
+        color: #aaa;
+    }
+    
+    .player-sword-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+    
+    .player-status {
+        font-size: 0.65rem;
+        margin-top: 3px;
+        min-height: 14px;
+    }
+    
+    /* 중앙: 내 강화 */
+    .upgrade-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        overflow-y: auto;
+    }
+    
+    .my-sword-display {
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    
+    .sword-visual {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 5px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .sword-visual.shaking {
+        animation: shake 0.1s infinite;
+    }
+    
+    .sword-visual.success {
+        animation: successPop 0.6s ease-out;
+    }
+    
+    .sword-visual.fail {
+        animation: failShake 0.4s ease-out;
+    }
+    
+    .sword-visual.destroy {
+        animation: explode 0.8s ease-out forwards;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0) rotate(0); }
+        25% { transform: translateX(-3px) rotate(-1deg); }
+        75% { transform: translateX(3px) rotate(1deg); }
+    }
+    
+    @keyframes successPop {
+        0% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
+        50% { transform: scale(1.3); filter: drop-shadow(0 0 50px rgba(78,205,196,1)); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
+    }
+    
+    @keyframes failShake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-15px); }
+        40% { transform: translateX(15px); }
+        60% { transform: translateX(-10px); }
+        80% { transform: translateX(10px); }
+    }
+    
+    @keyframes explode {
+        0% { transform: scale(1); opacity: 1; }
+        30% { transform: scale(1.5); filter: brightness(2) hue-rotate(30deg); }
+        100% { transform: scale(0); opacity: 0; }
+    }
+    
+    .sword-name {
+        font-size: 1rem;
+        color: #fff;
+        margin-bottom: 2px;
+    }
+    
+    .sword-level-display {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #ffd700;
+        text-shadow: 0 0 15px rgba(255,215,0,0.5);
+    }
+    
+    .sword-level-display.max-level {
+        background: linear-gradient(135deg, #ff6b6b, #ffd700, #4ecdc4, #a55eea);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: rainbow 2s linear infinite;
+        background-size: 400% 400%;
+    }
+    
+    @keyframes rainbow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .sword-atk {
+        color: #ff6b6b;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    
+    /* 강화 패널 */
+    .upgrade-panel {
+        background: rgba(0,0,0,0.4);
+        border-radius: 15px;
+        padding: 15px;
+        width: 100%;
+        max-width: 380px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .prob-section {
+        margin-bottom: 12px;
+    }
+    
+    .prob-title {
+        font-size: 0.75rem;
+        color: #888;
+        margin-bottom: 6px;
+    }
+    
+    .prob-bar {
+        height: 25px;
+        background: #222;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        margin-bottom: 6px;
+    }
+    
+    .prob-segment {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        transition: width 0.3s;
+    }
+    
+    .prob-segment.success { background: #4ecdc4; color: #1a1a2e; }
+    .prob-segment.fail { background: #ffa502; color: #1a1a2e; }
+    .prob-segment.down { background: #a55eea; color: white; }
+    .prob-segment.destroy { background: #ff6b6b; color: white; }
+    
+    .prob-legend {
+        display: flex;
+        justify-content: space-around;
+        font-size: 0.65rem;
+    }
+    
+    .prob-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    
+    .prob-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+    
+    .cost-section {
+        background: rgba(255,215,0,0.1);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        margin-bottom: 12px;
+    }
+    
+    .cost-label { color: #888; font-size: 0.75rem; }
+    .cost-value { color: #ffd700; font-size: 1.3rem; font-weight: bold; }
+    
+    .options-section {
+        margin-bottom: 12px;
+    }
+    
+    .option-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255,255,255,0.05);
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .option-row:hover { background: rgba(255,255,255,0.1); }
+    .option-row.disabled { opacity: 0.4; pointer-events: none; }
+    
+    .option-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .option-left input {
+        width: 16px;
+        height: 16px;
+        accent-color: #ffd700;
+    }
+    
+    .option-name { font-size: 0.8rem; }
+    .option-cost { color: #ffd700; font-size: 0.8rem; }
+    
+    .upgrade-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        color: #1a1a2e;
+        transition: all 0.3s;
+    }
+    
+    .upgrade-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px rgba(255,215,0,0.5);
+    }
+    
+    .upgrade-btn:disabled {
+        background: #444;
+        color: #888;
+        cursor: not-allowed;
+    }
+    
+    .new-sword-btn {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 0.85rem;
+        background: #4ecdc4;
+        border: none;
+        border-radius: 8px;
+        color: #1a1a2e;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .new-sword-btn:hover { background: #3dbdb5; }
+    
+    .sell-section {
+        margin-top: 10px;
+        background: linear-gradient(135deg, rgba(78,205,196,0.2), rgba(46,204,113,0.2));
+        border: 1px solid rgba(78,205,196,0.3);
+        border-radius: 10px;
+        padding: 10px;
+    }
+    
+    .sell-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .sell-label {
+        color: #aaa;
+        font-size: 0.75rem;
+    }
+    
+    .sell-price {
+        color: #4ecdc4;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+    
+    .sell-btn {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #4ecdc4, #2ecc71);
+        color: #1a1a2e;
+        transition: all 0.3s;
+    }
+    
+    .sell-btn:hover:not(:disabled) {
+        transform: scale(1.02);
+        box-shadow: 0 0 25px rgba(78,205,196,0.5);
+    }
+    
+    .sell-btn:disabled {
+        background: #444;
+        color: #888;
+        cursor: not-allowed;
+    }
+    
+    /* 모바일 반응형 */
+    @media (max-width: 900px) {
+        .main-container {
+            flex-direction: column;
+            height: auto;
+            min-height: calc(100vh - 45px);
+            width: 100%;
         }
         
-        #startScreen button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255,215,0,0.5);
+        .players-panel {
+            display: none;
         }
         
-        @media (max-width: 600px) {
-            #startScreen h1 {
-                font-size: 1.8rem;
-            }
-            
-            #startScreen .subtitle {
-                font-size: 0.85rem;
-                padding: 0 20px;
-                text-align: center;
-            }
-            
-            #startScreen input {
-                width: 80%;
-                max-width: 250px;
-                padding: 12px 20px;
-                font-size: 1rem;
-            }
-            
-            #startScreen button {
-                padding: 12px 40px;
-                font-size: 1.1rem;
-            }
+        .upgrade-area {
+            width: 100%;
         }
         
-        /* 헤더 */
-        .header {
-            background: rgba(0,0,0,0.5);
-            padding: 8px 20px;
+        .side-panel {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            border-left: none;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            flex-direction: column;
+            height: auto;
+        }
+        
+        .leaderboard {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 8px 10px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            width: 100% !important;
+        }
+        
+        #leaderboardList {
+            display: flex;
+            gap: 6px;
+            flex: 1;
+        }
+        
+        .leaderboard-item {
+            flex: 1;
+            text-align: center;
+            padding: 4px 8px;
+            min-width: 0;
+        }
+        
+        .chat-section {
+            width: 100% !important;
+        }
+        
+        .chat-messages {
+            width: 100% !important;
+        }
+        
+        .chat-input {
+            width: 100% !important;
+        }
+        
+        .upgrade-panel {
+            max-width: 100%;
+        }
+    }
+    
+    @media (max-width: 600px) {
+        .header {
+            padding: 8px 12px;
         }
         
         .header h1 {
-            font-size: 1.1rem;
-            color: #ffd700;
+            font-size: 0.95rem;
         }
         
         .header-stats {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        
-        .header-stat {
-            text-align: center;
+            gap: 12px;
         }
         
         .header-stat .label {
-            font-size: 0.65rem;
-            color: #888;
+            font-size: 0.6rem;
         }
         
         .header-stat .value {
-            font-size: 0.95rem;
-            font-weight: bold;
-            color: #ffd700;
+            font-size: 0.85rem;
         }
         
         .online-count {
-            background: rgba(78,205,196,0.2);
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-        }
-        
-        .online-count span {
-            color: #4ecdc4;
-            font-weight: bold;
-        }
-        
-        /* 메인 레이아웃 */
-        .main-container {
-            display: flex;
-            height: calc(100vh - 45px);
-            flex-wrap: wrap;
-        }
-        
-        /* 왼쪽: 다른 플레이어들 */
-        .players-panel {
-            width: 240px;
-            min-width: 240px;
-            background: rgba(0,0,0,0.3);
-            border-right: 1px solid rgba(255,255,255,0.1);
-            overflow-y: auto;
-            padding: 10px;
-        }
-        
-        .players-title {
-            font-size: 0.85rem;
-            color: #ffd700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .player-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 6px;
-            transition: all 0.3s;
-            border: 1px solid transparent;
-        }
-        
-        .player-card:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .player-card.upgrading {
-            border-color: #ffd700;
-            animation: pulse 0.5s infinite;
-        }
-        
-        .player-card.success {
-            border-color: #4ecdc4;
-            background: rgba(78,205,196,0.1);
-        }
-        
-        .player-card.fail {
-            border-color: #ffa502;
-            background: rgba(255,165,2,0.1);
-        }
-        
-        .player-card.destroy {
-            border-color: #ff6b6b;
-            background: rgba(255,107,107,0.1);
-        }
-        
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 5px rgba(255,215,0,0.3); }
-            50% { box-shadow: 0 0 20px rgba(255,215,0,0.6); }
-        }
-        
-        .player-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-        
-        .player-name {
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        
-        .player-level {
-            color: #ffd700;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        
-        .player-sword {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 4px 10px;
             font-size: 0.7rem;
-            color: #aaa;
         }
         
-        .player-sword-icon {
-            font-size: 1rem;
+        .main-container {
+            height: auto;
         }
         
-        .player-status {
-            font-size: 0.65rem;
-            margin-top: 3px;
-            min-height: 14px;
-        }
-        
-        /* 중앙: 내 강화 */
         .upgrade-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            overflow-y: auto;
+            padding: 10px 8px;
         }
         
         .my-sword-display {
-            text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .sword-visual {
-            font-size: 70px;
-            margin-bottom: 5px;
-            transition: all 0.3s;
-            filter: drop-shadow(0 0 15px rgba(255,215,0,0.3));
-        }
-        
-        .sword-visual.shaking {
-            animation: shake 0.1s infinite;
-        }
-        
-        .sword-visual.success {
-            animation: successPop 0.6s ease-out;
-        }
-        
-        .sword-visual.fail {
-            animation: failShake 0.4s ease-out;
-        }
-        
-        .sword-visual.destroy {
-            animation: explode 0.8s ease-out forwards;
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0) rotate(0); }
-            25% { transform: translateX(-3px) rotate(-1deg); }
-            75% { transform: translateX(3px) rotate(1deg); }
-        }
-        
-        @keyframes successPop {
-            0% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
-            50% { transform: scale(1.3); filter: drop-shadow(0 0 50px rgba(78,205,196,1)); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,215,0,0.3)); }
-        }
-        
-        @keyframes failShake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-15px); }
-            40% { transform: translateX(15px); }
-            60% { transform: translateX(-10px); }
-            80% { transform: translateX(10px); }
-        }
-        
-        @keyframes explode {
-            0% { transform: scale(1); opacity: 1; }
-            30% { transform: scale(1.5); filter: brightness(2) hue-rotate(30deg); }
-            100% { transform: scale(0); opacity: 0; }
+            font-size: 55px;
+            margin-bottom: 3px;
         }
         
         .sword-name {
-            font-size: 1rem;
-            color: #fff;
-            margin-bottom: 2px;
+            font-size: 0.9rem;
         }
         
         .sword-level-display {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #ffd700;
-            text-shadow: 0 0 15px rgba(255,215,0,0.5);
-        }
-        
-        .sword-level-display.max-level {
-            background: linear-gradient(135deg, #ff6b6b, #ffd700, #4ecdc4, #a55eea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: rainbow 2s linear infinite;
-            background-size: 400% 400%;
-        }
-        
-        @keyframes rainbow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            font-size: 1.6rem;
         }
         
         .sword-atk {
-            color: #ff6b6b;
-            font-size: 0.85rem;
-            margin-top: 5px;
+            font-size: 0.8rem;
+            margin-top: 3px;
         }
         
-        /* 강화 패널 */
         .upgrade-panel {
-            background: rgba(0,0,0,0.4);
-            border-radius: 15px;
-            padding: 15px;
-            width: 100%;
-            max-width: 380px;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 12px;
         }
         
         .prob-section {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         
         .prob-title {
-            font-size: 0.75rem;
-            color: #888;
-            margin-bottom: 6px;
+            font-size: 0.7rem;
+            margin-bottom: 5px;
         }
         
         .prob-bar {
-            height: 25px;
-            background: #222;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-            margin-bottom: 6px;
+            height: 22px;
+            border-radius: 6px;
+            margin-bottom: 5px;
         }
         
         .prob-segment {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-            transition: width 0.3s;
-        }
-        
-        .prob-segment.success { background: #4ecdc4; color: #1a1a2e; }
-        .prob-segment.fail { background: #ffa502; color: #1a1a2e; }
-        .prob-segment.down { background: #a55eea; color: white; }
-        .prob-segment.destroy { background: #ff6b6b; color: white; }
-        
-        .prob-legend {
-            display: flex;
-            justify-content: space-around;
             font-size: 0.65rem;
         }
         
-        .prob-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 3px;
+        .prob-legend {
+            font-size: 0.6rem;
         }
         
         .prob-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+            width: 7px;
+            height: 7px;
         }
         
         .cost-section {
-            background: rgba(255,215,0,0.1);
-            border-radius: 8px;
             padding: 10px;
-            text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
         }
         
-        .cost-label { color: #888; font-size: 0.75rem; }
-        .cost-value { color: #ffd700; font-size: 1.3rem; font-weight: bold; }
+        .cost-label {
+            font-size: 0.7rem;
+        }
+        
+        .cost-value {
+            font-size: 1.15rem;
+        }
         
         .options-section {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         
         .option-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255,255,255,0.05);
-            padding: 8px;
+            padding: 8px 10px;
+            margin-bottom: 5px;
             border-radius: 6px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
         }
         
-        .option-row:hover { background: rgba(255,255,255,0.1); }
-        .option-row.disabled { opacity: 0.4; pointer-events: none; }
-        
         .option-left {
-            display: flex;
-            align-items: center;
             gap: 8px;
         }
         
         .option-left input {
             width: 16px;
             height: 16px;
-            accent-color: #ffd700;
         }
         
-        .option-name { font-size: 0.8rem; }
-        .option-cost { color: #ffd700; font-size: 0.8rem; }
+        .option-name {
+            font-size: 0.75rem;
+        }
+        
+        .option-cost {
+            font-size: 0.75rem;
+        }
         
         .upgrade-btn {
-            width: 100%;
-            padding: 12px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
+            padding: 14px;
+            font-size: 1.05rem;
             border-radius: 10px;
-            cursor: pointer;
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            color: #1a1a2e;
-            transition: all 0.3s;
         }
-        
-        .upgrade-btn:hover:not(:disabled) {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(255,215,0,0.5);
-        }
-        
-        .upgrade-btn:disabled {
-            background: #444;
-            color: #888;
-            cursor: not-allowed;
-        }
-        
-        .new-sword-btn {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.85rem;
-            background: #4ecdc4;
-            border: none;
-            border-radius: 8px;
-            color: #1a1a2e;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
-        .new-sword-btn:hover { background: #3dbdb5; }
         
         .sell-section {
             margin-top: 10px;
-            background: linear-gradient(135deg, rgba(78,205,196,0.2), rgba(46,204,113,0.2));
-            border: 1px solid rgba(78,205,196,0.3);
-            border-radius: 10px;
             padding: 10px;
+            border-radius: 8px;
         }
         
         .sell-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 8px;
         }
         
         .sell-label {
-            color: #aaa;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
         
         .sell-price {
-            color: #4ecdc4;
-            font-size: 1.1rem;
-            font-weight: bold;
+            font-size: 1rem;
         }
         
         .sell-btn {
-            width: 100%;
             padding: 10px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            border: none;
+            font-size: 0.85rem;
             border-radius: 8px;
-            cursor: pointer;
-            background: linear-gradient(135deg, #4ecdc4, #2ecc71);
-            color: #1a1a2e;
-            transition: all 0.3s;
         }
         
-        .sell-btn:hover:not(:disabled) {
-            transform: scale(1.02);
-            box-shadow: 0 0 25px rgba(78,205,196,0.5);
+        .new-sword-btn {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            border-radius: 8px;
         }
         
-        .sell-btn:disabled {
-            background: #444;
-            color: #888;
-            cursor: not-allowed;
-        }
-        
-        /* 모바일 반응형 */
-        @media (max-width: 900px) {
-            .main-container {
-                flex-direction: column;
-                height: auto;
-                min-height: calc(100vh - 45px);
-                width: 100%;
-            }
-            
-            .players-panel {
-                display: none;
-            }
-            
-            .upgrade-area {
-                width: 100%;
-            }
-            
-            .side-panel {
-                width: 100% !important;
-                min-width: 100% !important;
-                max-width: 100% !important;
-                border-left: none;
-                border-top: 1px solid rgba(255,255,255,0.1);
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .leaderboard {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                overflow-x: auto;
-                padding: 8px 10px;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                width: 100% !important;
-            }
-            
-            #leaderboardList {
-                display: flex;
-                gap: 6px;
-                flex: 1;
-            }
-            
-            .leaderboard-item {
-                flex: 1;
-                text-align: center;
-                padding: 4px 8px;
-                min-width: 0;
-            }
-            
-            .chat-section {
-                width: 100% !important;
-            }
-            
-            .chat-messages {
-                width: 100% !important;
-            }
-            
-            .chat-input {
-                width: 100% !important;
-            }
-            
-            .upgrade-panel {
-                max-width: 100%;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .header {
-                padding: 8px 12px;
-            }
-            
-            .header h1 {
-                font-size: 0.95rem;
-            }
-            
-            .header-stats {
-                gap: 12px;
-            }
-            
-            .header-stat .label {
-                font-size: 0.6rem;
-            }
-            
-            .header-stat .value {
-                font-size: 0.85rem;
-            }
-            
-            .online-count {
-                padding: 4px 10px;
-                font-size: 0.7rem;
-            }
-            
-            .main-container {
-                height: auto;
-            }
-            
-            .upgrade-area {
-                padding: 10px 8px;
-            }
-            
-            .my-sword-display {
-                margin-bottom: 12px;
-            }
-            
-            .sword-visual {
-                font-size: 55px;
-                margin-bottom: 3px;
-            }
-            
-            .sword-name {
-                font-size: 0.9rem;
-            }
-            
-            .sword-level-display {
-                font-size: 1.6rem;
-            }
-            
-            .sword-atk {
-                font-size: 0.8rem;
-                margin-top: 3px;
-            }
-            
-            .upgrade-panel {
-                padding: 12px;
-                border-radius: 12px;
-            }
-            
-            .prob-section {
-                margin-bottom: 10px;
-            }
-            
-            .prob-title {
-                font-size: 0.7rem;
-                margin-bottom: 5px;
-            }
-            
-            .prob-bar {
-                height: 22px;
-                border-radius: 6px;
-                margin-bottom: 5px;
-            }
-            
-            .prob-segment {
-                font-size: 0.65rem;
-            }
-            
-            .prob-legend {
-                font-size: 0.6rem;
-            }
-            
-            .prob-dot {
-                width: 7px;
-                height: 7px;
-            }
-            
-            .cost-section {
-                padding: 10px;
-                margin-bottom: 10px;
-                border-radius: 8px;
-            }
-            
-            .cost-label {
-                font-size: 0.7rem;
-            }
-            
-            .cost-value {
-                font-size: 1.15rem;
-            }
-            
-            .options-section {
-                margin-bottom: 10px;
-            }
-            
-            .option-row {
-                padding: 8px 10px;
-                margin-bottom: 5px;
-                border-radius: 6px;
-            }
-            
-            .option-left {
-                gap: 8px;
-            }
-            
-            .option-left input {
-                width: 16px;
-                height: 16px;
-            }
-            
-            .option-name {
-                font-size: 0.75rem;
-            }
-            
-            .option-cost {
-                font-size: 0.75rem;
-            }
-            
-            .upgrade-btn {
-                padding: 14px;
-                font-size: 1.05rem;
-                border-radius: 10px;
-            }
-            
-            .sell-section {
-                margin-top: 10px;
-                padding: 10px;
-                border-radius: 8px;
-            }
-            
-            .sell-info {
-                margin-bottom: 8px;
-            }
-            
-            .sell-label {
-                font-size: 0.7rem;
-            }
-            
-            .sell-price {
-                font-size: 1rem;
-            }
-            
-            .sell-btn {
-                padding: 10px;
-                font-size: 0.85rem;
-                border-radius: 8px;
-            }
-            
-            .new-sword-btn {
-                padding: 10px;
-                margin-top: 10px;
-                font-size: 0.8rem;
-                border-radius: 8px;
-            }
-            
-            /* 모바일 사이드 패널 - 플로팅 없이 하단 배치 */
-            .side-panel {
-                flex-direction: column;
-                height: auto;
-                max-height: none;
-                width: 100% !important;
-                min-width: 100% !important;
-                max-width: 100% !important;
-                position: relative;
-                background: rgba(0,0,0,0.5);
-                border-top: 1px solid rgba(255,255,255,0.2);
-            }
-            
-            .leaderboard {
-                border-right: none;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-                padding: 8px 10px;
-                max-height: none;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                overflow-x: auto;
-                width: 100% !important;
-            }
-            
-            .leaderboard-title {
-                font-size: 0.75rem;
-                margin-bottom: 0;
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
-            
-            #leaderboardList {
-                display: flex;
-                gap: 6px;
-                flex: 1;
-            }
-            
-            .leaderboard-item {
-                padding: 4px 8px;
-                margin-bottom: 0;
-                border-radius: 4px;
-                white-space: nowrap;
-                flex: 1;
-                text-align: center;
-                min-width: 0;
-            }
-            
-            .leaderboard-rank {
-                width: auto;
-                font-size: 0.7rem;
-                margin-right: 4px;
-            }
-            
-            .leaderboard-info {
-                display: inline;
-            }
-            
-            .leaderboard-name {
-                font-size: 0.65rem;
-                display: inline;
-            }
-            
-            .leaderboard-level {
-                font-size: 0.7rem;
-                display: inline;
-                margin-left: 3px;
-            }
-            
-            .chat-section {
-                padding: 8px 10px;
-                height: auto;
-                width: 100% !important;
-            }
-            
-            .chat-title {
-                display: none;
-            }
-            
-            .chat-messages {
-                height: 85px;
-                max-height: 85px;
-                min-height: 85px;
-                padding: 6px;
-                margin-bottom: 6px;
-                border-radius: 6px;
-                width: 100% !important;
-            }
-            
-            .chat-msg {
-                font-size: 0.65rem;
-                margin-bottom: 3px;
-                line-height: 1.3;
-            }
-            
-            .chat-input {
-                gap: 6px;
-                width: 100% !important;
-                display: flex;
-            }
-            
-            .chat-input input {
-                padding: 10px;
-                font-size: 0.8rem;
-                border-radius: 6px;
-                flex: 1;
-                min-width: 0;
-            }
-            }
-            
-            .chat-input button {
-                padding: 10px 15px;
-                font-size: 0.8rem;
-                border-radius: 6px;
-            }
-            
-            /* 플로팅 제거했으므로 여백 불필요 */
-            .main-container {
-                padding-bottom: 0;
-            }
-            
-            .result-popup {
-                padding: 18px 30px;
-                font-size: 1.1rem;
-                border-radius: 12px;
-            }
-        }
-        
-        /* 아주 작은 화면 */
-        @media (max-width: 380px) {
-            .header h1 {
-                font-size: 0.85rem;
-            }
-            
-            .header-stats {
-                gap: 8px;
-            }
-            
-            .header-stat .value {
-                font-size: 0.75rem;
-            }
-            
-            .sword-visual {
-                font-size: 45px;
-            }
-            
-            .sword-level-display {
-                font-size: 1.4rem;
-            }
-            
-            .upgrade-btn {
-                padding: 12px;
-                font-size: 0.95rem;
-            }
-        }
-        
-        /* 터치 디바이스 최적화 */
-        @media (hover: none) {
-            .upgrade-btn:active:not(:disabled) {
-                transform: scale(0.98);
-            }
-            
-            .sell-btn:active:not(:disabled) {
-                transform: scale(0.98);
-            }
-            
-            .option-row:active {
-                background: rgba(255,255,255,0.15);
-            }
-            
-            .new-sword-btn:active {
-                transform: scale(0.98);
-            }
-        }
-        
-        /* 오른쪽: 순위 & 채팅 */
+        /* 모바일 사이드 패널 - 플로팅 없이 하단 배치 */
         .side-panel {
-            width: 280px;
-            min-width: 280px;
-            background: rgba(0,0,0,0.3);
-            border-left: 1px solid rgba(255,255,255,0.1);
-            display: flex;
             flex-direction: column;
-            overflow: hidden;
+            height: auto;
+            max-height: none;
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+            border-top: 1px solid rgba(255,255,255,0.2);
         }
         
         .leaderboard {
-            padding: 8px 10px;
+            border-right: none;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            flex-shrink: 0;
+            padding: 8px 10px;
+            max-height: none;
             display: flex;
             align-items: center;
             gap: 8px;
             overflow-x: auto;
+            width: 100% !important;
         }
         
         .leaderboard-title {
-            font-size: 0.8rem;
-            color: #ffd700;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            font-size: 0.75rem;
+            margin-bottom: 0;
             white-space: nowrap;
             flex-shrink: 0;
         }
@@ -999,1008 +834,1327 @@
         }
         
         .leaderboard-item {
-            display: flex;
-            align-items: center;
             padding: 4px 8px;
-            background: rgba(255,255,255,0.05);
+            margin-bottom: 0;
             border-radius: 4px;
             white-space: nowrap;
-            flex-shrink: 0;
-        }
-        
-        .leaderboard-item.me {
-            background: rgba(78,205,196,0.15);
-            border: 1px solid rgba(78,205,196,0.3);
+            flex: 1;
+            text-align: center;
+            min-width: 0;
         }
         
         .leaderboard-rank {
-            font-weight: bold;
-            color: #ffd700;
-            font-size: 0.75rem;
+            width: auto;
+            font-size: 0.7rem;
             margin-right: 4px;
         }
-        
-        .leaderboard-rank.gold { color: #ffd700; }
-        .leaderboard-rank.silver { color: #c0c0c0; }
-        .leaderboard-rank.bronze { color: #cd7f32; }
         
         .leaderboard-info {
             display: inline;
         }
         
-        .leaderboard-name { 
-            font-size: 0.7rem; 
+        .leaderboard-name {
+            font-size: 0.65rem;
             display: inline;
         }
-        .leaderboard-level { 
-            color: #ffd700; 
-            font-weight: bold; 
-            font-size: 0.75rem; 
+        
+        .leaderboard-level {
+            font-size: 0.7rem;
             display: inline;
             margin-left: 3px;
         }
         
         .chat-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
-            min-height: 0;
-            overflow: hidden;
+            padding: 8px 10px;
+            height: auto;
+            width: 100% !important;
         }
         
         .chat-title {
-            font-size: 0.85rem;
-            color: #ffd700;
-            margin-bottom: 8px;
-            flex-shrink: 0;
+            display: none;
         }
         
         .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            padding: 8px;
-            margin-bottom: 8px;
-            min-height: 100px;
-            max-height: 200px;
+            height: 85px;
+            max-height: 85px;
+            min-height: 85px;
+            padding: 6px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            width: 100% !important;
         }
         
         .chat-msg {
-            margin-bottom: 4px;
-            font-size: 0.7rem;
-            word-wrap: break-word;
-            line-height: 1.4;
-        }
-        
-        .chat-msg .name {
-            font-weight: bold;
-            margin-right: 4px;
-        }
-        
-        .chat-msg.system {
-            color: #ffd700;
-            font-style: italic;
-        }
-        
-        .chat-msg.upgrade-success { color: #4ecdc4; }
-        .chat-msg.upgrade-fail { color: #ffa502; }
-        .chat-msg.upgrade-destroy { color: #ff6b6b; }
-        
-        .chat-input {
-            display: flex;
-            gap: 5px;
-            flex-shrink: 0;
+            font-size: 0.65rem;
+            margin-bottom: 3px;
+            line-height: 1.3;
         }
         
         .chat-input {
+            gap: 6px;
+            width: 100% !important;
             display: flex;
-            gap: 5px;
         }
         
         .chat-input input {
-            flex: 1;
-            padding: 8px;
-            border: none;
+            padding: 10px;
+            font-size: 0.8rem;
             border-radius: 6px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 0.75rem;
+            flex: 1;
+            min-width: 0;
         }
-        
-        .chat-input input:focus { outline: none; background: rgba(255,255,255,0.15); }
+        }
         
         .chat-input button {
-            padding: 8px 12px;
-            background: #ffd700;
-            border: none;
+            padding: 10px 15px;
+            font-size: 0.8rem;
             border-radius: 6px;
-            color: #1a1a2e;
-            font-weight: bold;
-            cursor: pointer;
+        }
+        
+        /* 플로팅 제거했으므로 여백 불필요 */
+        .main-container {
+            padding-bottom: 0;
+        }
+        
+        .result-popup {
+            padding: 18px 30px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+        }
+    }
+    
+    /* 아주 작은 화면 */
+    @media (max-width: 380px) {
+        .header h1 {
+            font-size: 0.85rem;
+        }
+        
+        .header-stats {
+            gap: 8px;
+        }
+        
+        .header-stat .value {
             font-size: 0.75rem;
         }
         
-        /* 결과 팝업 */
-        .result-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px 35px;
-            border-radius: 15px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            z-index: 500;
-            text-align: center;
-            animation: popIn 0.3s ease-out;
+        .sword-visual {
+            font-size: 45px;
         }
         
-        .result-popup.success {
-            background: linear-gradient(135deg, #4ecdc4, #2ecc71);
-            box-shadow: 0 0 50px rgba(78,205,196,0.7);
+        .sword-level-display {
+            font-size: 1.4rem;
         }
         
-        .result-popup.fail {
-            background: linear-gradient(135deg, #ffa502, #e67e22);
-            box-shadow: 0 0 50px rgba(255,165,2,0.7);
+        .upgrade-btn {
+            padding: 12px;
+            font-size: 0.95rem;
+        }
+    }
+    
+    /* 터치 디바이스 최적화 */
+    @media (hover: none) {
+        .upgrade-btn:active:not(:disabled) {
+            transform: scale(0.98);
         }
         
-        .result-popup.down {
-            background: linear-gradient(135deg, #a55eea, #8e44ad);
-            box-shadow: 0 0 50px rgba(165,94,234,0.7);
+        .sell-btn:active:not(:disabled) {
+            transform: scale(0.98);
         }
         
-        .result-popup.destroy {
-            background: linear-gradient(135deg, #ff6b6b, #c0392b);
-            box-shadow: 0 0 50px rgba(255,107,107,0.7);
+        .option-row:active {
+            background: rgba(255,255,255,0.15);
         }
         
-        @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            70% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        .new-sword-btn:active {
+            transform: scale(0.98);
         }
-        
-        /* 파티클 */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 400;
-        }
-        
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            animation: particleFly 1s ease-out forwards;
-        }
-        
-        @keyframes particleFly {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-        }
-        
-        /* 등급 색상 */
-        .grade-S { color: #ff6b6b; }
-        .grade-A { color: #a55eea; }
-        .grade-B { color: #4ecdc4; }
-        .grade-C { color: #ffd700; }
-        .grade-D { color: #aaa; }
-    </style>
+    }
+    
+    /* 오른쪽: 순위 & 채팅 */
+    .side-panel {
+        width: 280px;
+        min-width: 280px;
+        background: rgba(0,0,0,0.3);
+        border-left: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .leaderboard {
+        padding: 8px 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        overflow-x: auto;
+    }
+    
+    .leaderboard-title {
+        font-size: 0.8rem;
+        color: #ffd700;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    #leaderboardList {
+        display: flex;
+        gap: 6px;
+        flex: 1;
+    }
+    
+    .leaderboard-item {
+        display: flex;
+        align-items: center;
+        padding: 4px 8px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 4px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .leaderboard-item.me {
+        background: rgba(78,205,196,0.15);
+        border: 1px solid rgba(78,205,196,0.3);
+    }
+    
+    .leaderboard-rank {
+        font-weight: bold;
+        color: #ffd700;
+        font-size: 0.75rem;
+        margin-right: 4px;
+    }
+    
+    .leaderboard-rank.gold { color: #ffd700; }
+    .leaderboard-rank.silver { color: #c0c0c0; }
+    .leaderboard-rank.bronze { color: #cd7f32; }
+    
+    .leaderboard-info {
+        display: inline;
+    }
+    
+    .leaderboard-name { 
+        font-size: 0.7rem; 
+        display: inline;
+    }
+    .leaderboard-level { 
+        color: #ffd700; 
+        font-weight: bold; 
+        font-size: 0.75rem; 
+        display: inline;
+        margin-left: 3px;
+    }
+    
+    .chat-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        min-height: 0;
+        overflow: hidden;
+    }
+    
+    .chat-title {
+        font-size: 0.85rem;
+        color: #ffd700;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        background: rgba(0,0,0,0.2);
+        border-radius: 8px;
+        padding: 8px;
+        margin-bottom: 8px;
+        min-height: 100px;
+        max-height: 200px;
+    }
+    
+    .chat-msg {
+        margin-bottom: 4px;
+        font-size: 0.7rem;
+        word-wrap: break-word;
+        line-height: 1.4;
+    }
+    
+    .chat-msg .name {
+        font-weight: bold;
+        margin-right: 4px;
+    }
+    
+    .chat-msg.system {
+        color: #ffd700;
+        font-style: italic;
+    }
+    
+    .chat-msg.upgrade-success { color: #4ecdc4; }
+    .chat-msg.upgrade-fail { color: #ffa502; }
+    .chat-msg.upgrade-destroy { color: #ff6b6b; }
+    
+    .chat-input {
+        display: flex;
+        gap: 5px;
+        flex-shrink: 0;
+    }
+    
+    .chat-input {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .chat-input input {
+        flex: 1;
+        padding: 8px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        font-size: 0.75rem;
+    }
+    
+    .chat-input input:focus { outline: none; background: rgba(255,255,255,0.15); }
+    
+    .chat-input button {
+        padding: 8px 12px;
+        background: #ffd700;
+        border: none;
+        border-radius: 6px;
+        color: #1a1a2e;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.75rem;
+    }
+    
+    /* 결과 팝업 */
+    .result-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px 35px;
+        border-radius: 15px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        z-index: 500;
+        text-align: center;
+        animation: popIn 0.3s ease-out;
+    }
+    
+    .result-popup.success {
+        background: linear-gradient(135deg, #4ecdc4, #2ecc71);
+        box-shadow: 0 0 50px rgba(78,205,196,0.7);
+    }
+    
+    .result-popup.fail {
+        background: linear-gradient(135deg, #ffa502, #e67e22);
+        box-shadow: 0 0 50px rgba(255,165,2,0.7);
+    }
+    
+    .result-popup.down {
+        background: linear-gradient(135deg, #a55eea, #8e44ad);
+        box-shadow: 0 0 50px rgba(165,94,234,0.7);
+    }
+    
+    .result-popup.destroy {
+        background: linear-gradient(135deg, #ff6b6b, #c0392b);
+        box-shadow: 0 0 50px rgba(255,107,107,0.7);
+    }
+    
+    @keyframes popIn {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        70% { transform: translate(-50%, -50%) scale(1.1); }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    /* 파티클 */
+    .particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 400;
+    }
+    
+    .particle {
+        position: absolute;
+        border-radius: 50%;
+        animation: particleFly 1s ease-out forwards;
+    }
+    
+    @keyframes particleFly {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+    
+    /* 등급 색상 */
+    .grade-S { color: #ff6b6b; }
+    .grade-A { color: #a55eea; }
+    .grade-B { color: #4ecdc4; }
+    .grade-C { color: #ffd700; }
+    .grade-D { color: #aaa; }
+</style>
+```
+
 </head>
 <body>
     <!-- 시작 화면 -->
     <div id="startScreen">
         <h1>⚔️ 검 강화 시뮬레이터</h1>
-        <p class="subtitle">검을 강화하고 판매해서 부자가 되자! </p>
+        <p class="subtitle">검을 강화하고 판매해서 부자가 되자! 💰</p>
         <input type="text" id="nameInput" placeholder="닉네임 입력" maxlength="10">
         <button onclick="startGame()">게임 시작</button>
     </div>
-    
-    <!-- 메인 게임 -->
-    <div id="gameScreen" style="display: none;">
-        <div class="header">
-            <h1>⚔️ 검 강화 시뮬레이터</h1>
-            <div class="header-stats">
-                <div class="header-stat">
-                    <div class="label">보유 골드</div>
-                    <div class="value" id="headerGold">50,000</div>
-                </div>
-                <div class="header-stat">
-                    <div class="label">총 판매 수익</div>
-                    <div class="value" id="headerSold" style="color: #4ecdc4;">0</div>
-                </div>
-                <div class="header-stat">
-                    <div class="label">최고 기록</div>
-                    <div class="value" id="headerMax">+0</div>
-                </div>
-                <div class="online-count">
-                    접속자 <span id="onlineCount">1</span>명
-                </div>
+
+```
+<!-- 메인 게임 -->
+<div id="gameScreen" style="display: none;">
+    <div class="header">
+        <h1>⚔️ 검 강화 시뮬레이터</h1>
+        <div class="header-stats">
+            <div class="header-stat">
+                <div class="label">보유 골드</div>
+                <div class="value" id="headerGold">50,000</div>
             </div>
-        </div>
-        
-        <div class="main-container">
-            <!-- 왼쪽: 다른 플레이어들 -->
-            <div class="players-panel">
-                <div class="players-title"> 접속 중인 플레이어</div>
-                <div id="playersList"></div>
+            <div class="header-stat">
+                <div class="label">총 판매 수익</div>
+                <div class="value" id="headerSold" style="color: #4ecdc4;">0</div>
             </div>
-            
-            <!-- 중앙: 내 강화 -->
-            <div class="upgrade-area">
-                <div class="my-sword-display">
-                    <div class="sword-visual" id="mySword">️</div>
-                    <div class="sword-name" id="mySwordName">초보자의 검</div>
-                    <div class="sword-level-display" id="mySwordLevel">+0</div>
-                    <div class="sword-atk">공격력: <span id="mySwordAtk">100</span></div>
-                </div>
-                
-                <div class="upgrade-panel">
-                    <div class="prob-section">
-                        <div class="prob-title">강화 확률</div>
-                        <div class="prob-bar" id="probBar">
-                            <div class="prob-segment success" style="width: 95%">95%</div>
-                            <div class="prob-segment fail" style="width: 5%">5%</div>
-                        </div>
-                        <div class="prob-legend">
-                            <div class="prob-legend-item">
-                                <div class="prob-dot" style="background: #4ecdc4"></div>
-                                <span>성공</span>
-                            </div>
-                            <div class="prob-legend-item">
-                                <div class="prob-dot" style="background: #ffa502"></div>
-                                <span>실패</span>
-                            </div>
-                            <div class="prob-legend-item">
-                                <div class="prob-dot" style="background: #a55eea"></div>
-                                <span>하락</span>
-                            </div>
-                            <div class="prob-legend-item">
-                                <div class="prob-dot" style="background: #ff6b6b"></div>
-                                <span>파괴</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="cost-section">
-                        <div class="cost-label">강화 비용</div>
-                        <div class="cost-value" id="upgradeCost"> 1,000</div>
-                    </div>
-                    
-                    <div class="options-section">
-                        <div class="option-row" id="safeRow" onclick="toggleCheck('safeCheck')">
-                            <div class="option-left">
-                                <input type="checkbox" id="safeCheck" onclick="event.stopPropagation()">
-                                <span class="option-name">️ 파괴 방지</span>
-                            </div>
-                            <span class="option-cost" id="safeCost">+500</span>
-                        </div>
-                        <div class="option-row" id="catchRow" onclick="toggleCheck('catchCheck')">
-                            <div class="option-left">
-                                <input type="checkbox" id="catchCheck" onclick="event.stopPropagation()">
-                                <span class="option-name"> 하락 방지</span>
-                            </div>
-                            <span class="option-cost" id="catchCost">+300</span>
-                        </div>
-                    </div>
-                    
-                    <button class="upgrade-btn" id="upgradeBtn" onclick="upgrade()">
-                        ⚒️ 강화하기
-                    </button>
-                    
-                    <div class="sell-section">
-                        <div class="sell-info">
-                            <span class="sell-label">판매 가격</span>
-                            <span class="sell-price" id="sellPrice"> 0</span>
-                        </div>
-                        <button class="sell-btn" id="sellBtn" onclick="sellSword()">
-                             검 판매하기
-                        </button>
-                    </div>
-                    
-                    <button class="new-sword-btn" onclick="newSword()">
-                        ️ 새 검 구매 (1,000G)
-                    </button>
-                </div>
+            <div class="header-stat">
+                <div class="label">최고 기록</div>
+                <div class="value" id="headerMax">+0</div>
             </div>
-            
-            <!-- 오른쪽: 순위 & 채팅 -->
-            <div class="side-panel">
-                <div class="leaderboard">
-                    <div class="leaderboard-title"> 실시간 순위</div>
-                    <div id="leaderboardList"></div>
-                </div>
-                
-                <div class="chat-section">
-                    <div class="chat-title"> 채팅</div>
-                    <div class="chat-messages" id="chatMessages"></div>
-                    <div class="chat-input">
-                        <input type="text" id="chatInput" placeholder="메시지 입력..." maxlength="100">
-                        <button onclick="sendChat()">전송</button>
-                    </div>
-                </div>
+            <div class="online-count">
+                접속자 <span id="onlineCount">1</span>명
             </div>
         </div>
     </div>
     
-    <div class="particles" id="particles"></div>
+    <div class="main-container">
+        <!-- 왼쪽: 다른 플레이어들 -->
+        <div class="players-panel">
+            <div class="players-title">👥 접속 중인 플레이어</div>
+            <div id="playersList"></div>
+        </div>
+        
+        <!-- 중앙: 내 강화 -->
+        <div class="upgrade-area">
+            <div class="my-sword-display">
+                <div class="sword-visual" id="mySword">🗡️</div>
+                <div class="sword-name" id="mySwordName">초보자의 검</div>
+                <div class="sword-level-display" id="mySwordLevel">+0</div>
+                <div class="sword-atk">공격력: <span id="mySwordAtk">100</span></div>
+            </div>
+            
+            <div class="upgrade-panel">
+                <div class="prob-section">
+                    <div class="prob-title">강화 확률</div>
+                    <div class="prob-bar" id="probBar">
+                        <div class="prob-segment success" style="width: 95%">95%</div>
+                        <div class="prob-segment fail" style="width: 5%">5%</div>
+                    </div>
+                    <div class="prob-legend">
+                        <div class="prob-legend-item">
+                            <div class="prob-dot" style="background: #4ecdc4"></div>
+                            <span>성공</span>
+                        </div>
+                        <div class="prob-legend-item">
+                            <div class="prob-dot" style="background: #ffa502"></div>
+                            <span>실패</span>
+                        </div>
+                        <div class="prob-legend-item">
+                            <div class="prob-dot" style="background: #a55eea"></div>
+                            <span>하락</span>
+                        </div>
+                        <div class="prob-legend-item">
+                            <div class="prob-dot" style="background: #ff6b6b"></div>
+                            <span>파괴</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cost-section">
+                    <div class="cost-label">강화 비용</div>
+                    <div class="cost-value" id="upgradeCost">💰 1,000</div>
+                </div>
+                
+                <div class="options-section">
+                    <div class="option-row" id="safeRow" onclick="toggleCheck('safeCheck')">
+                        <div class="option-left">
+                            <input type="checkbox" id="safeCheck" onclick="event.stopPropagation()">
+                            <span class="option-name">🛡️ 파괴 방지</span>
+                        </div>
+                        <span class="option-cost" id="safeCost">+500</span>
+                    </div>
+                    <div class="option-row" id="catchRow" onclick="toggleCheck('catchCheck')">
+                        <div class="option-left">
+                            <input type="checkbox" id="catchCheck" onclick="event.stopPropagation()">
+                            <span class="option-name">🪤 하락 방지</span>
+                        </div>
+                        <span class="option-cost" id="catchCost">+300</span>
+                    </div>
+                </div>
+                
+                <button class="upgrade-btn" id="upgradeBtn" onclick="upgrade()">
+                    ⚒️ 강화하기
+                </button>
+                
+                <div class="sell-section">
+                    <div class="sell-info">
+                        <span class="sell-label">판매 가격</span>
+                        <span class="sell-price" id="sellPrice">💰 0</span>
+                    </div>
+                    <button class="sell-btn" id="sellBtn" onclick="sellSword()">
+                        💎 검 판매하기
+                    </button>
+                </div>
+                
+                <button class="new-sword-btn" onclick="newSword()">
+                    🗡️ 새 검 구매 (1,000G)
+                </button>
+            </div>
+        </div>
+        
+        <!-- 오른쪽: 순위 & 채팅 -->
+        <div class="side-panel">
+            <div class="leaderboard">
+                <div class="leaderboard-title">🏆 실시간 순위</div>
+                <div id="leaderboardList"></div>
+            </div>
+            
+            <div class="chat-section">
+                <div class="chat-title">💬 채팅</div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="메시지 입력..." maxlength="100">
+                    <button onclick="sendChat()">전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <script>
-        // 게임 상태
-        let myId = null;
-        let myName = '';
-        let players = {};
-        let myState = {
-            level: 0,
-            gold: 50000,  // 시작 골드 늘림
+<div class="particles" id="particles"></div>
+
+<script>
+    // 게임 상태
+    let myId = null;
+    let myName = '';
+    let players = {};
+    let myState = {
+        level: 0,
+        gold: 50000,  // 시작 골드 늘림
+        maxLevel: 0,
+        destroyed: false,
+        upgrading: false,
+        totalSold: 0,
+        swordsSold: 0
+    };
+    
+    // 확률 테이블 (쉬운 버전)
+    const probTable = [
+        { success: 100, fail: 0, down: 0, destroy: 0 },   // +0 → +1 (100%)
+        { success: 100, fail: 0, down: 0, destroy: 0 },   // +1 → +2 (100%)
+        { success: 95, fail: 5, down: 0, destroy: 0 },    // +2 → +3
+        { success: 95, fail: 5, down: 0, destroy: 0 },    // +3 → +4
+        { success: 90, fail: 10, down: 0, destroy: 0 },   // +4 → +5
+        { success: 85, fail: 15, down: 0, destroy: 0 },   // +5 → +6
+        { success: 80, fail: 20, down: 0, destroy: 0 },   // +6 → +7
+        { success: 75, fail: 25, down: 0, destroy: 0 },   // +7 → +8
+        { success: 70, fail: 25, down: 5, destroy: 0 },   // +8 → +9
+        { success: 65, fail: 25, down: 10, destroy: 0 },  // +9 → +10
+        { success: 60, fail: 25, down: 13, destroy: 2 },  // +10 → +11
+        { success: 55, fail: 25, down: 15, destroy: 5 },  // +11 → +12
+        { success: 50, fail: 25, down: 17, destroy: 8 },  // +12 → +13
+        { success: 45, fail: 25, down: 18, destroy: 12 }, // +13 → +14
+        { success: 40, fail: 25, down: 20, destroy: 15 }, // +14 → +15
+        { success: 35, fail: 25, down: 22, destroy: 18 }, // +15 → +16
+        { success: 30, fail: 25, down: 23, destroy: 22 }, // +16 → +17
+        { success: 25, fail: 25, down: 25, destroy: 25 }, // +17 → +18
+        { success: 22, fail: 23, down: 25, destroy: 30 }, // +18 → +19
+        { success: 20, fail: 22, down: 25, destroy: 33 }, // +19 → +20
+        { success: 18, fail: 22, down: 25, destroy: 35 }, // +20 → +21
+        { success: 15, fail: 20, down: 25, destroy: 40 }, // +21 → +22
+        { success: 12, fail: 18, down: 25, destroy: 45 }, // +22 → +23
+        { success: 10, fail: 15, down: 25, destroy: 50 }, // +23 → +24
+        { success: 8, fail: 12, down: 25, destroy: 55 },  // +24 → +25
+    ];
+    
+    const swordNames = {
+        0: "초보자의 검",
+        5: "수련자의 검",
+        10: "숙련자의 검",
+        15: "달인의 검",
+        20: "전설의 검",
+        25: "신화의 검"
+    };
+    
+    // 레벨별 검 이모지/이미지
+    // 레벨별 SVG 검 이미지
+    function getSwordSVG(level, size = 70) {
+        const uniqueId = Math.random().toString(36).substr(2, 9);
+        
+        // 레벨 25: 신화의 검 (황금빛 + 불꽃 오라)
+        if (level >= 25) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="blade25_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#FFF8DC"/>
+                        <stop offset="50%" style="stop-color:#FFD700"/>
+                        <stop offset="100%" style="stop-color:#FFF8DC"/>
+                    </linearGradient>
+                    <filter id="glow25_${uniqueId}" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <radialGradient id="aura25_${uniqueId}">
+                        <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.8"/>
+                        <stop offset="100%" style="stop-color:#FF4500;stop-opacity:0"/>
+                    </radialGradient>
+                </defs>
+                <!-- 오라 -->
+                <ellipse cx="50" cy="45" rx="25" ry="35" fill="url(#aura25_${uniqueId})">
+                    <animate attributeName="rx" values="22;28;22" dur="1.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.6;0.9;0.6" dur="1.5s" repeatCount="indefinite"/>
+                </ellipse>
+                <g filter="url(#glow25_${uniqueId})">
+                    <!-- 블레이드 -->
+                    <polygon points="50,2 58,45 50,52 42,45" fill="url(#blade25_${uniqueId})" stroke="#FFD700" stroke-width="1.5"/>
+                    <line x1="50" y1="8" x2="50" y2="42" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+                    <!-- 가드 (날개형) -->
+                    <path d="M25,47 Q38,42 50,50 Q62,42 75,47 Q62,56 50,52 Q38,56 25,47" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+                    <!-- 손잡이 -->
+                    <rect x="46" y="52" width="8" height="22" rx="2" fill="#8B4513"/>
+                    <line x1="46" y1="58" x2="54" y2="58" stroke="#FFD700" stroke-width="2"/>
+                    <line x1="46" y1="65" x2="54" y2="65" stroke="#FFD700" stroke-width="2"/>
+                    <!-- 폼멜 (왕관) -->
+                    <path d="M42,74 L45,82 L47,77 L50,85 L53,77 L55,82 L58,74 Z" fill="#FFD700" stroke="#B8860B" stroke-width="0.5"/>
+                    <!-- 중앙 보석 -->
+                    <circle cx="50" cy="50" r="5" fill="#FF0000" stroke="#FFD700" stroke-width="1">
+                        <animate attributeName="r" values="4;6;4" dur="1s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="50" cy="50" r="2" fill="#FF6B6B"/>
+                </g>
+                <!-- 파티클 -->
+                <circle cx="35" cy="25" r="2" fill="#FFD700"><animate attributeName="cy" values="25;10;25" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite"/></circle>
+                <circle cx="65" cy="30" r="1.5" fill="#FFA500"><animate attributeName="cy" values="30;15;30" dur="1.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="1.7s" repeatCount="indefinite"/></circle>
+                <circle cx="50" cy="15" r="1.5" fill="#FFFF00"><animate attributeName="cy" values="15;0;15" dur="2.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0;1" dur="2.3s" repeatCount="indefinite"/></circle>
+            </svg>`;
+        }
+        
+        // 레벨 20+: 전설의 검 (핑크빛 마법검)
+        if (level >= 20) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="blade20_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#FFB6C1"/>
+                        <stop offset="50%" style="stop-color:#FF1493"/>
+                        <stop offset="100%" style="stop-color:#FFB6C1"/>
+                    </linearGradient>
+                    <filter id="glow20_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <ellipse cx="50" cy="40" rx="20" ry="30" fill="rgba(255,20,147,0.2)">
+                    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+                </ellipse>
+                <g filter="url(#glow20_${uniqueId})">
+                    <polygon points="50,5 56,48 50,54 44,48" fill="url(#blade20_${uniqueId})" stroke="#FF1493" stroke-width="1"/>
+                    <line x1="50" y1="10" x2="50" y2="44" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+                    <ellipse cx="50" cy="54" rx="14" ry="5" fill="#C0C0C0" stroke="#A0A0A0" stroke-width="1"/>
+                    <rect x="46" y="56" width="8" height="18" rx="1" fill="#4A3728"/>
+                    <circle cx="50" cy="78" r="4" fill="#C0C0C0"/>
+                    <circle cx="50" cy="54" r="4" fill="#9333EA" stroke="#FFD700" stroke-width="1">
+                        <animate attributeName="r" values="3;5;3" dur="1.5s" repeatCount="indefinite"/>
+                    </circle>
+                </g>
+            </svg>`;
+        }
+        
+        // 레벨 15+: 달인의 검 (보라빛)
+        if (level >= 15) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="blade15_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#D8B4FE"/>
+                        <stop offset="50%" style="stop-color:#8B5CF6"/>
+                        <stop offset="100%" style="stop-color:#D8B4FE"/>
+                    </linearGradient>
+                    <filter id="glow15_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="2" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <g filter="url(#glow15_${uniqueId})">
+                    <polygon points="50,8 55,48 50,54 45,48" fill="url(#blade15_${uniqueId})" stroke="#8B5CF6" stroke-width="1"/>
+                    <line x1="50" y1="12" x2="50" y2="44" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <rect x="36" y="52" width="28" height="5" rx="2" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+                    <rect x="46" y="57" width="8" height="16" rx="1" fill="#4A3728"/>
+                    <ellipse cx="50" cy="76" rx="5" ry="3" fill="#FFD700"/>
+                    <circle cx="50" cy="54" r="3" fill="#3B82F6">
+                        <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+                    </circle>
+                </g>
+            </svg>`;
+        }
+        
+        // 레벨 10+: 숙련자의 검 (파란빛)
+        if (level >= 10) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="blade10_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#93C5FD"/>
+                        <stop offset="50%" style="stop-color:#3B82F6"/>
+                        <stop offset="100%" style="stop-color:#93C5FD"/>
+                    </linearGradient>
+                    <filter id="glow10_${uniqueId}" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <g filter="url(#glow10_${uniqueId})">
+                    <polygon points="50,10 54,48 50,54 46,48" fill="url(#blade10_${uniqueId})" stroke="#3B82F6" stroke-width="1"/>
+                    <line x1="50" y1="14" x2="50" y2="44" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+                    <rect x="38" y="52" width="24" height="4" rx="1" fill="#C0C0C0" stroke="#A0A0A0" stroke-width="1"/>
+                    <rect x="46" y="56" width="8" height="15" rx="1" fill="#4A3728"/>
+                    <circle cx="50" cy="74" r="3" fill="#C0C0C0"/>
+                    <circle cx="50" cy="54" r="2.5" fill="#10B981"/>
+                </g>
+            </svg>`;
+        }
+        
+        // 레벨 5+: 수련자의 검 (초록빛)
+        if (level >= 5) {
+            return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+                <defs>
+                    <linearGradient id="blade5_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#6EE7B7"/>
+                        <stop offset="50%" style="stop-color:#10B981"/>
+                        <stop offset="100%" style="stop-color:#6EE7B7"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="50,12 53,48 50,54 47,48" fill="url(#blade5_${uniqueId})" stroke="#10B981" stroke-width="1"/>
+                <line x1="50" y1="16" x2="50" y2="44" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <rect x="40" y="52" width="20" height="4" rx="1" fill="#8B7355"/>
+                <rect x="46" y="56" width="8" height="14" rx="1" fill="#4A3728"/>
+                <circle cx="50" cy="73" r="3" fill="#8B7355"/>
+                <circle cx="50" cy="54" r="2" fill="#F59E0B"/>
+            </svg>`;
+        }
+        
+        // 기본 검 (회색)
+        return `<svg width="${size}" height="${size}" viewBox="0 0 100 100">
+            <defs>
+                <linearGradient id="blade0_${uniqueId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#E5E7EB"/>
+                    <stop offset="50%" style="stop-color:#9CA3AF"/>
+                    <stop offset="100%" style="stop-color:#E5E7EB"/>
+                </linearGradient>
+            </defs>
+            <polygon points="50,15 52,48 50,54 48,48" fill="url(#blade0_${uniqueId})" stroke="#9CA3AF" stroke-width="1"/>
+            <rect x="42" y="52" width="16" height="4" rx="1" fill="#8B7355"/>
+            <rect x="46" y="56" width="8" height="13" rx="1" fill="#4A3728"/>
+            <circle cx="50" cy="72" r="3" fill="#8B7355"/>
+        </svg>`;
+    }
+    
+    function getSwordIcon(level) {
+        return getSwordSVG(level, 70);
+    }
+    
+    function getSwordIconSmall(level) {
+        return getSwordSVG(level, 24);
+    }
+    
+    function getSwordStyle(level) {
+        return ""; // SVG에서 직접 처리
+    }
+    
+    const aiNames = ['검술사', '대장장이', '모험가', '기사단장', '용사', '마검사', '성기사', '암살자', '검귀', '도검장인', '초보자', '검호', '무림고수', '도적', '전사', '광전사', '듀얼리스트', '검성', '소드마스터', '블레이드'];
+    
+    // AI 플레이어 생성 (처음에는 적게, 점점 늘어남)
+    function initAIPlayers() {
+        const count = 3 + Math.floor(Math.random() * 3); // 처음 3~5명
+        for (let i = 0; i < count; i++) {
+            addAIPlayer();
+        }
+    }
+    
+    function addAIPlayer() {
+        const id = 'ai_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        players[id] = {
+            name: aiNames[Math.floor(Math.random() * aiNames.length)] + Math.floor(Math.random() * 1000),
+            level: Math.floor(Math.random() * 12),
             maxLevel: 0,
             destroyed: false,
-            upgrading: false,
-            totalSold: 0,
-            swordsSold: 0
+            status: '',
+            statusType: '',
+            isAI: true,
+            lastAction: Date.now() - Math.random() * 3000
         };
-        
-        // 확률 테이블 (쉬운 버전)
-        const probTable = [
-            { success: 100, fail: 0, down: 0, destroy: 0 },   // +0 → +1 (100%)
-            { success: 100, fail: 0, down: 0, destroy: 0 },   // +1 → +2 (100%)
-            { success: 95, fail: 5, down: 0, destroy: 0 },    // +2 → +3
-            { success: 95, fail: 5, down: 0, destroy: 0 },    // +3 → +4
-            { success: 90, fail: 10, down: 0, destroy: 0 },   // +4 → +5
-            { success: 85, fail: 15, down: 0, destroy: 0 },   // +5 → +6
-            { success: 80, fail: 20, down: 0, destroy: 0 },   // +6 → +7
-            { success: 75, fail: 25, down: 0, destroy: 0 },   // +7 → +8
-            { success: 70, fail: 25, down: 5, destroy: 0 },   // +8 → +9
-            { success: 65, fail: 25, down: 10, destroy: 0 },  // +9 → +10
-            { success: 60, fail: 25, down: 13, destroy: 2 },  // +10 → +11
-            { success: 55, fail: 25, down: 15, destroy: 5 },  // +11 → +12
-            { success: 50, fail: 25, down: 17, destroy: 8 },  // +12 → +13
-            { success: 45, fail: 25, down: 18, destroy: 12 }, // +13 → +14
-            { success: 40, fail: 25, down: 20, destroy: 15 }, // +14 → +15
-            { success: 35, fail: 25, down: 22, destroy: 18 }, // +15 → +16
-            { success: 30, fail: 25, down: 23, destroy: 22 }, // +16 → +17
-            { success: 25, fail: 25, down: 25, destroy: 25 }, // +17 → +18
-            { success: 22, fail: 23, down: 25, destroy: 30 }, // +18 → +19
-            { success: 20, fail: 22, down: 25, destroy: 33 }, // +19 → +20
-            { success: 18, fail: 22, down: 25, destroy: 35 }, // +20 → +21
-            { success: 15, fail: 20, down: 25, destroy: 40 }, // +21 → +22
-            { success: 12, fail: 18, down: 25, destroy: 45 }, // +22 → +23
-            { success: 10, fail: 15, down: 25, destroy: 50 }, // +23 → +24
-            { success: 8, fail: 12, down: 25, destroy: 55 },  // +24 → +25
-        ];
-        
-        const swordNames = {
-            0: "초보자의 검",
-            5: "수련자의 검",
-            10: "숙련자의 검",
-            15: "달인의 검",
-            20: "전설의 검",
-            25: "신화의 검"
-        };
-        
-        // 레벨별 검 이모지/이미지
-        const swordIcons = {
-            0: "️",      // 기본 검
-            3: "⚔️",      // 쌍검
-            6: "",      // 단검 → 날카로운 검
-            9: "️",      // 다시 검
-            12: "⚔️",     // 쌍검
-            15: "",     // 삼지창 (달인)
-            18: "",     // 활 → 원거리 무기급
-            20: "⚜️",     // 문장 (전설)
-            23: "",     // 왕관
-            25: ""      // 별 (신화)
-        };
-        
-        // 레벨별 검 색상 효과
-        const swordColors = {
-            0: "",
-            5: "filter: hue-rotate(30deg);",
-            10: "filter: hue-rotate(60deg) saturate(1.5);",
-            15: "filter: hue-rotate(180deg) saturate(2);",
-            20: "filter: hue-rotate(270deg) saturate(2) brightness(1.2);",
-            25: "filter: hue-rotate(0deg) saturate(3) brightness(1.5);"
-        };
-        
-        function getSwordIcon(level) {
-            let icon = "️";
-            for (const [lv, ic] of Object.entries(swordIcons)) {
-                if (level >= parseInt(lv)) icon = ic;
-            }
-            return icon;
+        players[id].maxLevel = players[id].level;
+        return players[id].name;
+    }
+    
+    // 가끔 새 플레이어 입장
+    function randomPlayerJoin() {
+        if (Object.keys(players).length < 30 && Math.random() < 0.3) {
+            const name = addAIPlayer();
+            addChat('system', `${name}님이 입장했습니다.`);
+            updateUI();
         }
         
-        function getSwordStyle(level) {
-            let style = "";
-            for (const [lv, st] of Object.entries(swordColors)) {
-                if (level >= parseInt(lv)) style = st;
-            }
-            return style;
+        // 가끔 퇴장
+        const aiList = Object.entries(players).filter(([id, p]) => p.isAI);
+        if (aiList.length > 5 && Math.random() < 0.1) {
+            const [id, player] = aiList[Math.floor(Math.random() * aiList.length)];
+            addChat('system', `${player.name}님이 퇴장했습니다.`);
+            delete players[id];
+            updateUI();
         }
-        
-        const aiNames = ['검술사', '대장장이', '모험가', '기사단장', '용사', '마검사', '성기사', '암살자', '검귀', '도검장인', '초보자', '검호', '무림고수', '도적', '전사', '광전사', '듀얼리스트', '검성', '소드마스터', '블레이드'];
-        
-        // AI 플레이어 생성 (처음에는 적게, 점점 늘어남)
-        function initAIPlayers() {
-            const count = 3 + Math.floor(Math.random() * 3); // 처음 3~5명
-            for (let i = 0; i < count; i++) {
-                addAIPlayer();
-            }
-        }
-        
-        function addAIPlayer() {
-            const id = 'ai_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-            players[id] = {
-                name: aiNames[Math.floor(Math.random() * aiNames.length)] + Math.floor(Math.random() * 1000),
-                level: Math.floor(Math.random() * 12),
-                maxLevel: 0,
-                destroyed: false,
-                status: '',
-                statusType: '',
-                isAI: true,
-                lastAction: Date.now() - Math.random() * 3000
-            };
-            players[id].maxLevel = players[id].level;
-            return players[id].name;
-        }
-        
-        // 가끔 새 플레이어 입장
-        function randomPlayerJoin() {
-            if (Object.keys(players).length < 30 && Math.random() < 0.3) {
-                const name = addAIPlayer();
-                addChat('system', `${name}님이 입장했습니다.`);
-                updateUI();
-            }
+    }
+    
+    // AI 행동
+    function aiAction() {
+        Object.entries(players).forEach(([id, player]) => {
+            if (!player.isAI) return;
+            if (Date.now() - player.lastAction < 2000 + Math.random() * 5000) return;
             
-            // 가끔 퇴장
-            const aiList = Object.entries(players).filter(([id, p]) => p.isAI);
-            if (aiList.length > 5 && Math.random() < 0.1) {
-                const [id, player] = aiList[Math.floor(Math.random() * aiList.length)];
-                addChat('system', `${player.name}님이 퇴장했습니다.`);
-                delete players[id];
-                updateUI();
-            }
-        }
-        
-        // AI 행동
-        function aiAction() {
-            Object.entries(players).forEach(([id, player]) => {
-                if (!player.isAI) return;
-                if (Date.now() - player.lastAction < 2000 + Math.random() * 5000) return;
-                
-                player.lastAction = Date.now();
-                
-                // 파괴된 검이면 새 검 구매
-                if (player.destroyed) {
-                    if (Math.random() < 0.3) {
-                        player.destroyed = false;
-                        player.level = 0;
-                        player.status = '새 검 구매!';
-                        player.statusType = '';
-                        addChat('system', `${player.name}님이 새 검을 구매했습니다.`);
-                        setTimeout(() => { player.status = ''; updateUI(); }, 2000);
-                    }
-                    return;
-                }
-                
-                // 가끔 검 판매 (높은 강화일수록 판매 확률 증가)
-                if (player.level >= 8 && Math.random() < 0.05 + player.level * 0.01) {
-                    const sellPrice = getSellPrice(player.level);
-                    const soldLevel = player.level;
-                    player.status = `+${soldLevel} 판매! `;
-                    player.statusType = 'success';
+            player.lastAction = Date.now();
+            
+            // 파괴된 검이면 새 검 구매
+            if (player.destroyed) {
+                if (Math.random() < 0.3) {
+                    player.destroyed = false;
                     player.level = 0;
-                    addChat('system', `${player.name}님이 +${soldLevel} 검을 ${sellPrice.toLocaleString()}G에 판매!`);
-                    setTimeout(() => { player.status = ''; updateUI(); }, 3000);
-                    updateUI();
-                    return;
+                    player.status = '새 검 구매!';
+                    player.statusType = '';
+                    addChat('system', `${player.name}님이 새 검을 구매했습니다.`);
+                    setTimeout(() => { player.status = ''; updateUI(); }, 2000);
                 }
-                
-                // 강화 시도
-                if (player.level < 25 && Math.random() < 0.4) {
-                    const probs = probTable[player.level];
-                    const roll = Math.random() * 100;
-                    
-                    // 강화 중 표시
-                    player.status = '강화 중...';
-                    player.statusType = 'upgrading';
-                    updateUI();
-                    
-                    setTimeout(() => {
-                        let result;
-                        if (roll < probs.success) {
-                            result = 'success';
-                            player.level++;
-                            if (player.level > player.maxLevel) player.maxLevel = player.level;
-                            player.status = `+${player.level} 성공! ✨`;
-                            player.statusType = 'success';
-                            addChat('upgrade-success', `${player.name}님이 +${player.level} 강화에 성공!`);
-                        } else if (roll < probs.success + probs.fail) {
-                            result = 'fail';
-                            player.status = '실패 (유지)';
-                            player.statusType = 'fail';
-                        } else if (roll < probs.success + probs.fail + probs.down) {
-                            result = 'down';
-                            player.level = Math.max(0, player.level - 1);
-                            player.status = `+${player.level}로 하락 `;
-                            player.statusType = 'fail';
-                            addChat('upgrade-fail', `${player.name}님의 검이 +${player.level}로 하락...`);
-                        } else {
-                            result = 'destroy';
-                            player.destroyed = true;
-                            player.status = ' 파괴됨!';
-                            player.statusType = 'destroy';
-                            addChat('upgrade-destroy', `${player.name}님의 +${player.level} 검이 파괴되었습니다!`);
-                        }
-                        
-                        updateUI();
-                        
-                        setTimeout(() => {
-                            player.status = '';
-                            player.statusType = '';
-                            updateUI();
-                        }, 3000);
-                    }, 800 + Math.random() * 500);
-                }
-            });
-        }
-        
-        // 게임 시작
-        function startGame() {
-            const nameInput = document.getElementById('nameInput');
-            myName = nameInput.value.trim() || '검사' + Math.floor(Math.random() * 1000);
-            myId = 'player_' + Date.now();
-            
-            document.getElementById('startScreen').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'block';
-            
-            initAIPlayers();
-            
-            addChat('system', `${myName}님이 입장했습니다!`);
-            
-            updateUI();
-            
-            // AI 행동 루프
-            setInterval(aiAction, 1000);
-            
-            // 가끔 플레이어 입장/퇴장
-            setInterval(randomPlayerJoin, 5000);
-            
-            // 가끔 AI 채팅
-            setInterval(() => {
-                const aiList = Object.values(players).filter(p => p.isAI && !p.destroyed);
-                if (aiList.length > 0 && Math.random() < 0.1) {
-                    const ai = aiList[Math.floor(Math.random() * aiList.length)];
-                    const messages = [
-                        '오늘은 운이 좋을 것 같아!',
-                        '+25 가보자고~',
-                        '파괴방지 켜야하나...',
-                        '아 또 터질 것 같아',
-                        '이번엔 성공이다!',
-                        '강화 확률 너무 낮아...',
-                        '한번만 더!',
-                        '오늘 컨디션 좋다',
-                    ];
-                    addChat('chat', messages[Math.floor(Math.random() * messages.length)], ai.name);
-                }
-            }, 8000);
-        }
-        
-        // UI 업데이트
-        function updateUI() {
-            const probs = myState.level < 25 ? probTable[myState.level] : { success: 0, fail: 100, down: 0, destroy: 0 };
-            const cost = getCost(myState.level);
-            const bonusAtk = getBonusAtk(myState.level);
-            
-            // 헤더
-            document.getElementById('headerGold').textContent = myState.gold.toLocaleString();
-            document.getElementById('headerSold').textContent = myState.totalSold.toLocaleString();
-            document.getElementById('headerMax').textContent = `+${myState.maxLevel}`;
-            document.getElementById('onlineCount').textContent = Object.keys(players).length + 1;
-            
-            // 내 검
-            let swordName = "초보자의 검";
-            for (const [lv, name] of Object.entries(swordNames)) {
-                if (myState.level >= parseInt(lv)) swordName = name;
-            }
-            
-            document.getElementById('mySwordName').textContent = swordName;
-            
-            // 검 아이콘 & 스타일 업데이트
-            const swordEl = document.getElementById('mySword');
-            swordEl.textContent = getSwordIcon(myState.level);
-            swordEl.style.cssText = getSwordStyle(myState.level);
-            
-            const levelEl = document.getElementById('mySwordLevel');
-            levelEl.textContent = `+${myState.level}`;
-            levelEl.className = myState.level >= 25 ? 'sword-level-display max-level' : 'sword-level-display';
-            
-            document.getElementById('mySwordAtk').textContent = (100 + bonusAtk).toLocaleString();
-            
-            // 확률 바
-            const probBar = document.getElementById('probBar');
-            probBar.innerHTML = `
-                <div class="prob-segment success" style="width: ${probs.success}%">${probs.success > 8 ? probs.success + '%' : ''}</div>
-                <div class="prob-segment fail" style="width: ${probs.fail}%">${probs.fail > 8 ? probs.fail + '%' : ''}</div>
-                <div class="prob-segment down" style="width: ${probs.down}%">${probs.down > 8 ? probs.down + '%' : ''}</div>
-                <div class="prob-segment destroy" style="width: ${probs.destroy}%">${probs.destroy > 8 ? probs.destroy + '%' : ''}</div>
-            `;
-            
-            // 비용
-            const safeCheck = document.getElementById('safeCheck').checked;
-            const catchCheck = document.getElementById('catchCheck').checked;
-            let totalCost = cost;
-            if (safeCheck && probs.destroy > 0) totalCost += Math.floor(cost * 2.0);  // 파괴 방지: 200%
-            if (catchCheck && probs.down > 0) totalCost += Math.floor(cost * 1.5);    // 하락 방지: 150%
-            
-            document.getElementById('upgradeCost').textContent = ` ${totalCost.toLocaleString()}`;
-            document.getElementById('safeCost').textContent = `+${Math.floor(cost * 2.0).toLocaleString()}`;
-            document.getElementById('catchCost').textContent = `+${Math.floor(cost * 1.5).toLocaleString()}`;
-            
-            document.getElementById('safeRow').classList.toggle('disabled', probs.destroy === 0);
-            document.getElementById('catchRow').classList.toggle('disabled', probs.down === 0);
-            
-            // 판매 가격 & 버튼
-            const sellPrice = getSellPrice(myState.level);
-            document.getElementById('sellPrice').textContent = ` ${sellPrice.toLocaleString()}`;
-            
-            const sellBtn = document.getElementById('sellBtn');
-            if (myState.destroyed) {
-                sellBtn.disabled = true;
-                sellBtn.textContent = ' 파괴된 검';
-            } else if (myState.level === 0) {
-                sellBtn.disabled = true;
-                sellBtn.textContent = ' 판매할 수 없음';
-            } else {
-                sellBtn.disabled = false;
-                sellBtn.textContent = ` +${myState.level} 검 판매하기`;
-            }
-            
-            // 버튼
-            const btn = document.getElementById('upgradeBtn');
-            if (myState.destroyed) {
-                btn.disabled = true;
-                btn.textContent = ' 파괴됨';
-            } else if (myState.level >= 25) {
-                btn.disabled = true;
-                btn.textContent = ' 최대 강화!';
-            } else if (myState.gold < totalCost) {
-                btn.disabled = true;
-                btn.textContent = ' 골드 부족';
-            } else if (myState.upgrading) {
-                btn.disabled = true;
-                btn.textContent = '⏳ 강화 중...';
-            } else {
-                btn.disabled = false;
-                btn.textContent = '⚒️ 강화하기';
-            }
-            
-            // 플레이어 목록
-            const playersList = document.getElementById('playersList');
-            playersList.innerHTML = Object.entries(players).map(([id, p]) => `
-                <div class="player-card ${p.statusType}">
-                    <div class="player-header">
-                        <span class="player-name">${p.name}</span>
-                        <span class="player-level">${p.destroyed ? '' : '+' + p.level}</span>
-                    </div>
-                    <div class="player-sword">
-                        <span class="player-sword-icon">${p.destroyed ? '' : getSwordIcon(p.level)}</span>
-                        <span>${p.destroyed ? '파괴됨' : getSwordName(p.level)}</span>
-                    </div>
-                    <div class="player-status ${p.statusType}">${p.status}</div>
-                </div>
-            `).join('');
-            
-            // 리더보드
-            const allPlayers = [
-                { name: myName, level: myState.level, isMe: true, destroyed: myState.destroyed },
-                ...Object.values(players).map(p => ({ name: p.name, level: p.level, destroyed: p.destroyed }))
-            ];
-            allPlayers.sort((a, b) => b.level - a.level);
-            
-            const leaderboardList = document.getElementById('leaderboardList');
-            leaderboardList.innerHTML = allPlayers.slice(0, 5).map((p, i) => {
-                const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-                return `
-                    <div class="leaderboard-item ${p.isMe ? 'me' : ''}">
-                        <span class="leaderboard-rank ${rankClass}">${i + 1}</span>
-                        <div class="leaderboard-info">
-                            <div class="leaderboard-name">${p.name}${p.isMe ? ' (나)' : ''}</div>
-                        </div>
-                        <span class="leaderboard-level">${p.destroyed ? '' : '+' + p.level}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-        
-        function getSwordName(level) {
-            let name = "초보자의 검";
-            for (const [lv, n] of Object.entries(swordNames)) {
-                if (level >= parseInt(lv)) name = n;
-            }
-            return name;
-        }
-        
-        function getCost(level) {
-            return Math.floor(500 * Math.pow(1.3, level));  // 비용 낮춤
-        }
-        
-        function getBonusAtk(level) {
-            let bonus = 0;
-            for (let i = 1; i <= level; i++) {
-                bonus += Math.floor(10 * Math.pow(1.15, i));
-            }
-            return bonus;
-        }
-        
-        // 판매 가격 계산 (희귀도 기반, 완만한 증가)
-        function getSellPrice(level) {
-            if (level === 0) return 0;
-            
-            // 1. 누적 강화비용
-            let minCost = 0;
-            for (let i = 0; i < level; i++) {
-                minCost += getCost(i);
-            }
-            
-            // 2. 희귀도 계산 (해당 레벨까지 도달할 확률)
-            let probability = 1;
-            for (let i = 0; i < level; i++) {
-                probability *= probTable[i].success / 100;
-            }
-            
-            // 3. 희귀도 배율 (로그로 완만하게)
-            // 확률 100% = 1.2배, 10% = 2배, 1% = 2.8배, 0.1% = 3.6배
-            const rarityMultiplier = 1.2 + Math.log10(1 / probability) * 0.8;
-            
-            // 4. 최종 가격 = 누적비용 × 희귀도배율
-            const price = Math.floor(minCost * Math.max(1.2, rarityMultiplier));
-            
-            return price;
-        }
-        
-        // 검 판매
-        function sellSword() {
-            if (myState.destroyed || myState.level === 0) return;
-            
-            const price = getSellPrice(myState.level);
-            const soldLevel = myState.level;
-            
-            myState.gold += price;
-            myState.totalSold += price;
-            myState.swordsSold++;
-            myState.level = 0;
-            
-            // 판매 효과
-            const sword = document.getElementById('mySword');
-            sword.style.transition = 'all 0.3s';
-            sword.style.transform = 'scale(0)';
-            sword.style.opacity = '0';
-            
-            setTimeout(() => {
-                sword.style.transform = 'scale(1)';
-                sword.style.opacity = '1';
-            }, 300);
-            
-            createParticles('#ffd700', 25);
-            showResult('success', ` 판매 완료!<br>+${price.toLocaleString()}G`);
-            addChat('system', `${myName}님이 +${soldLevel} 검을 ${price.toLocaleString()}G에 판매했습니다!`);
-            
-            updateUI();
-        }
-        
-        // 강화
-        async function upgrade() {
-            if (myState.destroyed || myState.level >= 25 || myState.upgrading) return;
-            
-            const probs = probTable[myState.level];
-            const cost = getCost(myState.level);
-            
-            const safeCheck = document.getElementById('safeCheck').checked && probs.destroy > 0;
-            const catchCheck = document.getElementById('catchCheck').checked && probs.down > 0;
-            
-            let totalCost = cost;
-            if (safeCheck) totalCost += Math.floor(cost * 2.0);  // 파괴 방지: 200%
-            if (catchCheck) totalCost += Math.floor(cost * 1.5); // 하락 방지: 150%
-            
-            if (myState.gold < totalCost) return;
-            
-            myState.gold -= totalCost;
-            myState.upgrading = true;
-            updateUI();
-            
-            // 애니메이션
-            const sword = document.getElementById('mySword');
-            sword.classList.add('shaking');
-            
-            await new Promise(r => setTimeout(r, 800));
-            
-            sword.classList.remove('shaking');
-            
-            // 확률 계산
-            const roll = Math.random() * 100;
-            let result;
-            
-            if (roll < probs.success) {
-                result = 'success';
-            } else if (roll < probs.success + probs.fail) {
-                result = 'fail';
-            } else if (roll < probs.success + probs.fail + probs.down) {
-                // 하락 구간
-                result = catchCheck ? 'fail' : 'down';
-            } else {
-                // 파괴 구간
-                if (safeCheck) {
-                    // 파괴 방지 → 하락으로 변환, 근데 하락 방지도 켜져있으면 유지
-                    result = catchCheck ? 'fail' : 'down';
-                } else {
-                    result = 'destroy';
-                }
-            }
-            
-            // 결과 처리
-            const oldLevel = myState.level;
-            
-            switch (result) {
-                case 'success':
-                    myState.level++;
-                    if (myState.level > myState.maxLevel) myState.maxLevel = myState.level;
-                    
-                    sword.classList.add('success');
-                    setTimeout(() => sword.classList.remove('success'), 600);
-                    
-                    createParticles('#4ecdc4', 30);
-                    showResult('success', `✨ 성공!<br>+${myState.level}`);
-                    addChat('upgrade-success', `${myName}님이 +${myState.level} 강화에 성공!`);
-                    
-                    if (myState.level === 25) {
-                        addChat('system', ` ${myName}님이 +25 신화의 검을 완성했습니다! `);
-                    }
-                    break;
-                    
-                case 'fail':
-                    sword.classList.add('fail');
-                    setTimeout(() => sword.classList.remove('fail'), 400);
-                    
-                    showResult('fail', ' 실패<br>유지');
-                    break;
-                    
-                case 'down':
-                    myState.level = Math.max(0, myState.level - 1);
-                    
-                    sword.classList.add('fail');
-                    setTimeout(() => sword.classList.remove('fail'), 400);
-                    
-                    createParticles('#a55eea', 15);
-                    showResult('down', ` 하락<br>+${myState.level}`);
-                    addChat('upgrade-fail', `${myName}님의 검이 +${myState.level}로 하락...`);
-                    break;
-                    
-                case 'destroy':
-                    myState.destroyed = true;
-                    
-                    sword.classList.add('destroy');
-                    
-                    createParticles('#ff6b6b', 50);
-                    showResult('destroy', ' 파괴!');
-                    addChat('upgrade-destroy', `${myName}님의 +${oldLevel} 검이 파괴되었습니다!`);
-                    break;
-            }
-            
-            myState.upgrading = false;
-            updateUI();
-        }
-        
-        // 새 검
-        function newSword() {
-            if (myState.gold < 1000) {
-                alert('골드가 부족합니다!');
                 return;
             }
             
-            myState.gold -= 1000;
-            myState.level = 0;
-            myState.destroyed = false;
-            
-            const sword = document.getElementById('mySword');
-            sword.classList.remove('destroy');
-            sword.textContent = '️';
-            sword.style.cssText = '';
-            
-            addChat('system', `${myName}님이 새 검을 구매했습니다.`);
-            updateUI();
-        }
-        
-        // 채팅
-        function addChat(type, message, name = '') {
-            const chatMessages = document.getElementById('chatMessages');
-            const msg = document.createElement('div');
-            msg.className = `chat-msg ${type}`;
-            
-            if (type === 'chat') {
-                msg.innerHTML = `<span class="name" style="color: #ffd700">${name}:</span> ${message}`;
-            } else {
-                msg.textContent = message;
+            // 가끔 검 판매 (높은 강화일수록 판매 확률 증가)
+            if (player.level >= 8 && Math.random() < 0.05 + player.level * 0.01) {
+                const sellPrice = getSellPrice(player.level);
+                const soldLevel = player.level;
+                player.status = `+${soldLevel} 판매! 💰`;
+                player.statusType = 'success';
+                player.level = 0;
+                addChat('system', `${player.name}님이 +${soldLevel} 검을 ${sellPrice.toLocaleString()}G에 판매!`);
+                setTimeout(() => { player.status = ''; updateUI(); }, 3000);
+                updateUI();
+                return;
             }
             
-            chatMessages.appendChild(msg);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // 최대 100개
-            while (chatMessages.children.length > 100) {
-                chatMessages.removeChild(chatMessages.firstChild);
-            }
-        }
-        
-        function sendChat() {
-            const input = document.getElementById('chatInput');
-            const msg = input.value.trim();
-            if (msg) {
-                addChat('chat', msg, myName);
-                input.value = '';
-            }
-        }
-        
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendChat();
-        });
-        
-        document.getElementById('nameInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') startGame();
-        });
-        
-        // 결과 팝업
-        function showResult(type, message) {
-            document.querySelectorAll('.result-popup').forEach(p => p.remove());
-            
-            const popup = document.createElement('div');
-            popup.className = `result-popup ${type}`;
-            popup.innerHTML = message;
-            document.body.appendChild(popup);
-            
-            setTimeout(() => popup.remove(), 1500);
-        }
-        
-        // 파티클
-        function createParticles(color, count) {
-            const container = document.getElementById('particles');
-            const sword = document.getElementById('mySword');
-            const rect = sword.getBoundingClientRect();
-            
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.backgroundColor = color;
-                particle.style.width = (5 + Math.random() * 10) + 'px';
-                particle.style.height = particle.style.width;
-                particle.style.left = (rect.left + rect.width / 2) + 'px';
-                particle.style.top = (rect.top + rect.height / 2) + 'px';
-                particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
-                particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
-                container.appendChild(particle);
+            // 강화 시도
+            if (player.level < 25 && Math.random() < 0.4) {
+                const probs = probTable[player.level];
+                const roll = Math.random() * 100;
                 
-                setTimeout(() => particle.remove(), 1000);
+                // 강화 중 표시
+                player.status = '강화 중...';
+                player.statusType = 'upgrading';
+                updateUI();
+                
+                setTimeout(() => {
+                    let result;
+                    if (roll < probs.success) {
+                        result = 'success';
+                        player.level++;
+                        if (player.level > player.maxLevel) player.maxLevel = player.level;
+                        player.status = `+${player.level} 성공! ✨`;
+                        player.statusType = 'success';
+                        addChat('upgrade-success', `${player.name}님이 +${player.level} 강화에 성공!`);
+                    } else if (roll < probs.success + probs.fail) {
+                        result = 'fail';
+                        player.status = '실패 (유지)';
+                        player.statusType = 'fail';
+                    } else if (roll < probs.success + probs.fail + probs.down) {
+                        result = 'down';
+                        player.level = Math.max(0, player.level - 1);
+                        player.status = `+${player.level}로 하락 📉`;
+                        player.statusType = 'fail';
+                        addChat('upgrade-fail', `${player.name}님의 검이 +${player.level}로 하락...`);
+                    } else {
+                        result = 'destroy';
+                        player.destroyed = true;
+                        player.status = '💥 파괴됨!';
+                        player.statusType = 'destroy';
+                        addChat('upgrade-destroy', `${player.name}님의 +${player.level} 검이 파괴되었습니다!`);
+                    }
+                    
+                    updateUI();
+                    
+                    setTimeout(() => {
+                        player.status = '';
+                        player.statusType = '';
+                        updateUI();
+                    }, 3000);
+                }, 800 + Math.random() * 500);
+            }
+        });
+    }
+    
+    // 게임 시작
+    function startGame() {
+        const nameInput = document.getElementById('nameInput');
+        myName = nameInput.value.trim() || '검사' + Math.floor(Math.random() * 1000);
+        myId = 'player_' + Date.now();
+        
+        document.getElementById('startScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
+        
+        initAIPlayers();
+        
+        addChat('system', `${myName}님이 입장했습니다!`);
+        
+        updateUI();
+        
+        // AI 행동 루프
+        setInterval(aiAction, 1000);
+        
+        // 가끔 플레이어 입장/퇴장
+        setInterval(randomPlayerJoin, 5000);
+        
+        // 가끔 AI 채팅
+        setInterval(() => {
+            const aiList = Object.values(players).filter(p => p.isAI && !p.destroyed);
+            if (aiList.length > 0 && Math.random() < 0.1) {
+                const ai = aiList[Math.floor(Math.random() * aiList.length)];
+                const messages = [
+                    '오늘은 운이 좋을 것 같아!',
+                    '+25 가보자고~',
+                    '파괴방지 켜야하나...',
+                    '아 또 터질 것 같아',
+                    '이번엔 성공이다!',
+                    '강화 확률 너무 낮아...',
+                    '한번만 더!',
+                    '오늘 컨디션 좋다',
+                ];
+                addChat('chat', messages[Math.floor(Math.random() * messages.length)], ai.name);
+            }
+        }, 8000);
+    }
+    
+    // UI 업데이트
+    function updateUI() {
+        const probs = myState.level < 25 ? probTable[myState.level] : { success: 0, fail: 100, down: 0, destroy: 0 };
+        const cost = getCost(myState.level);
+        const bonusAtk = getBonusAtk(myState.level);
+        
+        // 헤더
+        document.getElementById('headerGold').textContent = myState.gold.toLocaleString();
+        document.getElementById('headerSold').textContent = myState.totalSold.toLocaleString();
+        document.getElementById('headerMax').textContent = `+${myState.maxLevel}`;
+        document.getElementById('onlineCount').textContent = Object.keys(players).length + 1;
+        
+        // 내 검
+        let swordName = "초보자의 검";
+        for (const [lv, name] of Object.entries(swordNames)) {
+            if (myState.level >= parseInt(lv)) swordName = name;
+        }
+        
+        document.getElementById('mySwordName').textContent = swordName;
+        
+        // 검 아이콘 & 스타일 업데이트 (SVG)
+        const swordEl = document.getElementById('mySword');
+        swordEl.innerHTML = getSwordIcon(myState.level);
+        
+        const levelEl = document.getElementById('mySwordLevel');
+        levelEl.textContent = `+${myState.level}`;
+        levelEl.className = myState.level >= 25 ? 'sword-level-display max-level' : 'sword-level-display';
+        
+        document.getElementById('mySwordAtk').textContent = (100 + bonusAtk).toLocaleString();
+        
+        // 확률 바
+        const probBar = document.getElementById('probBar');
+        probBar.innerHTML = `
+            <div class="prob-segment success" style="width: ${probs.success}%">${probs.success > 8 ? probs.success + '%' : ''}</div>
+            <div class="prob-segment fail" style="width: ${probs.fail}%">${probs.fail > 8 ? probs.fail + '%' : ''}</div>
+            <div class="prob-segment down" style="width: ${probs.down}%">${probs.down > 8 ? probs.down + '%' : ''}</div>
+            <div class="prob-segment destroy" style="width: ${probs.destroy}%">${probs.destroy > 8 ? probs.destroy + '%' : ''}</div>
+        `;
+        
+        // 비용
+        const safeCheck = document.getElementById('safeCheck').checked;
+        const catchCheck = document.getElementById('catchCheck').checked;
+        let totalCost = cost;
+        if (safeCheck && probs.destroy > 0) totalCost += Math.floor(cost * 2.0);  // 파괴 방지: 200%
+        if (catchCheck && probs.down > 0) totalCost += Math.floor(cost * 1.5);    // 하락 방지: 150%
+        
+        document.getElementById('upgradeCost').textContent = `💰 ${totalCost.toLocaleString()}`;
+        document.getElementById('safeCost').textContent = `+${Math.floor(cost * 2.0).toLocaleString()}`;
+        document.getElementById('catchCost').textContent = `+${Math.floor(cost * 1.5).toLocaleString()}`;
+        
+        document.getElementById('safeRow').classList.toggle('disabled', probs.destroy === 0);
+        document.getElementById('catchRow').classList.toggle('disabled', probs.down === 0);
+        
+        // 판매 가격 & 버튼
+        const sellPrice = getSellPrice(myState.level);
+        document.getElementById('sellPrice').textContent = `💰 ${sellPrice.toLocaleString()}`;
+        
+        const sellBtn = document.getElementById('sellBtn');
+        if (myState.destroyed) {
+            sellBtn.disabled = true;
+            sellBtn.textContent = '💀 파괴된 검';
+        } else if (myState.level === 0) {
+            sellBtn.disabled = true;
+            sellBtn.textContent = '📦 판매할 수 없음';
+        } else {
+            sellBtn.disabled = false;
+            sellBtn.textContent = `💎 +${myState.level} 검 판매하기`;
+        }
+        
+        // 버튼
+        const btn = document.getElementById('upgradeBtn');
+        if (myState.destroyed) {
+            btn.disabled = true;
+            btn.textContent = '💀 파괴됨';
+        } else if (myState.level >= 25) {
+            btn.disabled = true;
+            btn.textContent = '🎉 최대 강화!';
+        } else if (myState.gold < totalCost) {
+            btn.disabled = true;
+            btn.textContent = '💸 골드 부족';
+        } else if (myState.upgrading) {
+            btn.disabled = true;
+            btn.textContent = '⏳ 강화 중...';
+        } else {
+            btn.disabled = false;
+            btn.textContent = '⚒️ 강화하기';
+        }
+        
+        // 플레이어 목록
+        const playersList = document.getElementById('playersList');
+        playersList.innerHTML = Object.entries(players).map(([id, p]) => `
+            <div class="player-card ${p.statusType}">
+                <div class="player-header">
+                    <span class="player-name">${p.name}</span>
+                    <span class="player-level">${p.destroyed ? '💀' : '+' + p.level}</span>
+                </div>
+                <div class="player-sword">
+                    <span class="player-sword-icon">${p.destroyed ? '💔' : getSwordIconSmall(p.level)}</span>
+                    <span>${p.destroyed ? '파괴됨' : getSwordName(p.level)}</span>
+                </div>
+                <div class="player-status ${p.statusType}">${p.status}</div>
+            </div>
+        `).join('');
+        
+        // 리더보드
+        const allPlayers = [
+            { name: myName, level: myState.level, isMe: true, destroyed: myState.destroyed },
+            ...Object.values(players).map(p => ({ name: p.name, level: p.level, destroyed: p.destroyed }))
+        ];
+        allPlayers.sort((a, b) => b.level - a.level);
+        
+        const leaderboardList = document.getElementById('leaderboardList');
+        leaderboardList.innerHTML = allPlayers.slice(0, 5).map((p, i) => {
+            const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+            return `
+                <div class="leaderboard-item ${p.isMe ? 'me' : ''}">
+                    <span class="leaderboard-rank ${rankClass}">${i + 1}</span>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${p.name}${p.isMe ? ' (나)' : ''}</div>
+                    </div>
+                    <span class="leaderboard-level">${p.destroyed ? '💀' : '+' + p.level}</span>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function getSwordName(level) {
+        let name = "초보자의 검";
+        for (const [lv, n] of Object.entries(swordNames)) {
+            if (level >= parseInt(lv)) name = n;
+        }
+        return name;
+    }
+    
+    function getCost(level) {
+        return Math.floor(500 * Math.pow(1.3, level));  // 비용 낮춤
+    }
+    
+    function getBonusAtk(level) {
+        let bonus = 0;
+        for (let i = 1; i <= level; i++) {
+            bonus += Math.floor(10 * Math.pow(1.15, i));
+        }
+        return bonus;
+    }
+    
+    // 판매 가격 계산 (희귀도 기반, 완만한 증가)
+    function getSellPrice(level) {
+        if (level === 0) return 0;
+        
+        // 1. 누적 강화비용
+        let minCost = 0;
+        for (let i = 0; i < level; i++) {
+            minCost += getCost(i);
+        }
+        
+        // 2. 희귀도 계산 (해당 레벨까지 도달할 확률)
+        let probability = 1;
+        for (let i = 0; i < level; i++) {
+            probability *= probTable[i].success / 100;
+        }
+        
+        // 3. 희귀도 배율 (로그로 완만하게)
+        // 확률 100% = 1.2배, 10% = 2배, 1% = 2.8배, 0.1% = 3.6배
+        const rarityMultiplier = 1.2 + Math.log10(1 / probability) * 0.8;
+        
+        // 4. 최종 가격 = 누적비용 × 희귀도배율
+        const price = Math.floor(minCost * Math.max(1.2, rarityMultiplier));
+        
+        return price;
+    }
+    
+    // 검 판매
+    function sellSword() {
+        if (myState.destroyed || myState.level === 0) return;
+        
+        const price = getSellPrice(myState.level);
+        const soldLevel = myState.level;
+        
+        myState.gold += price;
+        myState.totalSold += price;
+        myState.swordsSold++;
+        myState.level = 0;
+        
+        // 판매 효과
+        const sword = document.getElementById('mySword');
+        sword.style.transition = 'all 0.3s';
+        sword.style.transform = 'scale(0)';
+        sword.style.opacity = '0';
+        
+        setTimeout(() => {
+            sword.style.transform = 'scale(1)';
+            sword.style.opacity = '1';
+        }, 300);
+        
+        createParticles('#ffd700', 25);
+        showResult('success', `💰 판매 완료!<br>+${price.toLocaleString()}G`);
+        addChat('system', `${myName}님이 +${soldLevel} 검을 ${price.toLocaleString()}G에 판매했습니다!`);
+        
+        updateUI();
+    }
+    
+    // 강화
+    async function upgrade() {
+        if (myState.destroyed || myState.level >= 25 || myState.upgrading) return;
+        
+        const probs = probTable[myState.level];
+        const cost = getCost(myState.level);
+        
+        const safeCheck = document.getElementById('safeCheck').checked && probs.destroy > 0;
+        const catchCheck = document.getElementById('catchCheck').checked && probs.down > 0;
+        
+        let totalCost = cost;
+        if (safeCheck) totalCost += Math.floor(cost * 2.0);  // 파괴 방지: 200%
+        if (catchCheck) totalCost += Math.floor(cost * 1.5); // 하락 방지: 150%
+        
+        if (myState.gold < totalCost) return;
+        
+        myState.gold -= totalCost;
+        myState.upgrading = true;
+        updateUI();
+        
+        // 애니메이션
+        const sword = document.getElementById('mySword');
+        sword.classList.add('shaking');
+        
+        await new Promise(r => setTimeout(r, 800));
+        
+        sword.classList.remove('shaking');
+        
+        // 확률 계산
+        const roll = Math.random() * 100;
+        let result;
+        
+        if (roll < probs.success) {
+            result = 'success';
+        } else if (roll < probs.success + probs.fail) {
+            result = 'fail';
+        } else if (roll < probs.success + probs.fail + probs.down) {
+            // 하락 구간
+            result = catchCheck ? 'fail' : 'down';
+        } else {
+            // 파괴 구간
+            if (safeCheck) {
+                // 파괴 방지 → 하락으로 변환, 근데 하락 방지도 켜져있으면 유지
+                result = catchCheck ? 'fail' : 'down';
+            } else {
+                result = 'destroy';
             }
         }
         
-        // 옵션 체크박스 토글
-        function toggleCheck(id) {
-            const checkbox = document.getElementById(id);
-            const row = checkbox.closest('.option-row');
-            if (row.classList.contains('disabled')) return;
-            checkbox.checked = !checkbox.checked;
-            updateUI();
+        // 결과 처리
+        const oldLevel = myState.level;
+        
+        switch (result) {
+            case 'success':
+                myState.level++;
+                if (myState.level > myState.maxLevel) myState.maxLevel = myState.level;
+                
+                sword.classList.add('success');
+                setTimeout(() => sword.classList.remove('success'), 600);
+                
+                createParticles('#4ecdc4', 30);
+                showResult('success', `✨ 성공!<br>+${myState.level}`);
+                addChat('upgrade-success', `${myName}님이 +${myState.level} 강화에 성공!`);
+                
+                if (myState.level === 25) {
+                    addChat('system', `🎉🎉🎉 ${myName}님이 +25 신화의 검을 완성했습니다! 🎉🎉🎉`);
+                }
+                break;
+                
+            case 'fail':
+                sword.classList.add('fail');
+                setTimeout(() => sword.classList.remove('fail'), 400);
+                
+                showResult('fail', '😅 실패<br>유지');
+                break;
+                
+            case 'down':
+                myState.level = Math.max(0, myState.level - 1);
+                
+                sword.classList.add('fail');
+                setTimeout(() => sword.classList.remove('fail'), 400);
+                
+                createParticles('#a55eea', 15);
+                showResult('down', `📉 하락<br>+${myState.level}`);
+                addChat('upgrade-fail', `${myName}님의 검이 +${myState.level}로 하락...`);
+                break;
+                
+            case 'destroy':
+                myState.destroyed = true;
+                
+                sword.classList.add('destroy');
+                
+                createParticles('#ff6b6b', 50);
+                showResult('destroy', '💥 파괴!');
+                addChat('upgrade-destroy', `${myName}님의 +${oldLevel} 검이 파괴되었습니다!`);
+                break;
         }
         
-        // 옵션 체크박스 이벤트
-        document.getElementById('safeCheck').addEventListener('change', updateUI);
-        document.getElementById('catchCheck').addEventListener('change', updateUI);
-    </script>
+        myState.upgrading = false;
+        updateUI();
+    }
+    
+    // 새 검
+    function newSword() {
+        if (myState.gold < 1000) {
+            alert('골드가 부족합니다!');
+            return;
+        }
+        
+        myState.gold -= 1000;
+        myState.level = 0;
+        myState.destroyed = false;
+        
+        const sword = document.getElementById('mySword');
+        sword.classList.remove('destroy');
+        sword.innerHTML = getSwordIcon(0);
+        
+        addChat('system', `${myName}님이 새 검을 구매했습니다.`);
+        updateUI();
+    }
+    
+    // 채팅
+    function addChat(type, message, name = '') {
+        const chatMessages = document.getElementById('chatMessages');
+        const msg = document.createElement('div');
+        msg.className = `chat-msg ${type}`;
+        
+        if (type === 'chat') {
+            msg.innerHTML = `<span class="name" style="color: #ffd700">${name}:</span> ${message}`;
+        } else {
+            msg.textContent = message;
+        }
+        
+        chatMessages.appendChild(msg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // 최대 100개
+        while (chatMessages.children.length > 100) {
+            chatMessages.removeChild(chatMessages.firstChild);
+        }
+    }
+    
+    function sendChat() {
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (msg) {
+            addChat('chat', msg, myName);
+            input.value = '';
+        }
+    }
+    
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendChat();
+    });
+    
+    document.getElementById('nameInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') startGame();
+    });
+    
+    // 결과 팝업
+    function showResult(type, message) {
+        document.querySelectorAll('.result-popup').forEach(p => p.remove());
+        
+        const popup = document.createElement('div');
+        popup.className = `result-popup ${type}`;
+        popup.innerHTML = message;
+        document.body.appendChild(popup);
+        
+        setTimeout(() => popup.remove(), 1500);
+    }
+    
+    // 파티클
+    function createParticles(color, count) {
+        const container = document.getElementById('particles');
+        const sword = document.getElementById('mySword');
+        const rect = sword.getBoundingClientRect();
+        
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.backgroundColor = color;
+            particle.style.width = (5 + Math.random() * 10) + 'px';
+            particle.style.height = particle.style.width;
+            particle.style.left = (rect.left + rect.width / 2) + 'px';
+            particle.style.top = (rect.top + rect.height / 2) + 'px';
+            particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
+            particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
+            container.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 1000);
+        }
+    }
+    
+    // 옵션 체크박스 토글
+    function toggleCheck(id) {
+        const checkbox = document.getElementById(id);
+        const row = checkbox.closest('.option-row');
+        if (row.classList.contains('disabled')) return;
+        checkbox.checked = !checkbox.checked;
+        updateUI();
+    }
+    
+    // 옵션 체크박스 이벤트
+    document.getElementById('safeCheck').addEventListener('change', updateUI);
+    document.getElementById('catchCheck').addEventListener('change', updateUI);
+</script>
+```
+
 </body>
 </html>
