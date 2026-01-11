@@ -5,249 +5,658 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Slay AI Spire v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 15px rgba(212,175,55,0.4); } 50% { box-shadow: 0 0 30px rgba(212,175,55,0.8); } }
+    @keyframes pathPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+    @keyframes glow { 0%,100% { filter: drop-shadow(0 0 8px rgba(212,175,55,0.6)); } 50% { filter: drop-shadow(0 0 20px rgba(212,175,55,1)); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes cardEntrance { 
+      0% { opacity: 0; transform: translateY(30px) rotateX(20deg); }
+      100% { opacity: 1; transform: translateY(0) rotateX(0); }
+    }
+    @keyframes starTwinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+    
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(180deg, #0d0d15 0%, #1a1020 50%, #0d0d15 100%);
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
       color: #e8e4d9;
       min-height: 100vh;
       overflow-x: hidden;
+      position: relative;
     }
+    
+    /* 배경 파티클 효과 */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(139, 69, 186, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(20, 20, 35, 0.8) 0%, transparent 80%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 40px 70px, rgba(212,175,55,0.4), transparent),
+        radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(212,175,55,0.3), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 160px 120px, rgba(139,69,186,0.4), transparent);
+      background-size: 200px 200px;
+      animation: starTwinkle 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+
     .hidden { display: none !important; }
-    .gold { color: #d4af37; }
-    .red { color: #dc143c; }
-    .blue { color: #4a9eff; }
-    .green { color: #4ade80; }
-    .purple { color: #c084fc; }
-    .muted { color: #888; }
+    .gold { color: #f4d03f; text-shadow: 0 0 10px rgba(244,208,63,0.3); }
+    .red { color: #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.3); }
+    .blue { color: #54a0ff; text-shadow: 0 0 10px rgba(84,160,255,0.3); }
+    .green { color: #5dfc7a; text-shadow: 0 0 10px rgba(93,252,122,0.3); }
+    .purple { color: #c084fc; text-shadow: 0 0 10px rgba(192,132,252,0.3); }
+    .muted { color: #6b7280; }
     .center { text-align: center; }
 
-```
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 14px 28px; border: none; border-radius: 8px;
-  font-size: 16px; font-weight: 600; cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.btn:active { transform: scale(0.96); }
-.btn-gold {
-  background: linear-gradient(135deg, #b8860b, #d4af37, #f4d03f);
-  color: #1a1a1a;
-  box-shadow: 0 4px 20px rgba(212,175,55,0.3);
-}
-.btn-dark {
-  background: rgba(255,255,255,0.1);
-  color: #d4af37;
-  border: 1px solid rgba(212,175,55,0.4);
-}
-.btn-green {
-  background: linear-gradient(135deg, #166534, #22c55e);
-  color: #fff;
-}
-.btn-sm { padding: 8px 16px; font-size: 14px; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* 버튼 스타일 */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 16px 32px; border: none; border-radius: 12px;
+      font-family: 'Cinzel', 'Noto Sans KR', serif;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn:hover::before { transform: translateX(100%); }
+    .btn:active { transform: scale(0.96); }
+    .btn-gold {
+      background: linear-gradient(135deg, #b8860b, #d4af37, #f4d03f, #d4af37);
+      background-size: 200% auto;
+      color: #0a0a0f;
+      box-shadow: 0 4px 25px rgba(212,175,55,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .btn-gold:hover {
+      animation: shimmer 2s linear infinite;
+      box-shadow: 0 8px 35px rgba(212,175,55,0.6), inset 0 1px 0 rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+    .btn-dark {
+      background: rgba(20,20,35,0.8);
+      color: #f4d03f;
+      border: 1px solid rgba(212,175,55,0.4);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .btn-dark:hover {
+      border-color: #f4d03f;
+      box-shadow: 0 8px 30px rgba(212,175,55,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+    .btn-green {
+      background: linear-gradient(135deg, #059669, #10b981, #34d399);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+    }
+    .btn-green:hover {
+      box-shadow: 0 8px 30px rgba(16,185,129,0.6);
+      transform: translateY(-2px);
+    }
+    .btn-sm { padding: 10px 18px; font-size: 13px; border-radius: 8px; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
-.top-bar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: rgba(13,13,21,0.95);
-  border-bottom: 1px solid rgba(212,175,55,0.2);
-  padding: 12px 16px;
-}
-.top-bar-inner {
-  max-width: 800px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 8px;
-}
-.stats { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-.stat { display: flex; gap: 4px; align-items: center; font-size: 14px; }
-.top-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.inv-slot {
-  width: 36px; height: 36px;
-  background: rgba(30,30,40,0.8);
-  border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; cursor: pointer;
-  transition: transform 0.2s;
-}
-.inv-slot:hover { transform: scale(1.1); }
+    /* 상단바 */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: linear-gradient(180deg, rgba(10,10,15,0.98) 0%, rgba(10,10,15,0.95) 100%);
+      border-bottom: 1px solid rgba(212,175,55,0.15);
+      padding: 14px 20px;
+      backdrop-filter: blur(20px);
+    }
+    .top-bar-inner {
+      max-width: 900px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .stats { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .stat { 
+      display: flex; gap: 6px; align-items: center; 
+      font-size: 14px; font-weight: 500;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .top-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .inv-slot {
+      width: 40px; height: 40px;
+      background: linear-gradient(145deg, rgba(30,30,45,0.9), rgba(20,20,30,0.9));
+      border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .inv-slot:hover { 
+      transform: scale(1.15) translateY(-3px); 
+      border-color: #f4d03f;
+      box-shadow: 0 8px 25px rgba(212,175,55,0.3);
+    }
 
-.game-card {
-  width: 120px; height: 170px;
-  border-radius: 10px; padding: 10px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  text-align: center; cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  position: relative; flex-shrink: 0;
-}
-.game-card:hover:not(.disabled) { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.game-card:active:not(.disabled) { transform: scale(0.95); }
-.game-card.disabled { opacity: 0.4; cursor: not-allowed; }
-.game-card.attack { background: linear-gradient(145deg, #3d1a1a, #1a0808); border: 2px solid #8b0000; }
-.game-card.skill { background: linear-gradient(145deg, #1a2a3d, #080810); border: 2px solid #1e4a7a; }
-.game-card.power { background: linear-gradient(145deg, #3d3a1a, #1a1808); border: 2px solid #8b7500; }
-.game-card.upgraded { box-shadow: 0 0 15px rgba(74, 222, 128, 0.4); }
-.game-card.upgraded .card-name { color: #4ade80; }
-.card-cost {
-  position: absolute; top: -8px; left: -8px;
-  width: 32px; height: 32px;
-  background: linear-gradient(135deg, #f4d03f, #d4af37);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: bold; font-size: 16px; color: #1a1a1a;
-}
-.card-icon { font-size: 32px; margin-bottom: 6px; }
-.card-name { font-size: 14px; font-weight: 600; color: #f4d03f; margin-bottom: 4px; }
-.card-desc { font-size: 12px; color: #aaa; line-height: 1.3; }
-.card-upgrade-badge {
-  position: absolute; top: -6px; right: -6px;
-  background: #22c55e; color: #fff;
-  font-size: 10px; font-weight: bold;
-  padding: 2px 5px; border-radius: 4px;
-}
-.game-card.small { width: 80px; height: 110px; }
-.game-card.small .card-cost { width: 22px; height: 22px; font-size: 11px; top: -6px; left: -6px; }
-.game-card.small .card-icon { font-size: 20px; }
-.game-card.small .card-name { font-size: 10px; }
-.game-card.small .card-desc { font-size: 8px; }
+    /* 카드 스타일 */
+    .game-card {
+      width: 120px; height: 170px;
+      border-radius: 14px; padding: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative; flex-shrink: 0;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .game-card:hover:not(.disabled) { 
+      transform: translateY(-15px) scale(1.08) rotateX(5deg); 
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.2);
+    }
+    .game-card:active:not(.disabled) { transform: scale(0.95); }
+    .game-card.disabled { opacity: 0.35; cursor: not-allowed; filter: grayscale(50%); }
+    .game-card.attack { 
+      background: linear-gradient(160deg, rgba(80,20,20,0.9), rgba(40,10,10,0.95)); 
+      border: 2px solid rgba(180,50,50,0.6);
+    }
+    .game-card.skill { 
+      background: linear-gradient(160deg, rgba(20,50,80,0.9), rgba(10,25,45,0.95)); 
+      border: 2px solid rgba(50,100,180,0.6);
+    }
+    .game-card.power { 
+      background: linear-gradient(160deg, rgba(80,70,20,0.9), rgba(40,35,10,0.95)); 
+      border: 2px solid rgba(180,150,50,0.6);
+    }
+    .game-card.upgraded { 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 25px rgba(74, 222, 128, 0.4);
+    }
+    .game-card.upgraded::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 16px;
+      background: linear-gradient(45deg, transparent, rgba(74,222,128,0.3), transparent);
+      z-index: -1;
+    }
+    .game-card.upgraded .card-name { color: #5dfc7a; }
+    .card-cost {
+      position: absolute; top: -10px; left: -10px;
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #f4d03f, #d4af37, #b8860b);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-weight: bold; font-size: 16px; color: #0a0a0f;
+      box-shadow: 0 4px 15px rgba(212,175,55,0.5), inset 0 2px 0 rgba(255,255,255,0.3);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+    .card-icon { font-size: 34px; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+    .card-name { 
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; font-weight: 600; 
+      color: #f4d03f; margin-bottom: 6px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .card-desc { 
+      font-size: 11px; color: #b0b0b0; line-height: 1.4;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    .card-upgrade-badge {
+      position: absolute; top: -8px; right: -8px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      font-size: 10px; font-weight: bold;
+      padding: 3px 7px; border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(34,197,94,0.5);
+    }
+    .game-card.small { width: 80px; height: 110px; }
+    .game-card.small .card-cost { width: 24px; height: 24px; font-size: 12px; top: -6px; left: -6px; }
+    .game-card.small .card-icon { font-size: 22px; }
+    .game-card.small .card-name { font-size: 10px; }
+    .game-card.small .card-desc { font-size: 8px; }
 
-/* 덱 모달 전용 큰 카드 */
-#deckGrid .game-card { width: 160px; height: 220px; }
-#deckGrid .card-cost { width: 36px; height: 36px; font-size: 18px; top: -10px; left: -10px; }
-#deckGrid .card-icon { font-size: 40px; margin-bottom: 8px; }
-#deckGrid .card-name { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
-#deckGrid .card-desc { font-size: 14px; line-height: 1.4; }
+    /* 덱 모달 전용 큰 카드 */
+    #deckGrid .game-card { width: 160px; height: 220px; }
+    #deckGrid .card-cost { width: 40px; height: 40px; font-size: 20px; top: -12px; left: -12px; }
+    #deckGrid .card-icon { font-size: 44px; margin-bottom: 10px; }
+    #deckGrid .card-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    #deckGrid .card-desc { font-size: 13px; line-height: 1.5; }
 
-.enemy-container { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
-.enemy-unit { text-align: center; padding: 15px; min-width: 150px; }
-.enemy-emoji { font-size: 60px; animation: float 3s ease-in-out infinite; }
-.enemy-unit:nth-child(2) .enemy-emoji { animation-delay: 0.5s; }
-.enemy-unit:nth-child(3) .enemy-emoji { animation-delay: 1s; }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-.enemy-emoji.hit { animation: shake 0.3s ease-in-out; }
-.enemy-name { font-size: 18px; font-weight: 600; color: #f4d03f; margin: 8px 0; }
-.hp-bar { width: 140px; height: 10px; background: #222; border-radius: 5px; margin: 0 auto 6px; overflow: hidden; }
-.hp-fill { height: 100%; background: linear-gradient(90deg, #8b0000, #dc143c); transition: width 0.3s; }
-.intent { display: inline-block; padding: 6px 12px; background: rgba(20,20,30,0.9); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; margin-top: 6px; font-size: 13px; }
-.status { display: inline-block; padding: 3px 8px; border-radius: 8px; font-size: 11px; margin: 2px; }
-.status.block { background: rgba(74,158,255,0.2); color: #4a9eff; }
-.status.str { background: rgba(220,20,60,0.2); color: #dc143c; }
-.status.vuln { background: rgba(255,165,0,0.2); color: #ffa500; }
-.status.weak { background: rgba(100,200,100,0.2); color: #64c864; }
-.status.poison { background: rgba(138,43,226,0.2); color: #9f7aea; }
-.status.ritual { background: rgba(138,43,226,0.2); color: #c084fc; }
+    /* 적 유닛 */
+    .enemy-container { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .enemy-unit { 
+      text-align: center; padding: 20px; min-width: 160px;
+      background: rgba(20,20,30,0.5);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.5s ease-out;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .enemy-emoji { font-size: 70px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); }
+    .enemy-unit:nth-child(2) .enemy-emoji { animation-delay: 0.5s; }
+    .enemy-unit:nth-child(3) .enemy-emoji { animation-delay: 1s; }
+    .enemy-emoji.hit { animation: shake 0.3s ease-in-out; }
+    .enemy-name { 
+      font-family: 'Cinzel', 'Noto Sans KR', serif;
+      font-size: 18px; font-weight: 600; 
+      color: #f4d03f; margin: 12px 0;
+      text-shadow: 0 2px 10px rgba(212,175,55,0.3);
+    }
+    .hp-bar { 
+      width: 140px; height: 12px; 
+      background: rgba(30,30,40,0.8); 
+      border-radius: 6px; margin: 0 auto 8px; 
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .hp-fill { 
+      height: 100%; 
+      background: linear-gradient(90deg, #dc2626, #ef4444, #f87171); 
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 10px rgba(239,68,68,0.5);
+    }
+    .intent { 
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; 
+      background: rgba(20,20,35,0.9); 
+      border: 1px solid rgba(212,175,55,0.2); 
+      border-radius: 20px; margin-top: 8px; 
+      font-size: 13px; font-weight: 500;
+      backdrop-filter: blur(10px);
+    }
+    .status { 
+      display: inline-flex; align-items: center;
+      padding: 4px 10px; border-radius: 12px; 
+      font-size: 11px; font-weight: 600; margin: 3px;
+      backdrop-filter: blur(5px);
+    }
+    .status.block { background: rgba(84,160,255,0.2); color: #54a0ff; border: 1px solid rgba(84,160,255,0.3); }
+    .status.str { background: rgba(255,71,87,0.2); color: #ff6b7a; border: 1px solid rgba(255,71,87,0.3); }
+    .status.vuln { background: rgba(255,165,0,0.2); color: #ffa500; border: 1px solid rgba(255,165,0,0.3); }
+    .status.weak { background: rgba(100,200,100,0.2); color: #7ddc7d; border: 1px solid rgba(100,200,100,0.3); }
+    .status.poison { background: rgba(168,85,247,0.2); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+    .status.ritual { background: rgba(192,132,252,0.2); color: #c084fc; border: 1px solid rgba(192,132,252,0.3); }
 
-.player-bar {
-  background: rgba(20,20,30,0.8);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px; padding: 12px 16px; margin: 16px;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 10px;
-}
-.energy-orbs { display: flex; gap: 6px; }
-.orb {
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
-}
-.orb.active { background: linear-gradient(135deg, #ffd700, #ff8c00); box-shadow: 0 0 12px rgba(255,140,0,0.6); }
-.orb.empty { background: rgba(30,30,40,0.8); border: 1px solid rgba(255,255,255,0.2); }
+    /* 플레이어 바 */
+    .player-bar {
+      background: linear-gradient(180deg, rgba(25,25,40,0.9), rgba(15,15,25,0.95));
+      border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 20px; padding: 16px 24px; margin: 20px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 12px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .energy-orbs { display: flex; gap: 8px; }
+    .orb {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 15px; font-weight: 700;
+      transition: all 0.3s;
+    }
+    .orb.active { 
+      background: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706); 
+      box-shadow: 0 0 20px rgba(251,191,36,0.6), inset 0 2px 0 rgba(255,255,255,0.3);
+      color: #0a0a0f;
+      animation: glow 2s ease-in-out infinite;
+    }
+    .orb.empty { 
+      background: rgba(30,30,45,0.8); 
+      border: 2px solid rgba(255,255,255,0.1);
+      color: #4a4a5a;
+    }
 
-.hand { display: flex; justify-content: center; gap: 8px; padding: 16px; flex-wrap: wrap; }
+    .hand { 
+      display: flex; justify-content: center; gap: 10px; 
+      padding: 20px; flex-wrap: wrap;
+    }
 
-.screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-.title { font-size: 32px; font-weight: 700; color: #d4af37; margin-bottom: 8px; text-shadow: 0 0 20px rgba(212,175,55,0.5); }
-.subtitle { font-size: 16px; color: #888; margin-bottom: 32px; }
-.version { font-size: 12px; color: #666; margin-top: 8px; }
-.menu-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 260px; }
+    /* 화면 레이아웃 */
+    .screen { 
+      min-height: 100vh; display: flex; flex-direction: column; 
+      align-items: center; justify-content: center; padding: 30px;
+      animation: fadeInUp 0.6s ease-out;
+    }
+    .title { 
+      font-family: 'Cinzel', serif;
+      font-size: 42px; font-weight: 700; 
+      background: linear-gradient(135deg, #f4d03f, #d4af37, #f4d03f);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+      margin-bottom: 10px;
+      letter-spacing: 4px;
+      filter: drop-shadow(0 4px 20px rgba(212,175,55,0.4));
+    }
+    .subtitle { 
+      font-size: 16px; color: #8b8b9b; margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+    .version { font-size: 12px; color: #4a4a5a; margin-top: 12px; }
+    .menu-btns { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 300px; }
 
-.modal { position: fixed; inset: 0; background: rgba(10,10,15,0.95); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
-.modal-box { width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; background: linear-gradient(145deg, #1a1a24, #0d0d15); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px; padding: 20px; }
-.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.modal-title { font-size: 20px; font-weight: 600; color: #d4af37; }
-.modal-close { width: 32px; height: 32px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: #888; font-size: 20px; cursor: pointer; }
+    /* 모달 */
+    .modal { 
+      position: fixed; inset: 0; 
+      background: rgba(5,5,10,0.95); 
+      z-index: 200; 
+      display: flex; align-items: center; justify-content: center; 
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 0.3s ease-out;
+    }
+    .modal-box { 
+      width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; 
+      background: linear-gradient(160deg, rgba(30,30,45,0.98), rgba(15,15,25,0.98)); 
+      border: 1px solid rgba(212,175,55,0.2); 
+      border-radius: 24px; padding: 28px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      backdrop-filter: blur(20px);
+    }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-title { 
+      font-family: 'Cinzel', 'Noto Sans KR', serif;
+      font-size: 22px; font-weight: 600; 
+      color: #f4d03f;
+      text-shadow: 0 2px 10px rgba(212,175,55,0.3);
+    }
+    .modal-close { 
+      width: 36px; height: 36px; 
+      background: rgba(255,255,255,0.05); 
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%; color: #8b8b9b; font-size: 20px; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .modal-close:hover { 
+      background: rgba(255,71,87,0.2); 
+      border-color: rgba(255,71,87,0.4);
+      color: #ff6b7a;
+    }
 
-.save-slot { background: rgba(30,30,40,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
-.save-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
-.save-name { font-weight: 600; color: #d4af37; }
-.save-date { font-size: 11px; color: #666; }
-.save-info { font-size: 13px; color: #888; margin-bottom: 10px; }
-.save-btns { display: flex; gap: 8px; }
-.save-btns .btn { flex: 1; padding: 10px; font-size: 13px; }
+    /* 세이브 슬롯 */
+    .save-slot { 
+      background: linear-gradient(145deg, rgba(35,35,50,0.8), rgba(25,25,35,0.8)); 
+      border: 1px solid rgba(255,255,255,0.08); 
+      border-radius: 16px; padding: 18px; margin-bottom: 14px;
+      transition: all 0.3s;
+    }
+    .save-slot:hover { border-color: rgba(212,175,55,0.3); }
+    .save-head { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .save-name { font-weight: 600; color: #f4d03f; }
+    .save-date { font-size: 11px; color: #6b7280; }
+    .save-info { font-size: 13px; color: #8b8b9b; margin-bottom: 12px; }
+    .save-btns { display: flex; gap: 10px; }
+    .save-btns .btn { flex: 1; padding: 12px; font-size: 13px; }
 
-.map-box { background: rgba(20,20,30,0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 14px; padding: 16px; position: relative; overflow-x: auto; }
-.map-container { position: relative; min-height: 540px; width: 100%; }
-.map-paths { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-.map-path { stroke: rgba(80,80,100,0.3); stroke-width: 2; fill: none; }
-.map-path.accessible { stroke: #d4af37; stroke-width: 3; filter: drop-shadow(0 0 8px rgba(212,175,55,0.9)); animation: pathPulse 1.5s ease-in-out infinite; }
-.map-path.visited { stroke: rgba(74,158,255,0.4); stroke-width: 2; }
-@keyframes pathPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
-.map-floor { display: flex; justify-content: space-around; align-items: center; padding: 4px 10px; position: relative; z-index: 1; min-height: 40px; }
-.map-floor-label { position: absolute; left: -5px; font-size: 10px; color: #666; }
-.map-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 8px; position: relative; }
-.map-node {
-  width: 44px; height: 44px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px; transition: all 0.2s; position: relative;
-}
-.map-node.accessible { background: rgba(212,175,55,0.2); border: 2px solid #d4af37; cursor: pointer; animation: pulse 2s infinite; }
-.map-node.accessible:hover { transform: scale(1.15); box-shadow: 0 0 20px rgba(212,175,55,0.5); }
-.map-node.visited { background: rgba(40,40,50,0.5); border: 1px solid rgba(255,255,255,0.1); opacity: 0.5; }
-.map-node.current { background: rgba(0,200,100,0.3); border: 2px solid #00c864; box-shadow: 0 0 20px rgba(0,200,100,0.4); transform: scale(1.1); }
-.map-node.locked { background: rgba(30,30,40,0.3); border: 1px solid rgba(255,255,255,0.05); opacity: 0.3; }
-@keyframes pulse { 0%,100% { box-shadow: 0 0 8px rgba(212,175,55,0.4); } 50% { box-shadow: 0 0 18px rgba(212,175,55,0.7); } }
-.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 11px; color: #888; margin-bottom: 12px; }
+    /* 맵 */
+    .map-box { 
+      background: linear-gradient(180deg, rgba(20,20,35,0.8), rgba(15,15,25,0.9)); 
+      border: 1px solid rgba(212,175,55,0.15); 
+      border-radius: 20px; padding: 24px; 
+      position: relative; overflow-x: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+      backdrop-filter: blur(10px);
+    }
+    .map-container { position: relative; min-height: 540px; width: 100%; }
+    .map-paths { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    .map-path { stroke: rgba(100,100,120,0.2); stroke-width: 2; fill: none; }
+    .map-path.accessible { 
+      stroke: #f4d03f; stroke-width: 3; 
+      filter: drop-shadow(0 0 12px rgba(244,208,63,0.8)); 
+      animation: pathPulse 1.5s ease-in-out infinite; 
+    }
+    .map-path.visited { stroke: rgba(84,160,255,0.3); stroke-width: 2; }
+    .map-floor { display: flex; justify-content: space-around; align-items: center; padding: 4px 10px; position: relative; z-index: 1; min-height: 40px; }
+    .map-floor-label { position: absolute; left: -5px; font-size: 10px; color: #4a4a5a; font-weight: 600; }
+    .map-row { display: flex; justify-content: center; gap: 14px; margin-bottom: 10px; position: relative; }
+    .map-node {
+      width: 50px; height: 50px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; transition: all 0.3s; position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .map-node.accessible { 
+      background: rgba(244,208,63,0.15); 
+      border: 2px solid #f4d03f; cursor: pointer; 
+      animation: pulse 2s infinite;
+    }
+    .map-node.accessible:hover { 
+      transform: scale(1.2); 
+      box-shadow: 0 0 30px rgba(244,208,63,0.6);
+      background: rgba(244,208,63,0.25);
+    }
+    .map-node.visited { 
+      background: rgba(50,50,60,0.5); 
+      border: 1px solid rgba(255,255,255,0.08); opacity: 0.4; 
+    }
+    .map-node.current { 
+      background: rgba(93,252,122,0.2); 
+      border: 2px solid #5dfc7a; 
+      box-shadow: 0 0 30px rgba(93,252,122,0.5); 
+      transform: scale(1.15);
+    }
+    .map-node.locked { 
+      background: rgba(30,30,45,0.3); 
+      border: 1px solid rgba(255,255,255,0.03); opacity: 0.25; 
+    }
+    .legend { 
+      display: flex; flex-wrap: wrap; justify-content: center; 
+      gap: 14px; font-size: 12px; color: #8b8b9b; margin-bottom: 16px;
+    }
 
-.event-box { width: 100%; max-width: 400px; background: linear-gradient(145deg,#1a1a24,#0d0d15); border: 1px solid rgba(138,43,226,0.3); border-radius: 14px; padding: 24px; text-align: center; }
-.event-emoji { font-size: 56px; margin-bottom: 12px; }
-.event-title { font-size: 22px; font-weight: 600; color: #d4af37; margin-bottom: 6px; }
-.event-desc { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
-.choice-btn { width: 100%; padding: 14px; margin-bottom: 10px; background: rgba(138,43,226,0.15); border: 1px solid rgba(138,43,226,0.4); border-radius: 10px; color: #e8e4d9; font-size: 15px; cursor: pointer; text-align: left; transition: all 0.2s; }
-.choice-btn:hover { background: rgba(138,43,226,0.25); transform: translateX(5px); }
-.choice-btn:active { transform: scale(0.98); }
-.choice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    /* 이벤트 박스 */
+    .event-box { 
+      width: 100%; max-width: 440px; 
+      background: linear-gradient(160deg, rgba(30,30,50,0.95), rgba(15,15,30,0.98)); 
+      border: 1px solid rgba(168,85,247,0.3); 
+      border-radius: 24px; padding: 32px; text-align: center;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 60px rgba(168,85,247,0.1);
+      animation: fadeInUp 0.5s ease-out;
+    }
+    .event-emoji { font-size: 72px; margin-bottom: 16px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5)); }
+    .event-title { 
+      font-family: 'Cinzel', 'Noto Sans KR', serif;
+      font-size: 26px; font-weight: 600; 
+      color: #f4d03f; margin-bottom: 10px;
+      text-shadow: 0 2px 15px rgba(212,175,55,0.4);
+    }
+    .event-desc { font-size: 15px; color: #a0a0b0; margin-bottom: 28px; line-height: 1.7; }
+    .choice-btn { 
+      width: 100%; padding: 18px 24px; margin-bottom: 12px; 
+      background: rgba(168,85,247,0.1); 
+      border: 1px solid rgba(168,85,247,0.3); 
+      border-radius: 14px; color: #e8e4d9; font-size: 15px; 
+      cursor: pointer; text-align: left; transition: all 0.3s;
+      backdrop-filter: blur(5px);
+    }
+    .choice-btn:hover { 
+      background: rgba(168,85,247,0.2); 
+      transform: translateX(8px);
+      border-color: rgba(168,85,247,0.5);
+      box-shadow: 0 5px 20px rgba(168,85,247,0.2);
+    }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; width: 100%; max-width: 280px; }
-.quick-btn { padding: 14px; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.4); border-radius: 10px; color: #d4af37; font-size: 18px; cursor: pointer; transition: all 0.2s; }
-.quick-btn:hover { background: rgba(212,175,55,0.2); }
-.quick-btn:active { transform: scale(0.96); }
+    .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 28px; width: 100%; max-width: 320px; }
+    .quick-btn { 
+      padding: 18px; 
+      background: rgba(244,208,63,0.08); 
+      border: 1px solid rgba(244,208,63,0.3); 
+      border-radius: 16px; color: #f4d03f; font-size: 22px; cursor: pointer; 
+      transition: all 0.3s;
+      backdrop-filter: blur(5px);
+    }
+    .quick-btn:hover { 
+      background: rgba(244,208,63,0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(244,208,63,0.2);
+    }
+    .quick-btn:active { transform: scale(0.96); }
 
-.ai-msg { background: rgba(138,43,226,0.15); border: 1px solid rgba(138,43,226,0.3); border-radius: 10px; padding: 10px 16px; margin: 12px auto; max-width: 400px; text-align: center; }
-.ai-msg p { color: #c9a0ff; font-style: italic; font-size: 14px; }
-.game-msg { text-align: center; color: #d4af37; font-size: 15px; font-weight: 500; margin: 10px 0; min-height: 24px; }
+    /* AI 메시지 */
+    .ai-msg { 
+      background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(139,69,186,0.15)); 
+      border: 1px solid rgba(168,85,247,0.25); 
+      border-radius: 16px; padding: 14px 24px; margin: 16px auto; max-width: 450px; text-align: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 30px rgba(168,85,247,0.1);
+    }
+    .ai-msg p { color: #d4b8ff; font-style: italic; font-size: 15px; letter-spacing: 0.3px; }
+    .game-msg { 
+      text-align: center; 
+      color: #f4d03f; font-size: 16px; font-weight: 600; 
+      margin: 12px 0; min-height: 28px;
+      text-shadow: 0 2px 10px rgba(244,208,63,0.3);
+    }
 
-.shop-section { margin-bottom: 20px; }
-.shop-title { font-size: 16px; font-weight: 600; color: #d4af37; margin-bottom: 10px; }
-.shop-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
-.shop-item { background: rgba(30,30,40,0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; padding: 10px; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
-.shop-item:hover { border-color: #d4af37; transform: translateY(-3px); }
-.shop-item.sold { opacity: 0.3; pointer-events: none; }
-.shop-price { text-align: center; color: #d4af37; font-weight: 600; margin-top: 6px; font-size: 13px; }
-.shop-service { background: rgba(30,30,40,0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
-.shop-service:hover { border-color: #d4af37; }
+    /* 상점 */
+    .shop-section { margin-bottom: 28px; }
+    .shop-title { 
+      font-family: 'Cinzel', 'Noto Sans KR', serif;
+      font-size: 18px; font-weight: 600; 
+      color: #f4d03f; margin-bottom: 14px;
+      text-shadow: 0 2px 10px rgba(212,175,55,0.2);
+    }
+    .shop-items { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 10px; }
+    .shop-item { 
+      background: linear-gradient(145deg, rgba(35,35,50,0.9), rgba(20,20,30,0.9)); 
+      border: 1px solid rgba(212,175,55,0.15); 
+      border-radius: 16px; padding: 14px; cursor: pointer; flex-shrink: 0; 
+      transition: all 0.3s;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .shop-item:hover { 
+      border-color: #f4d03f; 
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(212,175,55,0.2);
+    }
+    .shop-item.sold { opacity: 0.25; pointer-events: none; filter: grayscale(80%); }
+    .shop-price { 
+      text-align: center; color: #f4d03f; font-weight: 700; margin-top: 10px; font-size: 14px;
+      text-shadow: 0 2px 8px rgba(212,175,55,0.3);
+    }
+    .shop-service { 
+      background: linear-gradient(145deg, rgba(35,35,50,0.8), rgba(20,20,30,0.8)); 
+      border: 1px solid rgba(212,175,55,0.15); 
+      border-radius: 14px; padding: 18px; margin-bottom: 12px; 
+      display: flex; justify-content: space-between; align-items: center; 
+      cursor: pointer; transition: all 0.3s;
+    }
+    .shop-service:hover { 
+      border-color: #f4d03f;
+      transform: translateX(5px);
+    }
 
-.deck-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 12px 0; }
-.deck-filter { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center; }
-.deck-filter button { padding: 6px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #aaa; font-size: 12px; cursor: pointer; }
-.deck-filter button.active { background: rgba(212,175,55,0.2); border-color: #d4af37; color: #d4af37; }
+    /* 덱 그리드 */
+    .deck-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; padding: 16px 0; }
+    .deck-filter { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+    .deck-filter button { 
+      padding: 8px 16px; 
+      background: rgba(255,255,255,0.05); 
+      border: 1px solid rgba(255,255,255,0.1); 
+      border-radius: 10px; color: #8b8b9b; font-size: 13px; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .deck-filter button:hover { background: rgba(255,255,255,0.08); }
+    .deck-filter button.active { 
+      background: rgba(244,208,63,0.15); 
+      border-color: rgba(244,208,63,0.5); 
+      color: #f4d03f;
+    }
 
-.result-emoji { font-size: 70px; margin-bottom: 12px; }
-.result-title { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
-.result-title.win { color: #d4af37; }
-.result-title.lose { color: #dc143c; }
-.result-sub { font-size: 15px; color: #888; margin-bottom: 20px; }
-.result-stats { background: rgba(30,30,40,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; margin-bottom: 20px; font-size: 14px; color: #aaa; line-height: 1.8; }
+    /* 결과 화면 */
+    .result-emoji { font-size: 90px; margin-bottom: 20px; filter: drop-shadow(0 15px 40px rgba(0,0,0,0.5)); }
+    .result-title { 
+      font-family: 'Cinzel', serif;
+      font-size: 40px; font-weight: 700; margin-bottom: 10px;
+      letter-spacing: 4px;
+    }
+    .result-title.win { 
+      background: linear-gradient(135deg, #f4d03f, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 20px rgba(244,208,63,0.4));
+    }
+    .result-title.lose { 
+      color: #ff4757;
+      text-shadow: 0 4px 20px rgba(255,71,87,0.4);
+    }
+    .result-sub { font-size: 16px; color: #8b8b9b; margin-bottom: 28px; }
+    .result-stats { 
+      background: linear-gradient(145deg, rgba(35,35,50,0.8), rgba(25,25,35,0.8)); 
+      border: 1px solid rgba(255,255,255,0.08); 
+      border-radius: 16px; padding: 24px; margin-bottom: 28px; 
+      font-size: 15px; color: #a0a0b0; line-height: 2;
+    }
 
-.combat-log { max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px; margin: 8px 16px; font-size: 12px; color: #888; }
-.combat-log p { margin: 2px 0; }
-.combat-log .dmg { color: #dc143c; }
-.combat-log .heal { color: #4ade80; }
-.combat-log .block { color: #4a9eff; }
+    /* 전투 로그 */
+    .combat-log { 
+      max-height: 90px; overflow-y: auto; 
+      background: rgba(10,10,15,0.6); 
+      border-radius: 12px; padding: 12px; margin: 10px 20px; 
+      font-size: 12px; color: #6b7280;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .combat-log p { margin: 3px 0; }
+    .combat-log .dmg { color: #ff6b7a; }
+    .combat-log .heal { color: #5dfc7a; }
+    .combat-log .block { color: #54a0ff; }
 
-.tooltip { position: fixed; background: rgba(20,20,30,0.95); border: 1px solid rgba(212,175,55,0.4); border-radius: 8px; padding: 12px; max-width: 200px; z-index: 1000; pointer-events: none; }
-.tooltip-title { color: #d4af37; font-weight: 600; margin-bottom: 4px; }
+    /* 툴팁 */
+    .tooltip { 
+      position: fixed; 
+      background: linear-gradient(145deg, rgba(30,30,50,0.98), rgba(20,20,35,0.98)); 
+      border: 1px solid rgba(212,175,55,0.3); 
+      border-radius: 12px; padding: 16px; max-width: 220px; 
+      z-index: 1000; pointer-events: none;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+    }
+    .tooltip-title { color: #f4d03f; font-weight: 600; margin-bottom: 6px; font-size: 14px; }
 .tooltip-desc { color: #aaa; font-size: 12px; line-height: 1.4; }
 
 .target-indicator { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: #d4af37; font-size: 20px; animation: bounce 0.5s infinite; }
@@ -421,6 +830,21 @@
     </div>
   </div>
 
+  <div class="modal hidden" id="itemInfoModal" onclick="closeItemInfo()">
+    <div class="modal-box" style="max-width:320px;" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-title" id="itemInfoTitle">아이템</div>
+        <button class="modal-close" onclick="closeItemInfo()">×</button>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:64px;margin-bottom:16px;" id="itemInfoEmoji">🎁</div>
+        <div style="font-size:18px;font-weight:600;color:#f4d03f;margin-bottom:12px;" id="itemInfoName">이름</div>
+        <div style="font-size:14px;color:#a0a0b0;line-height:1.6;margin-bottom:20px;" id="itemInfoDesc">설명</div>
+        <div id="itemInfoAction"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal hidden" id="removeModal">
     <div class="modal-box">
       <div class="modal-head">
@@ -468,20 +892,20 @@
 
     // ========== 적 데이터 ==========
     const ENEMIES = {
-      // Act 1 일반
-      cultist: { name: '광신도', hp: [48, 54], emoji: '🧙‍♂️', atks: [{ dmg: 6, name: '의식 칼날' }, { ritual: 3, name: '의식' }] },
-      jawWorm: { name: '턱 벌레', hp: [40, 44], emoji: '🐛', atks: [{ dmg: 11, name: '물기' }, { block: 6, str: 4, name: '웅크리기' }, { dmg: 7, name: '돌진' }] },
-      slimeS: { name: '작은 슬라임', hp: [12, 16], emoji: '🟢', atks: [{ dmg: 5, name: '찰싹' }] },
-      slimeM: { name: '슬라임', hp: [28, 32], emoji: '🟡', atks: [{ dmg: 8, name: '찰싹' }, { dmg: 10, weak: 1, name: '핥기' }] },
-      looter: { name: '약탈자', hp: [44, 48], emoji: '🦹', atks: [{ dmg: 10, name: '펀치' }, { dmg: 12, name: '슬래시' }, { escape: true, name: '도주' }] },
-      // Act 1 엘리트
-      gremlinNob: { name: '그렘린 대장', hp: [82, 86], emoji: '👺', elite: true, atks: [{ dmg: 14, name: '돌진' }, { dmg: 16, name: '해골 부수기' }, { str: 2, name: '분노' }] },
-      lagavulin: { name: '라가불린', hp: [110, 115], emoji: '😈', elite: true, sleeping: true, atks: [{ dmg: 18, name: '공격' }, { debuff: true, strDown: 1, dexDown: 1, name: '사이펀 소울' }] },
-      sentries: { name: '파수꾼', hp: [38, 42], emoji: '🤖', elite: true, count: 3, atks: [{ dmg: 9, name: '레이저' }, { status: 'dazed', name: '혼란' }] },
-      // Act 1 보스
-      slimeBoss: { name: '슬라임 보스', hp: [140, 150], emoji: '🟩', boss: true, atks: [{ dmg: 35, name: '슬램' }, { split: true, name: '분열' }] },
-      guardian: { name: '수호자', hp: [240, 250], emoji: '🤖', boss: true, atks: [{ dmg: 5, times: 4, name: '철벽 난타' }, { dmg: 32, name: '격렬한 공격' }, { block: 9, dmg: 8, name: '충전 방패' }] },
-      hexaghost: { name: '헥사고스트', hp: [250, 260], emoji: '👻', boss: true, atks: [{ dmg: 2, times: 6, name: '활성화' }, { dmg: 6, times: 6, name: '분노' }, { dmg: 45, name: '지옥불' }] },
+      // Act 1 일반 (밸런스 조정)
+      cultist: { name: '광신도', hp: [38, 44], emoji: '🧙‍♂️', atks: [{ dmg: 5, name: '의식 칼날' }, { ritual: 2, name: '의식' }] },
+      jawWorm: { name: '턱 벌레', hp: [36, 40], emoji: '🐛', atks: [{ dmg: 8, name: '물기' }, { block: 5, str: 3, name: '웅크리기' }, { dmg: 5, name: '돌진' }] },
+      slimeS: { name: '작은 슬라임', hp: [10, 14], emoji: '🟢', atks: [{ dmg: 4, name: '찰싹' }] },
+      slimeM: { name: '슬라임', hp: [24, 28], emoji: '🟡', atks: [{ dmg: 6, name: '찰싹' }, { dmg: 8, weak: 1, name: '핥기' }] },
+      looter: { name: '약탈자', hp: [38, 44], emoji: '🦹', atks: [{ dmg: 8, name: '펀치' }, { dmg: 10, name: '슬래시' }, { escape: true, name: '도주' }] },
+      // Act 1 엘리트 (HP 20% 감소, 데미지 조정)
+      gremlinNob: { name: '그렘린 대장', hp: [65, 70], emoji: '👺', elite: true, atks: [{ dmg: 10, name: '돌진' }, { dmg: 14, name: '해골 부수기' }, { str: 2, name: '분노' }] },
+      lagavulin: { name: '라가불린', hp: [85, 95], emoji: '😈', elite: true, sleeping: true, atks: [{ dmg: 14, name: '공격' }, { debuff: true, strDown: 1, dexDown: 1, name: '사이펀 소울' }] },
+      sentries: { name: '파수꾼', hp: [30, 35], emoji: '🤖', elite: true, count: 3, atks: [{ dmg: 7, name: '레이저' }, { status: 'dazed', name: '혼란' }] },
+      // Act 1 보스 (HP 15% 감소, 데미지 조정)
+      slimeBoss: { name: '슬라임 보스', hp: [120, 130], emoji: '🟩', boss: true, atks: [{ dmg: 25, name: '슬램' }, { split: true, name: '분열' }] },
+      guardian: { name: '수호자', hp: [200, 215], emoji: '🤖', boss: true, atks: [{ dmg: 4, times: 4, name: '철벽 난타' }, { dmg: 26, name: '격렬한 공격' }, { block: 8, dmg: 6, name: '충전 방패' }] },
+      hexaghost: { name: '헥사고스트', hp: [210, 225], emoji: '👻', boss: true, atks: [{ dmg: 2, times: 5, name: '활성화' }, { dmg: 5, times: 5, name: '분노' }, { dmg: 35, name: '지옥불' }] },
     };
 
     // ========== 렐릭 데이터 ==========
@@ -760,10 +1184,10 @@
       let potionHtml = '';
       for (let i = 0; i < 3; i++) {
         const p = potions[i];
-        potionHtml += `<div class="inv-slot" onclick="usePotion(${i})" title="${p ? p.name + ': ' + p.desc : '빈 슬롯'}">${p ? p.emoji : '○'}</div>`;
+        potionHtml += `<div class="inv-slot" onclick="showPotionInfo(${i})" title="${p ? p.name + ': ' + p.desc : '빈 슬롯'}">${p ? p.emoji : '○'}</div>`;
       }
       $('potionSlots').innerHTML = potionHtml;
-      $('relicSlots').innerHTML = relics.slice(0, 5).map(r => `<div class="inv-slot" title="${r.name}: ${r.desc}">${r.emoji}</div>`).join('');
+      $('relicSlots').innerHTML = relics.slice(0, 5).map((r, i) => `<div class="inv-slot" onclick="showRelicInfo(${i})" title="${r.name}: ${r.desc}">${r.emoji}</div>`).join('');
     }
 
     function renderMapScreen() {
@@ -1071,7 +1495,8 @@
       });
       
       // SVG 경로 생성
-      let pathsHtml = `<svg class="map-paths" width="${boxWidth}" height="${mapNodes.length * floorHeight + 30}">`;
+      const svgHeight = mapNodes.length * floorHeight + 50;
+      let pathsHtml = `<svg class="map-paths" width="${boxWidth}" height="${svgHeight}">`;
       
       mapNodes.forEach((row, ri) => {
         row.forEach(node => {
@@ -1104,25 +1529,21 @@
       
       pathsHtml += '</svg>';
       
-      // 노드 HTML 생성
-      let nodesHtml = '<div class="map-container">' + pathsHtml;
+      // 노드 HTML 생성 - 절대 위치 사용
+      let nodesHtml = `<div class="map-container" style="height:${svgHeight}px;">` + pathsHtml;
       
-      for (let ri = mapNodes.length - 1; ri >= 0; ri--) {
-        const row = mapNodes[ri];
-        nodesHtml += `<div class="map-floor">`;
-        
+      mapNodes.forEach((row, ri) => {
         row.forEach(n => {
+          const pos = nodePositions[n.id];
           let cls = 'map-node ';
           if (currentNode && currentNode.id === n.id) cls += 'current';
           else if (visitedNodes.includes(n.id)) cls += 'visited';
           else if (isAccessible(n)) cls += 'accessible';
           else cls += 'locked';
           
-          nodesHtml += `<div class="${cls}" onclick="selectNode('${n.id}')" title="${NODE_NAMES[n.type]}">${NODE_ICONS[n.type]}</div>`;
+          nodesHtml += `<div class="${cls}" style="position:absolute;left:${pos.x}px;top:${pos.y}px;transform:translate(-50%,-50%);" onclick="selectNode('${n.id}')" title="${NODE_NAMES[n.type]}">${NODE_ICONS[n.type]}</div>`;
         });
-        
-        nodesHtml += `</div>`;
-      }
+      });
       
       nodesHtml += '</div>';
       
@@ -1441,15 +1862,23 @@
     }
 
     function targetEnemy(idx) {
+      if (animating) return;
       if (!targetMode || selectedCardIndex < 0) return;
       targetMode = false;
       executeCard(selectedCardIndex, idx);
       selectedCardIndex = -1;
     }
 
+    let lastPlayTime = 0;
     function playCard(i) {
+      // 이중 클릭 방지
+      const now = Date.now();
+      if (now - lastPlayTime < 500) return;
+      lastPlayTime = now;
+      
       if (animating || state !== 'combat') return;
       const c = hand[i];
+      if (!c) return;
       if (c.cost > energy) { 
         gameMsg = '에너지 부족!'; 
         render(); 
@@ -1470,8 +1899,12 @@
     }
 
     function executeCard(i, targetIdx) {
-      const c = hand[i];
+      if (animating) return;
       animating = true;
+      
+      const c = hand[i];
+      if (!c) { animating = false; return; }
+      
       energy -= c.cost;
       
       const e = enemies.filter(en => en.hp > 0)[targetIdx] || enemies.find(en => en.hp > 0);
@@ -1667,7 +2100,12 @@
       }
     }
 
+    let lastEndTurnTime = 0;
     function endTurn() {
+      const now = Date.now();
+      if (now - lastEndTurnTime < 500) return;
+      lastEndTurnTime = now;
+      
       if (animating) return;
       animating = true;
       
@@ -1913,6 +2351,74 @@
       gameMsg = '';
       autoSave(); 
       render(); 
+    }
+
+    // ========== 아이템 정보 모달 ==========
+    let selectedPotionIdx = -1;
+    
+    function showRelicInfo(i) {
+      const r = relics[i];
+      if (!r) return;
+      
+      $('itemInfoTitle').textContent = '🎁 렐릭';
+      $('itemInfoEmoji').textContent = r.emoji;
+      $('itemInfoName').textContent = r.name;
+      $('itemInfoDesc').textContent = r.desc;
+      $('itemInfoAction').innerHTML = '';
+      $('itemInfoModal').classList.remove('hidden');
+    }
+    
+    function showPotionInfo(i) {
+      const p = potions[i];
+      selectedPotionIdx = i;
+      
+      if (!p) {
+        $('itemInfoTitle').textContent = '🧪 포션';
+        $('itemInfoEmoji').textContent = '○';
+        $('itemInfoName').textContent = '빈 슬롯';
+        $('itemInfoDesc').textContent = '포션이 없습니다.';
+        $('itemInfoAction').innerHTML = '';
+      } else {
+        $('itemInfoTitle').textContent = '🧪 포션';
+        $('itemInfoEmoji').textContent = p.emoji;
+        $('itemInfoName').textContent = p.name;
+        $('itemInfoDesc').textContent = p.desc;
+        
+        // 전투 중에만 사용 가능한 포션인지 체크
+        const combatOnly = p.dmg || p.str || p.dex || p.weakAll || p.poison || p.energy;
+        const canUse = !combatOnly || state === 'combat';
+        
+        let actionHtml = `<button class="btn btn-gold btn-sm" onclick="usePotionFromModal()" ${canUse ? '' : 'disabled'}>사용하기</button>`;
+        if (!canUse) {
+          actionHtml += '<p class="muted" style="margin-top:8px;font-size:12px;">전투 중에만 사용 가능</p>';
+        }
+        actionHtml += `<button class="btn btn-dark btn-sm" style="margin-left:8px;" onclick="discardPotion()">버리기</button>`;
+        $('itemInfoAction').innerHTML = actionHtml;
+      }
+      
+      $('itemInfoModal').classList.remove('hidden');
+    }
+    
+    function usePotionFromModal() {
+      closeItemInfo();
+      if (selectedPotionIdx >= 0) {
+        usePotion(selectedPotionIdx);
+      }
+    }
+    
+    function discardPotion() {
+      if (selectedPotionIdx >= 0 && potions[selectedPotionIdx]) {
+        const p = potions[selectedPotionIdx];
+        potions.splice(selectedPotionIdx, 1);
+        gameMsg = `${p.name}을(를) 버렸습니다.`;
+        render();
+      }
+      closeItemInfo();
+    }
+    
+    function closeItemInfo() {
+      $('itemInfoModal').classList.add('hidden');
+      selectedPotionIdx = -1;
     }
 
     function usePotion(i) {
