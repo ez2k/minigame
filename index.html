@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미니게임 모음</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .game-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .game-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 50px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>미니게임 모음</h1>
+
+    <div class="game-grid">
+        <a href="./sword-upgrade/" class="game-card">
+            <span class="game-icon">⚔️</span>
+            <h2 class="game-title">검 강화 시뮬레이터</h2>
+            <p class="game-desc">멀티플레이어 검 강화 게임. 친구들과 함께 강화에 도전해보세요!</p>
+        </a>
+
+        <a href="./slay-ai-spire/" class="game-card">
+            <span class="game-icon">🎴</span>
+            <h2 class="game-title">Slay AI Spire</h2>
+            <p class="game-desc">AI와 대결하는 덱빌딩 로그라이크 카드 게임.</p>
+        </a>
+    </div>
+
+    <footer>
+        &copy; 2025 미니게임 모음
+    </footer>
+</body>
+</html>
