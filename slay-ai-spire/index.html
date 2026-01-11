@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Slay AI Spire v2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(180deg, #0d0d15 0%, #1a1020 50%, #0d0d15 100%);
+      color: #e8e4d9;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .hidden { display: none !important; }
+    .gold { color: #d4af37; }
+    .red { color: #dc143c; }
+    .blue { color: #4a9eff; }
+    .green { color: #4ade80; }
+    .purple { color: #c084fc; }
+    .muted { color: #888; }
+    .center { text-align: center; }
+
+```
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 14px 28px; border: none; border-radius: 8px;
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn:active { transform: scale(0.96); }
+.btn-gold {
+  background: linear-gradient(135deg, #b8860b, #d4af37, #f4d03f);
+  color: #1a1a1a;
+  box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+}
+.btn-dark {
+  background: rgba(255,255,255,0.1);
+  color: #d4af37;
+  border: 1px solid rgba(212,175,55,0.4);
+}
+.btn-green {
+  background: linear-gradient(135deg, #166534, #22c55e);
+  color: #fff;
+}
+.btn-sm { padding: 8px 16px; font-size: 14px; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(13,13,21,0.95);
+  border-bottom: 1px solid rgba(212,175,55,0.2);
+  padding: 12px 16px;
+}
+.top-bar-inner {
+  max-width: 800px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+}
+.stats { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.stat { display: flex; gap: 4px; align-items: center; font-size: 14px; }
+.top-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.inv-slot {
+  width: 36px; height: 36px;
+  background: rgba(30,30,40,0.8);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+  transition: transform 0.2s;
+}
+.inv-slot:hover { transform: scale(1.1); }
+
+.game-card {
+  width: 120px; height: 170px;
+  border-radius: 10px; padding: 10px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; flex-shrink: 0;
+}
+.game-card:hover:not(.disabled) { transform: translateY(-10px) scale(1.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.game-card:active:not(.disabled) { transform: scale(0.95); }
+.game-card.disabled { opacity: 0.4; cursor: not-allowed; }
+.game-card.attack { background: linear-gradient(145deg, #3d1a1a, #1a0808); border: 2px solid #8b0000; }
+.game-card.skill { background: linear-gradient(145deg, #1a2a3d, #080810); border: 2px solid #1e4a7a; }
+.game-card.power { background: linear-gradient(145deg, #3d3a1a, #1a1808); border: 2px solid #8b7500; }
+.game-card.upgraded { box-shadow: 0 0 15px rgba(74, 222, 128, 0.4); }
+.game-card.upgraded .card-name { color: #4ade80; }
+.card-cost {
+  position: absolute; top: -8px; left: -8px;
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #f4d03f, #d4af37);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 16px; color: #1a1a1a;
+}
+.card-icon { font-size: 32px; margin-bottom: 6px; }
+.card-name { font-size: 14px; font-weight: 600; color: #f4d03f; margin-bottom: 4px; }
+.card-desc { font-size: 12px; color: #aaa; line-height: 1.3; }
+.card-upgrade-badge {
+  position: absolute; top: -6px; right: -6px;
+  background: #22c55e; color: #fff;
+  font-size: 10px; font-weight: bold;
+  padding: 2px 5px; border-radius: 4px;
+}
+.game-card.small { width: 80px; height: 110px; }
+.game-card.small .card-cost { width: 22px; height: 22px; font-size: 11px; top: -6px; left: -6px; }
+.game-card.small .card-icon { font-size: 20px; }
+.game-card.small .card-name { font-size: 10px; }
+.game-card.small .card-desc { font-size: 8px; }
+
+/* 덱 모달 전용 큰 카드 */
+#deckGrid .game-card { width: 160px; height: 220px; }
+#deckGrid .card-cost { width: 36px; height: 36px; font-size: 18px; top: -10px; left: -10px; }
+#deckGrid .card-icon { font-size: 40px; margin-bottom: 8px; }
+#deckGrid .card-name { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+#deckGrid .card-desc { font-size: 14px; line-height: 1.4; }
+
+.enemy-container { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+.enemy-unit { text-align: center; padding: 15px; min-width: 150px; }
+.enemy-emoji { font-size: 60px; animation: float 3s ease-in-out infinite; }
+.enemy-unit:nth-child(2) .enemy-emoji { animation-delay: 0.5s; }
+.enemy-unit:nth-child(3) .enemy-emoji { animation-delay: 1s; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.enemy-emoji.hit { animation: shake 0.3s ease-in-out; }
+.enemy-name { font-size: 18px; font-weight: 600; color: #f4d03f; margin: 8px 0; }
+.hp-bar { width: 140px; height: 10px; background: #222; border-radius: 5px; margin: 0 auto 6px; overflow: hidden; }
+.hp-fill { height: 100%; background: linear-gradient(90deg, #8b0000, #dc143c); transition: width 0.3s; }
+.intent { display: inline-block; padding: 6px 12px; background: rgba(20,20,30,0.9); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; margin-top: 6px; font-size: 13px; }
+.status { display: inline-block; padding: 3px 8px; border-radius: 8px; font-size: 11px; margin: 2px; }
+.status.block { background: rgba(74,158,255,0.2); color: #4a9eff; }
+.status.str { background: rgba(220,20,60,0.2); color: #dc143c; }
+.status.vuln { background: rgba(255,165,0,0.2); color: #ffa500; }
+.status.weak { background: rgba(100,200,100,0.2); color: #64c864; }
+.status.poison { background: rgba(138,43,226,0.2); color: #9f7aea; }
+.status.ritual { background: rgba(138,43,226,0.2); color: #c084fc; }
+
+.player-bar {
+  background: rgba(20,20,30,0.8);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; padding: 12px 16px; margin: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 10px;
+}
+.energy-orbs { display: flex; gap: 6px; }
+.orb {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.orb.active { background: linear-gradient(135deg, #ffd700, #ff8c00); box-shadow: 0 0 12px rgba(255,140,0,0.6); }
+.orb.empty { background: rgba(30,30,40,0.8); border: 1px solid rgba(255,255,255,0.2); }
+
+.hand { display: flex; justify-content: center; gap: 8px; padding: 16px; flex-wrap: wrap; }
+
+.screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+.title { font-size: 32px; font-weight: 700; color: #d4af37; margin-bottom: 8px; text-shadow: 0 0 20px rgba(212,175,55,0.5); }
+.subtitle { font-size: 16px; color: #888; margin-bottom: 32px; }
+.version { font-size: 12px; color: #666; margin-top: 8px; }
+.menu-btns { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 260px; }
+
+.modal { position: fixed; inset: 0; background: rgba(10,10,15,0.95); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal-box { width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; background: linear-gradient(145deg, #1a1a24, #0d0d15); border: 1px solid rgba(212,175,55,0.3); border-radius: 16px; padding: 20px; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal-title { font-size: 20px; font-weight: 600; color: #d4af37; }
+.modal-close { width: 32px; height: 32px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: #888; font-size: 20px; cursor: pointer; }
+
+.save-slot { background: rgba(30,30,40,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.save-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.save-name { font-weight: 600; color: #d4af37; }
+.save-date { font-size: 11px; color: #666; }
+.save-info { font-size: 13px; color: #888; margin-bottom: 10px; }
+.save-btns { display: flex; gap: 8px; }
+.save-btns .btn { flex: 1; padding: 10px; font-size: 13px; }
+
+.map-box { background: rgba(20,20,30,0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 14px; padding: 16px; position: relative; overflow-x: auto; }
+.map-container { position: relative; min-height: 540px; width: 100%; }
+.map-paths { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.map-path { stroke: rgba(80,80,100,0.3); stroke-width: 2; fill: none; }
+.map-path.accessible { stroke: #d4af37; stroke-width: 3; filter: drop-shadow(0 0 8px rgba(212,175,55,0.9)); animation: pathPulse 1.5s ease-in-out infinite; }
+.map-path.visited { stroke: rgba(74,158,255,0.4); stroke-width: 2; }
+@keyframes pathPulse { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
+.map-floor { display: flex; justify-content: space-around; align-items: center; padding: 4px 10px; position: relative; z-index: 1; min-height: 40px; }
+.map-floor-label { position: absolute; left: -5px; font-size: 10px; color: #666; }
+.map-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 8px; position: relative; }
+.map-node {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; transition: all 0.2s; position: relative;
+}
+.map-node.accessible { background: rgba(212,175,55,0.2); border: 2px solid #d4af37; cursor: pointer; animation: pulse 2s infinite; }
+.map-node.accessible:hover { transform: scale(1.15); box-shadow: 0 0 20px rgba(212,175,55,0.5); }
+.map-node.visited { background: rgba(40,40,50,0.5); border: 1px solid rgba(255,255,255,0.1); opacity: 0.5; }
+.map-node.current { background: rgba(0,200,100,0.3); border: 2px solid #00c864; box-shadow: 0 0 20px rgba(0,200,100,0.4); transform: scale(1.1); }
+.map-node.locked { background: rgba(30,30,40,0.3); border: 1px solid rgba(255,255,255,0.05); opacity: 0.3; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 8px rgba(212,175,55,0.4); } 50% { box-shadow: 0 0 18px rgba(212,175,55,0.7); } }
+.legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 11px; color: #888; margin-bottom: 12px; }
+
+.event-box { width: 100%; max-width: 400px; background: linear-gradient(145deg,#1a1a24,#0d0d15); border: 1px solid rgba(138,43,226,0.3); border-radius: 14px; padding: 24px; text-align: center; }
+.event-emoji { font-size: 56px; margin-bottom: 12px; }
+.event-title { font-size: 22px; font-weight: 600; color: #d4af37; margin-bottom: 6px; }
+.event-desc { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
+.choice-btn { width: 100%; padding: 14px; margin-bottom: 10px; background: rgba(138,43,226,0.15); border: 1px solid rgba(138,43,226,0.4); border-radius: 10px; color: #e8e4d9; font-size: 15px; cursor: pointer; text-align: left; transition: all 0.2s; }
+.choice-btn:hover { background: rgba(138,43,226,0.25); transform: translateX(5px); }
+.choice-btn:active { transform: scale(0.98); }
+.choice-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; width: 100%; max-width: 280px; }
+.quick-btn { padding: 14px; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.4); border-radius: 10px; color: #d4af37; font-size: 18px; cursor: pointer; transition: all 0.2s; }
+.quick-btn:hover { background: rgba(212,175,55,0.2); }
+.quick-btn:active { transform: scale(0.96); }
+
+.ai-msg { background: rgba(138,43,226,0.15); border: 1px solid rgba(138,43,226,0.3); border-radius: 10px; padding: 10px 16px; margin: 12px auto; max-width: 400px; text-align: center; }
+.ai-msg p { color: #c9a0ff; font-style: italic; font-size: 14px; }
+.game-msg { text-align: center; color: #d4af37; font-size: 15px; font-weight: 500; margin: 10px 0; min-height: 24px; }
+
+.shop-section { margin-bottom: 20px; }
+.shop-title { font-size: 16px; font-weight: 600; color: #d4af37; margin-bottom: 10px; }
+.shop-items { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
+.shop-item { background: rgba(30,30,40,0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; padding: 10px; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
+.shop-item:hover { border-color: #d4af37; transform: translateY(-3px); }
+.shop-item.sold { opacity: 0.3; pointer-events: none; }
+.shop-price { text-align: center; color: #d4af37; font-weight: 600; margin-top: 6px; font-size: 13px; }
+.shop-service { background: rgba(30,30,40,0.6); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+.shop-service:hover { border-color: #d4af37; }
+
+.deck-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; padding: 12px 0; }
+.deck-filter { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; justify-content: center; }
+.deck-filter button { padding: 6px 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #aaa; font-size: 12px; cursor: pointer; }
+.deck-filter button.active { background: rgba(212,175,55,0.2); border-color: #d4af37; color: #d4af37; }
+
+.result-emoji { font-size: 70px; margin-bottom: 12px; }
+.result-title { font-size: 32px; font-weight: 700; margin-bottom: 6px; }
+.result-title.win { color: #d4af37; }
+.result-title.lose { color: #dc143c; }
+.result-sub { font-size: 15px; color: #888; margin-bottom: 20px; }
+.result-stats { background: rgba(30,30,40,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px; margin-bottom: 20px; font-size: 14px; color: #aaa; line-height: 1.8; }
+
+.combat-log { max-height: 80px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px; margin: 8px 16px; font-size: 12px; color: #888; }
+.combat-log p { margin: 2px 0; }
+.combat-log .dmg { color: #dc143c; }
+.combat-log .heal { color: #4ade80; }
+.combat-log .block { color: #4a9eff; }
+
+.tooltip { position: fixed; background: rgba(20,20,30,0.95); border: 1px solid rgba(212,175,55,0.4); border-radius: 8px; padding: 12px; max-width: 200px; z-index: 1000; pointer-events: none; }
+.tooltip-title { color: #d4af37; font-weight: 600; margin-bottom: 4px; }
+.tooltip-desc { color: #aaa; font-size: 12px; line-height: 1.4; }
+
+.target-indicator { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: #d4af37; font-size: 20px; animation: bounce 0.5s infinite; }
+@keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-5px); } }
+
+@media (max-width: 480px) {
+  .title { font-size: 26px; }
+  .game-card { width: 80px; height: 115px; }
+  .game-card .card-icon { font-size: 20px; }
+  .game-card .card-name { font-size: 9px; }
+  .game-card .card-desc { font-size: 7px; }
+  .enemy-emoji { font-size: 45px; }
+  .enemy-name { font-size: 14px; }
+  .enemy-unit { min-width: 100px; padding: 10px; }
+  .hp-bar { width: 100px; }
+  .hand { gap: 5px; padding: 10px; }
+  .top-bar-inner { font-size: 12px; }
+  .stat { font-size: 12px; }
+  .inv-slot { width: 30px; height: 30px; font-size: 14px; }
+  .map-node { width: 38px; height: 38px; font-size: 16px; }
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="top-bar hidden" id="topBar">
+    <div class="top-bar-inner">
+      <div class="stats">
+        <span class="gold">🏔️ <span id="floorNum">1</span>층</span>
+        <div class="stat"><span class="red">❤️</span><span id="hpText">80/80</span></div>
+        <div class="stat"><span class="gold">💰</span><span id="goldText">99</span></div>
+      </div>
+      <div class="top-btns">
+        <div id="potionSlots" style="display:flex;gap:4px;"></div>
+        <div id="relicSlots" style="display:flex;gap:4px;"></div>
+        <button class="btn btn-dark btn-sm" onclick="showDeck()">덱</button>
+        <button class="btn btn-dark btn-sm" onclick="showMap()">맵</button>
+        <button class="btn btn-dark btn-sm" onclick="showSaveMenu()">💾</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="menuScreen">
+    <div class="title">⚔️ SLAY AI SPIRE ⚔️</div>
+    <div class="subtitle">덱빌딩 로그라이크</div>
+    <div class="menu-btns">
+      <button class="btn btn-gold" onclick="startGame()">새 게임</button>
+      <button class="btn btn-dark hidden" id="continueBtn" onclick="loadAutoSave()">이어하기</button>
+      <button class="btn btn-dark" onclick="showSaveMenu()">저장 슬롯</button>
+    </div>
+    <div class="version">v2.0 - 업그레이드 & 밸런스 패치</div>
+  </div>
+
+  <div class="screen hidden" id="mapScreen" style="padding-top:70px;">
+    <div class="ai-msg" id="mapAiMsg"><p></p></div>
+    <div class="game-msg" id="mapMsg"></div>
+    <p class="muted" style="margin-bottom:16px;">경로를 선택하세요</p>
+    <button class="btn btn-gold" onclick="showMap()">🗺️ 맵 열기</button>
+    <div class="quick-grid" id="quickSelect"></div>
+  </div>
+
+  <div class="hidden" id="combatScreen" style="padding-top:70px;padding-bottom:20px;">
+    <div class="ai-msg" id="combatAiMsg"><p></p></div>
+    <div class="enemy-container" id="enemyContainer"></div>
+    <div class="combat-log" id="combatLog"></div>
+    <div class="game-msg" id="combatMsg"></div>
+    <div class="player-bar">
+      <div class="stats" style="flex-wrap:wrap;">
+        <div class="stat"><span class="red">❤️</span><span id="playerHp">80/80</span></div>
+        <div class="stat" id="playerBlock" style="display:none;"><span class="blue">🛡️</span><span></span></div>
+        <span id="playerStr" class="status str" style="display:none;"></span>
+        <span id="playerDex" class="status block" style="display:none;"></span>
+        <span id="playerWeak" class="status weak" style="display:none;"></span>
+        <span id="playerVuln" class="status vuln" style="display:none;"></span>
+        <span id="playerPoison" class="status poison" style="display:none;"></span>
+      </div>
+      <div class="energy-orbs" id="energyOrbs"></div>
+    </div>
+    <div class="muted center" style="font-size:12px;">뽑기: <span id="drawCount">0</span> | 버림: <span id="discardCount">0</span> | 소멸: <span id="exhaustCount">0</span></div>
+    <div class="hand" id="handArea"></div>
+    <div class="center" style="margin-top:12px;">
+      <button class="btn btn-gold" id="endTurnBtn" onclick="endTurn()">턴 종료</button>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="rewardScreen" style="padding-top:70px;">
+    <div class="event-box">
+      <div class="event-emoji">🎉</div>
+      <div class="event-title">승리!</div>
+      <div id="rewardContent"></div>
+    </div>
+  </div>
+
+  <div class="screen hidden" id="eventScreen" style="padding-top:70px;">
+    <div class="event-box" id="eventBox"></div>
+  </div>
+
+  <div class="screen hidden" id="restScreen" style="padding-top:70px;">
+    <div class="event-box" id="restBox"></div>
+  </div>
+
+  <div class="hidden" id="shopScreen" style="padding:70px 16px 24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 class="gold" style="font-size:22px;">🛒 상점</h2>
+      <span class="gold" style="font-size:18px;">💰 <span id="shopGold">0</span></span>
+    </div>
+    <div class="ai-msg" id="shopAiMsg"><p></p></div>
+    <div class="game-msg" id="shopMsg"></div>
+    <div id="shopContent"></div>
+    <button class="btn btn-dark" style="margin-top:16px;" onclick="exitShop()">나가기</button>
+  </div>
+
+  <div class="screen hidden" id="victoryScreen">
+    <div class="result-emoji">🏆</div>
+    <div class="result-title win">승리!</div>
+    <div class="result-sub">첨탑을 정복하였습니다</div>
+    <div class="result-stats" id="victoryStats"></div>
+    <button class="btn btn-gold" onclick="goToMenu()">다시 도전</button>
+  </div>
+
+  <div class="screen hidden" id="defeatScreen">
+    <div class="result-emoji">💀</div>
+    <div class="result-title lose">패배</div>
+    <div class="result-sub" id="defeatSub"></div>
+    <div class="result-stats" id="defeatStats"></div>
+    <button class="btn btn-dark" onclick="goToMenu()">다시 도전</button>
+  </div>
+
+  <div class="modal hidden" id="saveModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">💾 저장 / 불러오기</div>
+        <button class="modal-close" onclick="closeSaveMenu()">×</button>
+      </div>
+      <div id="saveMsg" class="center gold" style="margin-bottom:12px;"></div>
+      <div id="saveSlots"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="deckModal">
+    <div class="modal-box" style="max-width:800px;">
+      <div class="modal-head">
+        <div class="modal-title">📚 덱 (<span id="deckCount">0</span>장)</div>
+        <button class="modal-close" onclick="closeDeck()">×</button>
+      </div>
+      <div class="deck-filter" id="deckFilter"></div>
+      <div class="deck-grid" id="deckGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="mapModal">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title">🗺️ 맵</div>
+        <button class="modal-close" onclick="closeMap()">×</button>
+      </div>
+      <div class="legend" id="mapLegend"></div>
+      <div class="map-box" id="mapBox"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="upgradeModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">⬆️ 카드 업그레이드</div>
+        <button class="modal-close" onclick="closeUpgrade()">×</button>
+      </div>
+      <p class="muted center" style="margin-bottom:16px;">업그레이드할 카드를 선택하세요</p>
+      <div class="deck-grid" id="upgradeGrid"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="removeModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">🗑️ 카드 제거</div>
+        <button class="modal-close" onclick="closeRemove()">×</button>
+      </div>
+      <p class="muted center" style="margin-bottom:16px;">제거할 카드를 선택하세요</p>
+      <div class="deck-grid" id="removeGrid"></div>
+    </div>
+  </div>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+
+  <script>
+    // ========== 카드 데이터 (업그레이드 포함) ==========
+    const CARDS = {
+      // 기본 카드
+      strike: { name: '타격', cost: 1, type: 'attack', damage: 6, desc: '6 데미지', upgradedName: '타격+', upgradedDamage: 9, upgradedDesc: '9 데미지' },
+      defend: { name: '수비', cost: 1, type: 'skill', block: 5, desc: '5 방어도', upgradedName: '수비+', upgradedBlock: 8, upgradedDesc: '8 방어도' },
+      bash: { name: '강타', cost: 2, type: 'attack', damage: 8, vulnerable: 2, desc: '8 뎀, 취약2', upgradedName: '강타+', upgradedDamage: 10, upgradedVulnerable: 3, upgradedDesc: '10 뎀, 취약3' },
+      // 공격 카드
+      cleave: { name: '가르기', cost: 1, type: 'attack', damage: 8, aoe: true, desc: '전체 8 데미지', upgradedName: '가르기+', upgradedDamage: 11, upgradedDesc: '전체 11 데미지' },
+      ironWave: { name: '철벽파동', cost: 1, type: 'attack', damage: 5, block: 5, desc: '5 방어, 5 뎀', upgradedName: '철벽파동+', upgradedDamage: 7, upgradedBlock: 7, upgradedDesc: '7 방어, 7 뎀' },
+      pommel: { name: '손잡이', cost: 1, type: 'attack', damage: 9, draw: 1, desc: '9 뎀, 1드로우', upgradedName: '손잡이+', upgradedDamage: 10, upgradedDraw: 2, upgradedDesc: '10 뎀, 2드로우' },
+      anger: { name: '분노', cost: 0, type: 'attack', damage: 6, addCopy: true, desc: '6 뎀, 복사본 추가', upgradedName: '분노+', upgradedDamage: 8, upgradedDesc: '8 뎀, 복사본 추가' },
+      carnage: { name: '대학살', cost: 2, type: 'attack', damage: 20, exhaust: true, desc: '20 뎀, 소멸', upgradedName: '대학살+', upgradedDamage: 28, upgradedDesc: '28 뎀, 소멸' },
+      heavyBlade: { name: '헤비블레이드', cost: 2, type: 'attack', damage: 14, strMult: 3, desc: '14 뎀 (힘x3)', upgradedName: '헤비블레이드+', upgradedDamage: 14, upgradedStrMult: 5, upgradedDesc: '14 뎀 (힘x5)' },
+      twinStrike: { name: '쌍둥이타격', cost: 1, type: 'attack', damage: 5, times: 2, desc: '5 뎀 x2', upgradedName: '쌍둥이타격+', upgradedDamage: 7, upgradedDesc: '7 뎀 x2' },
+      bodySlam: { name: '몸통박치기', cost: 1, type: 'attack', blockDamage: true, desc: '방어도만큼 뎀', upgradedName: '몸통박치기+', upgradedCost: 0, upgradedDesc: '방어도만큼 뎀' },
+      clothesline: { name: '빨랫줄', cost: 2, type: 'attack', damage: 12, weak: 2, desc: '12 뎀, 약화2', upgradedName: '빨랫줄+', upgradedDamage: 14, upgradedWeak: 3, upgradedDesc: '14 뎀, 약화3' },
+      // 스킬 카드
+      shrug: { name: '떨쳐내기', cost: 1, type: 'skill', block: 8, draw: 1, desc: '8 방어, 1드로우', upgradedName: '떨쳐내기+', upgradedBlock: 11, upgradedDesc: '11 방어, 1드로우' },
+      armaments: { name: '무장', cost: 1, type: 'skill', block: 5, upgradeHand: true, desc: '5 방어, 손패 1장 업글', upgradedName: '무장+', upgradedBlock: 5, upgradedUpgradeAll: true, upgradedDesc: '5 방어, 손패 전부 업글' },
+      shroud: { name: '은폐', cost: 1, type: 'skill', block: 6, exhaust: true, desc: '6 방어, 소멸', upgradedName: '은폐+', upgradedBlock: 10, upgradedDesc: '10 방어, 소멸' },
+      truGrit: { name: '진정한 투지', cost: 1, type: 'skill', block: 7, exhaustRandom: true, desc: '7 방어, 손패 1장 소멸', upgradedName: '진정한 투지+', upgradedBlock: 9, upgradedExhaustChoice: true, upgradedDesc: '9 방어, 선택 소멸' },
+      battleTrance: { name: '전투 무아지경', cost: 0, type: 'skill', draw: 3, cantDraw: true, desc: '3 드로우, 이번턴 추가 드로우 불가', upgradedName: '전투 무아지경+', upgradedDraw: 4, upgradedDesc: '4 드로우, 이번턴 추가 드로우 불가' },
+      bloodletting: { name: '사혈', cost: 0, type: 'skill', selfDamage: 3, gainEnergy: 2, desc: 'HP -3, 에너지 +2', upgradedName: '사혈+', upgradedGainEnergy: 3, upgradedDesc: 'HP -3, 에너지 +3' },
+      // 파워 카드
+      inflame: { name: '점화', cost: 1, type: 'power', strength: 2, desc: '힘 +2', upgradedName: '점화+', upgradedStrength: 3, upgradedDesc: '힘 +3' },
+      metal: { name: '금속화', cost: 1, type: 'power', endBlock: 3, desc: '턴마다 3 방어', upgradedName: '금속화+', upgradedEndBlock: 4, upgradedDesc: '턴마다 4 방어' },
+      demon: { name: '악마형상', cost: 3, type: 'power', strPerTurn: 2, desc: '턴마다 힘+2', upgradedName: '악마형상+', upgradedStrPerTurn: 3, upgradedDesc: '턴마다 힘+3' },
+      rage: { name: '분노', cost: 0, type: 'power', blockOnAttack: 3, desc: '공격시 3 방어', upgradedName: '분노+', upgradedBlockOnAttack: 5, upgradedDesc: '공격시 5 방어' },
+      juggernaut: { name: '저거너트', cost: 2, type: 'power', damageOnBlock: 5, desc: '방어도 획득시 5 뎀', upgradedName: '저거너트+', upgradedDamageOnBlock: 7, upgradedDesc: '방어도 획득시 7 뎀' },
+    };
+
+    // ========== 적 데이터 ==========
+    const ENEMIES = {
+      // Act 1 일반
+      cultist: { name: '광신도', hp: [48, 54], emoji: '🧙‍♂️', atks: [{ dmg: 6, name: '의식 칼날' }, { ritual: 3, name: '의식' }] },
+      jawWorm: { name: '턱 벌레', hp: [40, 44], emoji: '🐛', atks: [{ dmg: 11, name: '물기' }, { block: 6, str: 4, name: '웅크리기' }, { dmg: 7, name: '돌진' }] },
+      slimeS: { name: '작은 슬라임', hp: [12, 16], emoji: '🟢', atks: [{ dmg: 5, name: '찰싹' }] },
+      slimeM: { name: '슬라임', hp: [28, 32], emoji: '🟡', atks: [{ dmg: 8, name: '찰싹' }, { dmg: 10, weak: 1, name: '핥기' }] },
+      looter: { name: '약탈자', hp: [44, 48], emoji: '🦹', atks: [{ dmg: 10, name: '펀치' }, { dmg: 12, name: '슬래시' }, { escape: true, name: '도주' }] },
+      // Act 1 엘리트
+      gremlinNob: { name: '그렘린 대장', hp: [82, 86], emoji: '👺', elite: true, atks: [{ dmg: 14, name: '돌진' }, { dmg: 16, name: '해골 부수기' }, { str: 2, name: '분노' }] },
+      lagavulin: { name: '라가불린', hp: [110, 115], emoji: '😈', elite: true, sleeping: true, atks: [{ dmg: 18, name: '공격' }, { debuff: true, strDown: 1, dexDown: 1, name: '사이펀 소울' }] },
+      sentries: { name: '파수꾼', hp: [38, 42], emoji: '🤖', elite: true, count: 3, atks: [{ dmg: 9, name: '레이저' }, { status: 'dazed', name: '혼란' }] },
+      // Act 1 보스
+      slimeBoss: { name: '슬라임 보스', hp: [140, 150], emoji: '🟩', boss: true, atks: [{ dmg: 35, name: '슬램' }, { split: true, name: '분열' }] },
+      guardian: { name: '수호자', hp: [240, 250], emoji: '🤖', boss: true, atks: [{ dmg: 5, times: 4, name: '철벽 난타' }, { dmg: 32, name: '격렬한 공격' }, { block: 9, dmg: 8, name: '충전 방패' }] },
+      hexaghost: { name: '헥사고스트', hp: [250, 260], emoji: '👻', boss: true, atks: [{ dmg: 2, times: 6, name: '활성화' }, { dmg: 6, times: 6, name: '분노' }, { dmg: 45, name: '지옥불' }] },
+    };
+
+    // ========== 렐릭 데이터 ==========
+    const RELICS = {
+      blood: { name: '불타는 피', emoji: '🩸', desc: '전투 후 HP 6 회복', heal: 6 },
+      anchor: { name: '닻', emoji: '⚓', desc: '전투 시작시 방어도 10', startBlock: 10 },
+      vajra: { name: '금강저', emoji: '💎', desc: '전투 시작시 힘 +1', startStr: 1 },
+      lantern: { name: '등불', emoji: '🏮', desc: '전투 첫 턴 에너지 +1', firstTurnEnergy: 1 },
+      oddMushroom: { name: '이상한 버섯', emoji: '🍄', desc: '적에게 취약 1 부여', startVuln: 1 },
+      bagOfMarbles: { name: '구슬 주머니', emoji: '🔮', desc: '전투 시작시 적 전체 취약 1', startVulnAll: 1 },
+      redSkull: { name: '붉은 해골', emoji: '💀', desc: 'HP 50% 이하시 힘 +3', lowHpStr: 3 },
+      penNib: { name: '펜촉', emoji: '✒️', desc: '10번째 공격 2배 데미지', attackCount: 0, doubleEvery: 10 },
+      happyFlower: { name: '행복한 꽃', emoji: '🌸', desc: '3턴마다 에너지 +1', turnCount: 0, energyEvery: 3 },
+      meatOnBone: { name: '뼈에 붙은 고기', emoji: '🍖', desc: '전투 종료시 HP 50% 이하면 12 회복', lowHpHeal: 12 },
+      torii: { name: '토리이', emoji: '⛩️', desc: '5 이하 데미지를 1로 감소', reduceLowDmg: true },
+      paperFrog: { name: '종이 개구리', emoji: '🐸', desc: '취약 적에게 +75% 뎀 (기본 50%)', vulnBonus: 0.25 },
+      orichalcum: { name: '오리하르콘', emoji: '🛡️', desc: '턴 종료시 방어 0이면 6 방어', noBlockGain: 6 },
+    };
+
+    // ========== 포션 데이터 ==========
+    const POTIONS = {
+      fire: { name: '화염 포션', emoji: '🔥', desc: '적 하나에게 20 데미지', dmg: 20 },
+      block: { name: '방어 포션', emoji: '🛡️', desc: '방어도 12 획득', block: 12 },
+      health: { name: '과일 주스', emoji: '🧃', desc: '체력 20% 회복', healPct: 0.2 },
+      str: { name: '힘 포션', emoji: '💪', desc: '이번 전투 힘 +2', str: 2 },
+      speed: { name: '속도 포션', emoji: '💨', desc: '이번 턴 민첩 +5', dex: 5 },
+      weak: { name: '공포 포션', emoji: '😱', desc: '적 전체에 약화 3', weakAll: 3 },
+      poison: { name: '독 포션', emoji: '☠️', desc: '적 하나에 독 6', poison: 6 },
+      ancient: { name: '고대 포션', emoji: '🏺', desc: '랜덤 파워 1개 획득', randomPower: true },
+      energy: { name: '에너지 포션', emoji: '⚡', desc: '에너지 +2', energy: 2 },
+    };
+
+    // ========== 이벤트 데이터 ==========
+    const EVENTS = [
+      {
+        id: 'bigFish', title: '큰 물고기', emoji: '🐟',
+        desc: '거대한 황금빛 물고기가 물 위로 솟아올랐습니다.',
+        choices: [
+          { text: '🍖 바나나 먹기 (HP 33% 회복)', healPct: 0.33 },
+          { text: '🐟 도넛 먹기 (최대HP +5)', maxHp: 5 },
+          { text: '📦 상자 열기 (렐릭 획득, HP -10)', relic: true, damage: 10 }
+        ]
+      },
+      {
+        id: 'goldenIdol', title: '황금 우상', emoji: '🗿',
+        desc: '황금 우상이 제단 위에서 빛나고 있습니다.',
+        choices: [
+          { text: '💰 가져간다 (금화 +250, 저주 획득)', gold: 250, curse: true },
+          { text: '🚶 지나간다' }
+        ]
+      },
+      {
+        id: 'neow', title: '신비로운 존재', emoji: '👁️',
+        desc: '기이한 존재가 선택을 제안합니다.',
+        choices: [
+          { text: '💪 힘을 원한다 (힘 렐릭 획득)', relicKey: 'vajra' },
+          { text: '❤️ 생명을 원한다 (최대HP +8)', maxHp: 8 },
+          { text: '💰 부를 원한다 (금화 +100)', gold: 100 }
+        ]
+      },
+      {
+        id: 'shrine', title: '잊혀진 신전', emoji: '⛪',
+        desc: '고대의 신전이 당신을 부릅니다.',
+        choices: [
+          { text: '🙏 기도한다 (카드 업그레이드)', upgradeRandom: true },
+          { text: '🔥 불태운다 (카드 제거)', removeRandom: true },
+          { text: '🚶 지나간다' }
+        ]
+      },
+      {
+        id: 'treasure', title: '보물상자', emoji: '📦',
+        desc: '먼지 쌓인 보물상자가 있습니다.',
+        choices: [
+          { text: '📦 연다 (렐릭 획득)', relic: true },
+          { text: '💰 부순다 (금화 +50)', gold: 50 }
+        ]
+      },
+      {
+        id: 'vampire', title: '뱀파이어', emoji: '🧛',
+        desc: '뱀파이어가 거래를 제안합니다.',
+        choices: [
+          { text: '🩸 피를 준다 (최대HP -5, 희귀 렐릭)', maxHpLoss: 5, rareRelic: true },
+          { text: '⚔️ 싸운다 (엘리트 전투)', combat: 'elite' },
+          { text: '🚶 거절한다' }
+        ]
+      },
+      {
+        id: 'wheelOfChange', title: '운명의 수레바퀴', emoji: '🎡',
+        desc: '거대한 수레바퀴가 돌아갑니다.',
+        choices: [
+          { text: '🎰 돌린다 (랜덤 효과)', randomWheel: true }
+        ]
+      }
+    ];
+
+    const NODE_ICONS = { start: '🏠', enemy: '👹', elite: '💀', boss: '👑', event: '❓', rest: '🔥', shop: '🛒', treasure: '💎' };
+    const NODE_NAMES = { start: '시작', enemy: '적', elite: '엘리트', boss: '보스', event: '이벤트', rest: '휴식', shop: '상점', treasure: '보물' };
+
+    // ========== 게임 상태 ==========
+    let state = 'menu', floor = 1, gold = 99;
+    let hp = 80, maxHp = 80, block = 0, energy = 3, maxEnergy = 3;
+    let strength = 0, dexterity = 0, weak = 0, vulnerable = 0, poison = 0;
+    let deck = [], hand = [], drawPile = [], discardPile = [], exhaustPile = [];
+    let relics = [], potions = [];
+    let enemies = [], turn = 1, powers = {};
+    let mapNodes = [], currentNode = null, visitedNodes = [];
+    let animating = false, aiMsg = '', gameMsg = '';
+    let currentEvent = null, shopItems = null;
+    let rewardGold = 0, rewardCards = [], rewardPotion = null, rewardRelic = null;
+    let combatLogs = [], selectedCardIndex = -1, targetMode = false;
+    let cantDrawThisTurn = false, firstTurn = true;
+    let attackCounter = 0;
+
+    // ========== 유틸 ==========
+    const $ = id => document.getElementById(id);
+    const rand = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+    const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+    const uid = () => Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+    const createCard = (key, upgraded = false) => {
+      const base = CARDS[key];
+      const card = { ...base, key, uid: uid(), upgraded };
+      if (upgraded) {
+        if (base.upgradedName) card.name = base.upgradedName;
+        if (base.upgradedCost !== undefined) card.cost = base.upgradedCost;
+        if (base.upgradedDamage !== undefined) card.damage = base.upgradedDamage;
+        if (base.upgradedBlock !== undefined) card.block = base.upgradedBlock;
+        if (base.upgradedDraw !== undefined) card.draw = base.upgradedDraw;
+        if (base.upgradedDesc) card.desc = base.upgradedDesc;
+        if (base.upgradedStrength !== undefined) card.strength = base.upgradedStrength;
+        if (base.upgradedEndBlock !== undefined) card.endBlock = base.upgradedEndBlock;
+        if (base.upgradedStrPerTurn !== undefined) card.strPerTurn = base.upgradedStrPerTurn;
+        if (base.upgradedVulnerable !== undefined) card.vulnerable = base.upgradedVulnerable;
+        if (base.upgradedWeak !== undefined) card.weak = base.upgradedWeak;
+        if (base.upgradedStrMult !== undefined) card.strMult = base.upgradedStrMult;
+        if (base.upgradedGainEnergy !== undefined) card.gainEnergy = base.upgradedGainEnergy;
+        if (base.upgradedBlockOnAttack !== undefined) card.blockOnAttack = base.upgradedBlockOnAttack;
+        if (base.upgradedDamageOnBlock !== undefined) card.damageOnBlock = base.upgradedDamageOnBlock;
+        if (base.upgradedUpgradeAll) card.upgradeAll = true;
+      }
+      return card;
+    };
+
+    function upgradeCard(card) {
+      if (card.upgraded) return card;
+      const base = CARDS[card.key];
+      card.upgraded = true;
+      if (base.upgradedName) card.name = base.upgradedName;
+      if (base.upgradedCost !== undefined) card.cost = base.upgradedCost;
+      if (base.upgradedDamage !== undefined) card.damage = base.upgradedDamage;
+      if (base.upgradedBlock !== undefined) card.block = base.upgradedBlock;
+      if (base.upgradedDraw !== undefined) card.draw = base.upgradedDraw;
+      if (base.upgradedDesc) card.desc = base.upgradedDesc;
+      if (base.upgradedStrength !== undefined) card.strength = base.upgradedStrength;
+      if (base.upgradedEndBlock !== undefined) card.endBlock = base.upgradedEndBlock;
+      if (base.upgradedStrPerTurn !== undefined) card.strPerTurn = base.upgradedStrPerTurn;
+      if (base.upgradedVulnerable !== undefined) card.vulnerable = base.upgradedVulnerable;
+      if (base.upgradedWeak !== undefined) card.weak = base.upgradedWeak;
+      if (base.upgradedStrMult !== undefined) card.strMult = base.upgradedStrMult;
+      if (base.upgradedGainEnergy !== undefined) card.gainEnergy = base.upgradedGainEnergy;
+      if (base.upgradedBlockOnAttack !== undefined) card.blockOnAttack = base.upgradedBlockOnAttack;
+      if (base.upgradedDamageOnBlock !== undefined) card.damageOnBlock = base.upgradedDamageOnBlock;
+      if (base.upgradedUpgradeAll) card.upgradeAll = true;
+      return card;
+    }
+
+    function addCombatLog(msg, type = '') {
+      combatLogs.push({ msg, type });
+      if (combatLogs.length > 20) combatLogs.shift();
+    }
+
+    // ========== 저장/불러오기 ==========
+    const getSaveData = () => ({
+      floor, gold, hp, maxHp, block, energy, maxEnergy, strength, dexterity, weak, vulnerable, poison,
+      deck, hand, drawPile, discardPile, exhaustPile, relics, potions,
+      enemies, turn, powers, mapNodes, currentNode, visitedNodes, state,
+      currentEvent, shopItems, rewardGold, rewardCards, rewardPotion, rewardRelic,
+      attackCounter,
+      savedAt: new Date().toLocaleString('ko-KR')
+    });
+
+    const loadSaveData = (d) => {
+      floor = d.floor; gold = d.gold; hp = d.hp; maxHp = d.maxHp; block = d.block || 0;
+      energy = d.energy; maxEnergy = d.maxEnergy; strength = d.strength || 0;
+      dexterity = d.dexterity || 0; weak = d.weak || 0; vulnerable = d.vulnerable || 0;
+      poison = d.poison || 0;
+      deck = d.deck || []; hand = d.hand || []; drawPile = d.drawPile || [];
+      discardPile = d.discardPile || []; exhaustPile = d.exhaustPile || [];
+      relics = d.relics || []; potions = d.potions || [];
+      enemies = d.enemies || []; turn = d.turn || 1; powers = d.powers || {};
+      mapNodes = d.mapNodes || []; currentNode = d.currentNode; visitedNodes = d.visitedNodes || [];
+      state = d.state || 'map';
+      currentEvent = d.currentEvent || null;
+      shopItems = d.shopItems || null;
+      rewardGold = d.rewardGold || 0;
+      rewardCards = d.rewardCards || [];
+      rewardPotion = d.rewardPotion || null;
+      rewardRelic = d.rewardRelic || null;
+      attackCounter = d.attackCounter || 0;
+    };
+
+    const save = (i) => {
+      const d = getSaveData();
+      localStorage.setItem('slayv2-' + i, JSON.stringify(d));
+      $('saveMsg').textContent = '저장 완료!';
+      setTimeout(() => $('saveMsg').textContent = '', 2000);
+      renderSaveSlots();
+    };
+
+    const load = (i) => {
+      const raw = localStorage.getItem('slayv2-' + i);
+      if (!raw) return;
+      loadSaveData(JSON.parse(raw));
+      closeSaveMenu();
+      aiMsg = '모험을 계속합니다...';
+      render();
+    };
+
+    const autoSave = () => {
+      const d = getSaveData();
+      d.savedAt += ' (자동)';
+      localStorage.setItem('slayv2-auto', JSON.stringify(d));
+    };
+
+    const loadAutoSave = () => {
+      const raw = localStorage.getItem('slayv2-auto');
+      if (!raw) return;
+      loadSaveData(JSON.parse(raw));
+      aiMsg = '이전 모험을 이어갑니다...';
+      render();
+    };
+
+    const delSave = (i) => { localStorage.removeItem('slayv2-' + i); renderSaveSlots(); };
+
+    // ========== 렌더링 ==========
+    function render() {
+      ['menuScreen', 'mapScreen', 'combatScreen', 'rewardScreen', 'eventScreen', 'restScreen', 'shopScreen', 'victoryScreen', 'defeatScreen'].forEach(id => $(id).classList.add('hidden'));
+      $('topBar').classList.toggle('hidden', state === 'menu');
+
+      if (state === 'menu') {
+        $('menuScreen').classList.remove('hidden');
+        $('continueBtn').classList.toggle('hidden', !localStorage.getItem('slayv2-auto'));
+      } else if (state === 'map') {
+        $('mapScreen').classList.remove('hidden');
+        renderMapScreen();
+      } else if (state === 'combat') {
+        $('combatScreen').classList.remove('hidden');
+        renderCombat();
+      } else if (state === 'reward') {
+        $('rewardScreen').classList.remove('hidden');
+        renderReward();
+      } else if (state === 'event') {
+        $('eventScreen').classList.remove('hidden');
+        renderEvent();
+      } else if (state === 'rest') {
+        $('restScreen').classList.remove('hidden');
+        renderRest();
+      } else if (state === 'shop') {
+        $('shopScreen').classList.remove('hidden');
+        renderShop();
+      } else if (state === 'victory') {
+        $('victoryScreen').classList.remove('hidden');
+        $('victoryStats').innerHTML = `도달 층수: ${floor}<br>남은 HP: ${hp}/${maxHp}<br>보유 금화: ${gold}<br>렐릭: ${relics.length}개<br>덱: ${deck.length}장<br>총 공격 횟수: ${attackCounter}`;
+      } else if (state === 'defeat') {
+        $('defeatScreen').classList.remove('hidden');
+        $('defeatSub').textContent = `${floor}층에서 쓰러졌습니다`;
+        $('defeatStats').innerHTML = `HP: ${hp}/${maxHp}<br>금화: ${gold}<br>렐릭: ${relics.length}개<br>덱: ${deck.length}장`;
+      }
+
+      $('floorNum').textContent = floor;
+      $('hpText').textContent = `${hp}/${maxHp}`;
+      $('goldText').textContent = gold;
+      renderInventory();
+    }
+
+    function renderInventory() {
+      let potionHtml = '';
+      for (let i = 0; i < 3; i++) {
+        const p = potions[i];
+        potionHtml += `<div class="inv-slot" onclick="usePotion(${i})" title="${p ? p.name + ': ' + p.desc : '빈 슬롯'}">${p ? p.emoji : '○'}</div>`;
+      }
+      $('potionSlots').innerHTML = potionHtml;
+      $('relicSlots').innerHTML = relics.slice(0, 5).map(r => `<div class="inv-slot" title="${r.name}: ${r.desc}">${r.emoji}</div>`).join('');
+    }
+
+    function renderMapScreen() {
+      $('mapAiMsg').querySelector('p').textContent = aiMsg ? `"${aiMsg}"` : '';
+      $('mapAiMsg').classList.toggle('hidden', !aiMsg);
+      $('mapMsg').textContent = gameMsg;
+
+      const nextRow = currentNode ? mapNodes[currentNode.row + 1] : mapNodes[0];
+      const nodes = nextRow ? nextRow.filter(n => isAccessible(n)) : [];
+      $('quickSelect').innerHTML = nodes.map(n => `<button class="quick-btn" onclick="selectNode('${n.id}')" title="${NODE_NAMES[n.type]}">${NODE_ICONS[n.type]}</button>`).join('');
+    }
+
+    function renderCombat() {
+      if (!enemies.length) return;
+      
+      $('combatAiMsg').querySelector('p').textContent = aiMsg ? `"${aiMsg}"` : '';
+      $('combatAiMsg').classList.toggle('hidden', !aiMsg);
+      $('combatMsg').textContent = gameMsg;
+
+      // 적 렌더링
+      let enemyHtml = '';
+      enemies.forEach((e, idx) => {
+        if (e.hp <= 0) return;
+        
+        let st = '';
+        if (e.block > 0) st += `<span class="status block">🛡️${e.block}</span>`;
+        if (e.strength > 0) st += `<span class="status str">⚔️+${e.strength}</span>`;
+        if (e.vulnerable > 0) st += `<span class="status vuln">취약${e.vulnerable}</span>`;
+        if (e.weak > 0) st += `<span class="status weak">약화${e.weak}</span>`;
+        if (e.ritual > 0) st += `<span class="status ritual">의식${e.ritual}</span>`;
+        if (e.poison > 0) st += `<span class="status poison">독${e.poison}</span>`;
+
+        let intentHtml = '';
+        const intent = e.intent;
+        if (intent) {
+          if (intent.dmg !== undefined) {
+            let dmg = intent.dmg + (e.strength || 0);
+            if (e.weak > 0) dmg = Math.floor(dmg * 0.75);
+            const times = intent.times || 1;
+            const totalDmg = dmg * times;
+            intentHtml = `<span class="red">⚔️ ${totalDmg}${times > 1 ? ` (${dmg}×${times})` : ''}</span>`;
+          } else if (intent.block) {
+            intentHtml = `<span class="blue">🛡️ 방어</span>`;
+          } else if (intent.debuff) {
+            intentHtml = `<span class="purple">💀 디버프</span>`;
+          } else {
+            intentHtml = `<span class="gold">✨ 버프</span>`;
+          }
+        }
+
+        enemyHtml += `
+          <div class="enemy-unit" onclick="targetEnemy(${idx})">
+            ${targetMode ? '<div class="target-indicator">⬇️</div>' : ''}
+            <div class="enemy-emoji" id="enemy-${idx}">${e.emoji}</div>
+            <div class="enemy-name">${e.name}</div>
+            <div class="hp-bar"><div class="hp-fill" style="width:${Math.max(0, e.hp / e.maxHp * 100)}%"></div></div>
+            <div class="muted" style="font-size:12px;"><span class="red">${Math.max(0, e.hp)}</span> / ${e.maxHp}</div>
+            <div>${st}</div>
+            <div class="intent">${intentHtml}</div>
+          </div>
+        `;
+      });
+      $('enemyContainer').innerHTML = enemyHtml;
+
+      // 플레이어 상태
+      $('playerHp').textContent = `${hp}/${maxHp}`;
+      $('playerBlock').style.display = block > 0 ? 'flex' : 'none';
+      $('playerBlock').querySelector('span:last-child').textContent = block;
+      $('playerStr').style.display = strength > 0 ? 'inline-block' : 'none';
+      $('playerStr').textContent = `⚔️+${strength}`;
+      $('playerDex').style.display = dexterity > 0 ? 'inline-block' : 'none';
+      $('playerDex').textContent = `🛡️+${dexterity}`;
+      $('playerWeak').style.display = weak > 0 ? 'inline-block' : 'none';
+      $('playerWeak').textContent = `약화${weak}`;
+      $('playerVuln').style.display = vulnerable > 0 ? 'inline-block' : 'none';
+      $('playerVuln').textContent = `취약${vulnerable}`;
+      $('playerPoison').style.display = poison > 0 ? 'inline-block' : 'none';
+      $('playerPoison').textContent = `독${poison}`;
+
+      // 에너지 오브
+      let orbs = '';
+      for (let i = 0; i < maxEnergy; i++) {
+        orbs += `<div class="orb ${i < energy ? 'active' : 'empty'}">${i < energy ? '⚡' : ''}</div>`;
+      }
+      $('energyOrbs').innerHTML = orbs;
+
+      // 덱 카운트
+      $('drawCount').textContent = drawPile.length;
+      $('discardCount').textContent = discardPile.length;
+      $('exhaustCount').textContent = exhaustPile.length;
+
+      // 손패
+      $('handArea').innerHTML = hand.map((c, i) => cardHtml(c, i, c.cost > energy)).join('');
+      $('endTurnBtn').disabled = animating;
+
+      // 전투 로그
+      let logHtml = '';
+      combatLogs.slice(-5).forEach(l => {
+        logHtml += `<p class="${l.type}">${l.msg}</p>`;
+      });
+      $('combatLog').innerHTML = logHtml;
+    }
+
+    function cardHtml(c, i, dis) {
+      const icon = c.type === 'attack' ? '⚔️' : c.type === 'skill' ? '🛡️' : '✨';
+      const upgradedClass = c.upgraded ? 'upgraded' : '';
+      return `<div class="game-card ${c.type} ${upgradedClass} ${dis ? 'disabled' : ''}" onclick="playCard(${i})">
+        <div class="card-cost">${c.cost}</div>
+        ${c.upgraded ? '<div class="card-upgrade-badge">+</div>' : ''}
+        <div class="card-icon">${icon}</div>
+        <div class="card-name">${c.name}</div>
+        <div class="card-desc">${c.desc}</div>
+      </div>`;
+    }
+
+    function renderReward() {
+      let html = '';
+      if (rewardGold > 0) html += `<button class="choice-btn" onclick="collectGold()">💰 금화 ${rewardGold}개 획득</button>`;
+      if (rewardPotion) html += `<button class="choice-btn" onclick="collectPotion()" ${potions.length >= 3 ? 'disabled' : ''}>${rewardPotion.emoji} ${rewardPotion.name} ${potions.length >= 3 ? '(가득참)' : ''}</button>`;
+      if (rewardRelic) html += `<button class="choice-btn" onclick="collectRelic()">${rewardRelic.emoji} ${rewardRelic.name} (${rewardRelic.desc})</button>`;
+      if (rewardCards.length > 0) {
+        html += `<p class="muted" style="margin:12px 0 8px;">카드 선택 (1장)</p><div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">`;
+        rewardCards.forEach((c, i) => {
+          const icon = c.type === 'attack' ? '⚔️' : c.type === 'skill' ? '🛡️' : '✨';
+          html += `<div class="game-card ${c.type}" onclick="selectRewardCard(${i})">
+            <div class="card-cost">${c.cost}</div>
+            <div class="card-icon">${icon}</div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-desc">${c.desc}</div>
+          </div>`;
+        });
+        html += `</div><button class="btn btn-dark btn-sm" style="margin-top:12px;" onclick="skipRewardCard()">건너뛰기</button>`;
+      }
+      if (!rewardGold && !rewardPotion && !rewardRelic && !rewardCards.length) {
+        html += `<button class="btn btn-gold" onclick="finishReward()">계속하기</button>`;
+      }
+      $('rewardContent').innerHTML = html;
+    }
+
+    function renderEvent() {
+      if (!currentEvent) return;
+      let html = `<div class="event-emoji">${currentEvent.emoji}</div>
+        <div class="event-title">${currentEvent.title}</div>
+        <div class="event-desc">${currentEvent.desc}</div>`;
+      currentEvent.choices.forEach((c, i) => {
+        let disabled = '';
+        if (c.damage && hp <= c.damage) disabled = 'disabled';
+        if (c.maxHpLoss && maxHp <= c.maxHpLoss + 10) disabled = 'disabled';
+        html += `<button class="choice-btn" onclick="chooseEvent(${i})" ${disabled}>${c.text}</button>`;
+      });
+      $('eventBox').innerHTML = html;
+    }
+
+    function renderRest() {
+      let html = `<div class="event-emoji">🔥</div>
+        <div class="event-title">모닥불</div>
+        <div class="event-desc">따뜻한 모닥불 앞에서 쉬어갑니다.</div>
+        <button class="choice-btn" onclick="restHeal()">😴 휴식 (HP 30% 회복)</button>
+        <button class="choice-btn" onclick="restUpgrade()">⬆️ 대장장이 (카드 업그레이드)</button>`;
+      $('restBox').innerHTML = html;
+    }
+
+    function renderShop() {
+      $('shopGold').textContent = gold;
+      $('shopAiMsg').querySelector('p').textContent = aiMsg ? `"${aiMsg}"` : '';
+      $('shopMsg').textContent = gameMsg;
+
+      if (!shopItems) return;
+      let html = '';
+      
+      // 서비스
+      html += `<div class="shop-section"><div class="shop-title">서비스</div>`;
+      html += `<div class="shop-service ${shopItems.removeUsed ? 'sold' : ''}" onclick="shopRemoveCard()">
+        <span>🗑️ 카드 제거</span>
+        <span class="gold">💰 ${shopItems.removePrice}</span>
+      </div></div>`;
+
+      // 카드
+      html += `<div class="shop-section"><div class="shop-title">카드</div><div class="shop-items">`;
+      shopItems.cards.forEach((it, i) => {
+        const c = it.item;
+        const icon = c.type === 'attack' ? '⚔️' : c.type === 'skill' ? '🛡️' : '✨';
+        html += `<div class="shop-item ${it.sold ? 'sold' : ''}" onclick="buyCard(${i})">
+          <div class="game-card small ${c.type}">
+            <div class="card-cost">${c.cost}</div>
+            <div class="card-icon">${icon}</div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-desc">${c.desc}</div>
+          </div>
+          <div class="shop-price">💰 ${it.price}</div>
+        </div>`;
+      });
+      html += `</div></div>`;
+
+      // 포션
+      html += `<div class="shop-section"><div class="shop-title">포션</div><div class="shop-items">`;
+      shopItems.potions.forEach((it, i) => {
+        html += `<div class="shop-item ${it.sold ? 'sold' : ''}" onclick="buyPotion(${i})" style="min-width:100px;text-align:center;">
+          <div style="font-size:26px;">${it.item.emoji}</div>
+          <div style="font-size:12px;">${it.item.name}</div>
+          <div class="shop-price">💰 ${it.price}</div>
+        </div>`;
+      });
+      html += `</div></div>`;
+
+      // 렐릭
+      if (shopItems.relics && shopItems.relics.length > 0) {
+        html += `<div class="shop-section"><div class="shop-title">렐릭</div><div class="shop-items">`;
+        shopItems.relics.forEach((it, i) => {
+          html += `<div class="shop-item ${it.sold ? 'sold' : ''}" onclick="buyRelic(${i})" style="min-width:100px;text-align:center;">
+            <div style="font-size:30px;">${it.item.emoji}</div>
+            <div style="font-size:12px;">${it.item.name}</div>
+            <div style="font-size:10px;color:#888;">${it.item.desc}</div>
+            <div class="shop-price">💰 ${it.price}</div>
+          </div>`;
+        });
+        html += `</div></div>`;
+      }
+
+      $('shopContent').innerHTML = html;
+    }
+
+    function renderSaveSlots() {
+      let html = '';
+      for (let i = 0; i < 3; i++) {
+        const raw = localStorage.getItem('slayv2-' + i);
+        const d = raw ? JSON.parse(raw) : null;
+        html += `<div class="save-slot">
+          <div class="save-head"><span class="save-name">슬롯 ${i + 1}</span>${d ? `<span class="save-date">${d.savedAt}</span>` : ''}</div>
+          <div class="save-info">${d ? `${d.floor}층 | HP: ${d.hp}/${d.maxHp} | 💰${d.gold} | 덱: ${d.deck.length}장` : '비어있음'}</div>
+          <div class="save-btns">
+            <button class="btn btn-dark" onclick="save(${i})" ${state === 'menu' ? 'disabled' : ''}>저장</button>
+            <button class="btn btn-dark" onclick="load(${i})" ${!d ? 'disabled' : ''}>불러오기</button>
+            ${d ? `<button class="btn btn-dark" style="flex:none;padding:10px 14px;" onclick="delSave(${i})">🗑️</button>` : ''}
+          </div>
+        </div>`;
+      }
+      $('saveSlots').innerHTML = html;
+    }
+
+    // ========== 모달 ==========
+    function showSaveMenu() { $('saveModal').classList.remove('hidden'); renderSaveSlots(); }
+    function closeSaveMenu() { $('saveModal').classList.add('hidden'); }
+    
+    function showDeck() {
+      $('deckModal').classList.remove('hidden');
+      $('deckCount').textContent = deck.length;
+      
+      // 필터 버튼
+      $('deckFilter').innerHTML = `
+        <button class="active" onclick="filterDeck('all')">전체</button>
+        <button onclick="filterDeck('attack')">공격</button>
+        <button onclick="filterDeck('skill')">스킬</button>
+        <button onclick="filterDeck('power')">파워</button>
+      `;
+      
+      renderDeckGrid('all');
+    }
+    
+    function filterDeck(type) {
+      document.querySelectorAll('.deck-filter button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderDeckGrid(type);
+    }
+    
+    function renderDeckGrid(filter) {
+      let cards = filter === 'all' ? deck : deck.filter(c => c.type === filter);
+      cards = cards.sort((a, b) => a.cost - b.cost);
+      
+      let html = '';
+      cards.forEach(c => {
+        const icon = c.type === 'attack' ? '⚔️' : c.type === 'skill' ? '🛡️' : '✨';
+        const upgradedClass = c.upgraded ? 'upgraded' : '';
+        html += `<div class="game-card small ${c.type} ${upgradedClass}">
+          <div class="card-cost">${c.cost}</div>
+          ${c.upgraded ? '<div class="card-upgrade-badge">+</div>' : ''}
+          <div class="card-icon">${icon}</div>
+          <div class="card-name">${c.name}</div>
+          <div class="card-desc">${c.desc}</div>
+        </div>`;
+      });
+      $('deckGrid').innerHTML = html;
+    }
+    
+    function closeDeck() { $('deckModal').classList.add('hidden'); }
+    
+    function showMap() {
+      $('mapModal').classList.remove('hidden');
+      $('mapLegend').innerHTML = Object.entries(NODE_ICONS).map(([k, v]) => `<span>${v} ${NODE_NAMES[k]}</span>`).join('');
+      
+      const boxWidth = 420;
+      const floorHeight = 34;
+      const nodeSize = 40;
+      
+      // 노드 위치 계산
+      const nodePositions = {};
+      mapNodes.forEach((row, ri) => {
+        row.forEach((n, ci) => {
+          const numNodes = row.length;
+          const spacing = boxWidth / (numNodes + 1);
+          const x = spacing * (ci + 1);
+          const y = (mapNodes.length - 1 - ri) * floorHeight + 25;
+          nodePositions[n.id] = { x, y };
+        });
+      });
+      
+      // SVG 경로 생성
+      let pathsHtml = `<svg class="map-paths" width="${boxWidth}" height="${mapNodes.length * floorHeight + 30}">`;
+      
+      mapNodes.forEach((row, ri) => {
+        row.forEach(node => {
+          const from = nodePositions[node.id];
+          node.connections.forEach(connId => {
+            const to = nodePositions[connId];
+            if (from && to) {
+              let pathClass = 'map-path';
+              
+              // 경로 상태 결정
+              const isCurrentNode = currentNode && currentNode.id === node.id;
+              const isVisitedPath = visitedNodes.includes(node.id) && visitedNodes.includes(connId);
+              const isFromVisited = visitedNodes.includes(node.id);
+              
+              if (isVisitedPath) {
+                pathClass += ' visited';
+              } else if (isCurrentNode) {
+                // 현재 노드에서 나가는 경로는 선택 가능
+                pathClass += ' accessible';
+              }
+              
+              // 곡선 경로 (베지어 커브)
+              const midY = (from.y + to.y) / 2;
+              const ctrlX = (from.x + to.x) / 2;
+              pathsHtml += `<path class="${pathClass}" d="M${from.x},${from.y} Q${ctrlX},${midY} ${to.x},${to.y}"/>`;
+            }
+          });
+        });
+      });
+      
+      pathsHtml += '</svg>';
+      
+      // 노드 HTML 생성
+      let nodesHtml = '<div class="map-container">' + pathsHtml;
+      
+      for (let ri = mapNodes.length - 1; ri >= 0; ri--) {
+        const row = mapNodes[ri];
+        nodesHtml += `<div class="map-floor">`;
+        
+        row.forEach(n => {
+          let cls = 'map-node ';
+          if (currentNode && currentNode.id === n.id) cls += 'current';
+          else if (visitedNodes.includes(n.id)) cls += 'visited';
+          else if (isAccessible(n)) cls += 'accessible';
+          else cls += 'locked';
+          
+          nodesHtml += `<div class="${cls}" onclick="selectNode('${n.id}')" title="${NODE_NAMES[n.type]}">${NODE_ICONS[n.type]}</div>`;
+        });
+        
+        nodesHtml += `</div>`;
+      }
+      
+      nodesHtml += '</div>';
+      
+      $('mapBox').innerHTML = nodesHtml;
+    }
+    function closeMap() { $('mapModal').classList.add('hidden'); }
+
+    function showUpgrade() {
+      $('upgradeModal').classList.remove('hidden');
+      const upgradeable = deck.filter(c => !c.upgraded);
+      let html = '';
+      upgradeable.forEach((c, i) => {
+        const icon = c.type === 'attack' ? '⚔️' : c.type === 'skill' ? '🛡️' : '✨';
+        const originalIdx = deck.indexOf(c);
+        html += `<div class="game-card small ${c.type}" onclick="doUpgrade(${originalIdx})">
+          <div class="card-cost">${c.cost}</div>
+          <div class="card-icon">${icon}</div>
+          <div class="card-name">${c.name}</div>
+          <div class="card-desc">${c.desc}</div>
+        </div>`;
+      });
+      if (!upgradeable.length) html = '<p class="muted center">업그레이드할 카드가 없습니다</p>';
+      $('upgradeGrid').innerHTML = html;
+    }
+    function closeUpgrade() { $('upgradeModal').classList.add('hidden'); }
+    
+    function doUpgrade(idx) {
+      upgradeCard(deck[idx]);
+      closeUpgrade();
+      gameMsg = `${deck[idx].name} 업그레이드!`;
+      state = 'map';
+      autoSave();
+      render();
+    }
+
+    function showRemove() {
+      $('removeModal').classList.remove('hidden');
+      let html = '';
+      deck.forEach((c, i) => {
+        const icon = c.type === 'attack' ? '⚔️' : c.type === 'skill' ? '🛡️' : '✨';
+        const upgradedClass = c.upgraded ? 'upgraded' : '';
+        html += `<div class="game-card small ${c.type} ${upgradedClass}" onclick="doRemove(${i})">
+          <div class="card-cost">${c.cost}</div>
+          ${c.upgraded ? '<div class="card-upgrade-badge">+</div>' : ''}
+          <div class="card-icon">${icon}</div>
+          <div class="card-name">${c.name}</div>
+          <div class="card-desc">${c.desc}</div>
+        </div>`;
+      });
+      $('removeGrid').innerHTML = html;
+    }
+    function closeRemove() { $('removeModal').classList.add('hidden'); }
+    
+    function doRemove(idx) {
+      const removed = deck.splice(idx, 1)[0];
+      closeRemove();
+      gameMsg = `${removed.name} 제거됨`;
+      if (shopItems) shopItems.removeUsed = true;
+      render();
+    }
+
+    // ========== 게임 로직 ==========
+    function startGame() {
+      deck = [
+        ...Array(5).fill(null).map(() => createCard('strike')),
+        ...Array(4).fill(null).map(() => createCard('defend')),
+        createCard('bash')
+      ];
+      hp = 80; maxHp = 80; gold = 99; floor = 1;
+      relics = [{ ...RELICS.blood, key: 'blood', uid: uid() }];
+      potions = [];
+      energy = 3; maxEnergy = 3; powers = {};
+      strength = 0; dexterity = 0; weak = 0; vulnerable = 0; poison = 0;
+      mapNodes = generateMap();
+      combatLogs = []; attackCounter = 0;
+      
+      // 시작 노드 자동 방문 처리
+      const startNode = mapNodes[0][0];
+      currentNode = startNode;
+      visitedNodes = [startNode.id];
+      
+      state = 'map'; aiMsg = '첨탑에 발을 들였습니다...'; gameMsg = '';
+      render();
+    }
+
+    function generateMap() {
+      const nodes = [];
+      const numFloors = 15;
+      const nodesPerFloor = [1, 3, 3, 4, 3, 4, 3, 4, 3, 4, 3, 3, 2, 1, 1];
+      
+      // 노드 생성
+      for (let r = 0; r < numFloors; r++) {
+        const row = [];
+        const numNodes = nodesPerFloor[r];
+        
+        for (let c = 0; c < numNodes; c++) {
+          let type = 'enemy';
+          
+          if (r === 0) type = 'start';
+          else if (r === numFloors - 1) type = 'boss';
+          else if (r === numFloors - 2) type = 'rest';  // 보스 전 휴식
+          else if (r === 8) type = 'treasure';  // 중간 보물
+          else {
+            // 층별 확률 조정
+            const x = Math.random();
+            if (r <= 3) {
+              // 초반: 적 많음
+              if (x < 0.55) type = 'enemy';
+              else if (x < 0.70) type = 'event';
+              else if (x < 0.85) type = 'rest';
+              else if (x < 0.95) type = 'shop';
+              else type = 'elite';
+            } else if (r <= 7) {
+              // 중반: 엘리트 등장
+              if (x < 0.45) type = 'enemy';
+              else if (x < 0.58) type = 'event';
+              else if (x < 0.70) type = 'rest';
+              else if (x < 0.80) type = 'shop';
+              else if (x < 0.92) type = 'elite';
+              else type = 'treasure';
+            } else {
+              // 후반: 휴식/상점 많음
+              if (x < 0.40) type = 'enemy';
+              else if (x < 0.55) type = 'event';
+              else if (x < 0.72) type = 'rest';
+              else if (x < 0.85) type = 'shop';
+              else type = 'elite';
+            }
+          }
+          
+          // x 좌표 계산 (시각적 배치용)
+          const spacing = 100 / (numNodes + 1);
+          const xPos = spacing * (c + 1);
+          
+          row.push({ 
+            id: `${r}-${c}`, 
+            row: r, 
+            col: c, 
+            type, 
+            connections: [],
+            x: xPos
+          });
+        }
+        nodes.push(row);
+      }
+      
+      // Slay the Spire 스타일 연결 생성
+      for (let r = 0; r < numFloors - 1; r++) {
+        const currRow = nodes[r];
+        const nextRow = nodes[r + 1];
+        
+        // 1단계: 각 노드에서 1~2개 연결 생성 (가까운 노드 우선)
+        currRow.forEach(node => {
+          // 다음 층 노드들을 거리순으로 정렬
+          const sortedNext = [...nextRow].sort((a, b) => {
+            return Math.abs(a.x - node.x) - Math.abs(b.x - node.x);
+          });
+          
+          // 가장 가까운 노드는 반드시 연결
+          if (sortedNext.length > 0) {
+            node.connections.push(sortedNext[0].id);
+          }
+          
+          // 두 번째로 가까운 노드는 60% 확률로 연결
+          if (sortedNext.length > 1 && Math.random() < 0.6) {
+            node.connections.push(sortedNext[1].id);
+          }
+          
+          // 세 번째 노드는 20% 확률로 연결
+          if (sortedNext.length > 2 && Math.random() < 0.2) {
+            node.connections.push(sortedNext[2].id);
+          }
+        });
+        
+        // 2단계: 모든 다음 층 노드가 최소 1개 진입 경로 갖도록 보장
+        nextRow.forEach(nextNode => {
+          const hasIncoming = currRow.some(n => n.connections.includes(nextNode.id));
+          if (!hasIncoming) {
+            // 가장 가까운 이전 층 노드와 연결
+            const closest = currRow.reduce((best, n) => {
+              const dist = Math.abs(n.x - nextNode.x);
+              return dist < best.dist ? { node: n, dist } : best;
+            }, { node: currRow[0], dist: Infinity });
+            closest.node.connections.push(nextNode.id);
+          }
+        });
+      }
+      
+      // 3단계: 경로가 교차하지 않도록 정리 (선택적)
+      for (let r = 0; r < numFloors - 1; r++) {
+        const currRow = nodes[r];
+        currRow.forEach(node => {
+          // 중복 제거
+          node.connections = [...new Set(node.connections)];
+        });
+      }
+      
+      return nodes;
+    }
+
+    function isAccessible(n) {
+      if (visitedNodes.includes(n.id)) return false;
+      if (!currentNode) return n.row === 0;
+      return currentNode.connections.includes(n.id);
+    }
+
+    function findNode(id) {
+      for (let row of mapNodes) {
+        for (let n of row) {
+          if (n.id === id) return n;
+        }
+      }
+      return null;
+    }
+
+    function selectNode(id) {
+      // 전투/이벤트/상점 등 진행 중에는 이동 불가
+      if (state === 'combat' || state === 'event' || state === 'rest' || state === 'shop' || state === 'reward') {
+        gameMsg = '현재 진행 중인 이벤트를 완료하세요';
+        render();
+        return;
+      }
+      
+      const n = findNode(id);
+      if (!n || !isAccessible(n)) { 
+        gameMsg = '이동할 수 없습니다'; 
+        render(); 
+        return; 
+      }
+      
+      currentNode = n;
+      visitedNodes.push(n.id);
+      floor = n.row + 1;
+      closeMap();
+      gameMsg = ''; aiMsg = '';
+      setTimeout(autoSave, 100);
+
+      switch (n.type) {
+        case 'start': state = 'map'; break;
+        case 'enemy': startCombat('normal'); break;
+        case 'elite': startCombat('elite'); break;
+        case 'boss': startCombat('boss'); break;
+        case 'event': triggerEvent(); break;
+        case 'rest': triggerRest(); break;
+        case 'shop': triggerShop(); break;
+        case 'treasure': triggerTreasure(); break;
+        default: state = 'map';
+      }
+      render();
+    }
+
+    function startCombat(type) {
+      let pool, key;
+      
+      if (type === 'boss') {
+        pool = ['slimeBoss', 'guardian', 'hexaghost'];
+      } else if (type === 'elite') {
+        pool = ['gremlinNob', 'lagavulin'];
+      } else {
+        pool = ['cultist', 'jawWorm', 'slimeM', 'looter'];
+        // 가끔 슬라임 2마리
+        if (Math.random() < 0.2) {
+          pool = ['slimeS'];
+        }
+      }
+      
+      key = pool[rand(0, pool.length - 1)];
+      const data = ENEMIES[key];
+      
+      enemies = [];
+      const count = (key === 'slimeS' || key === 'sentries') ? (data.count || 2) : 1;
+      
+      for (let i = 0; i < count; i++) {
+        const ehp = rand(data.hp[0], data.hp[1]);
+        const e = {
+          ...data, key, 
+          hp: ehp, maxHp: ehp, 
+          block: 0, strength: 0, ritual: 0, 
+          weak: 0, vulnerable: 0, poison: 0,
+          uid: uid()
+        };
+        e.intent = data.atks[rand(0, data.atks.length - 1)];
+        enemies.push(e);
+      }
+      
+      // 초기화
+      turn = 1; block = 0; weak = 0; vulnerable = 0; poison = 0;
+      dexterity = 0; powers = {}; exhaustPile = []; combatLogs = [];
+      cantDrawThisTurn = false; firstTurn = true;
+      
+      // 렐릭 효과
+      let bBlock = 0, bStr = 0, bEnergy = 0;
+      relics.forEach(r => {
+        if (r.startBlock) bBlock += r.startBlock;
+        if (r.startStr) bStr += r.startStr;
+        if (r.firstTurnEnergy && firstTurn) bEnergy += r.firstTurnEnergy;
+        if (r.startVuln) enemies.forEach(e => e.vulnerable += r.startVuln);
+        if (r.startVulnAll) enemies.forEach(e => e.vulnerable += r.startVulnAll);
+      });
+      
+      // 덱 섞기 및 드로우
+      const shuffled = shuffle([...deck]);
+      drawPile = shuffled.slice(5);
+      hand = shuffled.slice(0, 5);
+      discardPile = [];
+      
+      energy = maxEnergy + bEnergy;
+      block = bBlock;
+      strength = bStr;
+      
+      aiMsg = data.boss ? '강력한 적 출현!' : data.elite ? '엘리트와 조우!' : '적과 조우!';
+      gameMsg = '';
+      state = 'combat';
+      
+      addCombatLog(`${enemies.map(e => e.name).join(', ')}와(과) 전투 시작!`);
+    }
+
+    function targetEnemy(idx) {
+      if (!targetMode || selectedCardIndex < 0) return;
+      targetMode = false;
+      executeCard(selectedCardIndex, idx);
+      selectedCardIndex = -1;
+    }
+
+    function playCard(i) {
+      if (animating || state !== 'combat') return;
+      const c = hand[i];
+      if (c.cost > energy) { 
+        gameMsg = '에너지 부족!'; 
+        render(); 
+        return; 
+      }
+
+      // 타겟이 필요한 카드 처리
+      const aliveEnemies = enemies.filter(e => e.hp > 0);
+      if (c.type === 'attack' && !c.aoe && aliveEnemies.length > 1) {
+        targetMode = true;
+        selectedCardIndex = i;
+        gameMsg = '대상을 선택하세요';
+        render();
+        return;
+      }
+      
+      executeCard(i, 0);
+    }
+
+    function executeCard(i, targetIdx) {
+      const c = hand[i];
+      animating = true;
+      energy -= c.cost;
+      
+      const e = enemies.filter(en => en.hp > 0)[targetIdx] || enemies.find(en => en.hp > 0);
+      let msgs = [];
+
+      // 공격 카드
+      if (c.type === 'attack') {
+        attackCounter++;
+        
+        // 펜촉 렐릭 확인
+        let penNibBonus = 1;
+        const penNib = relics.find(r => r.doubleEvery);
+        if (penNib && attackCounter % penNib.doubleEvery === 0) {
+          penNibBonus = 2;
+          msgs.push('펜촉 발동!');
+        }
+        
+        // 데미지 계산
+        let baseDmg = c.damage || 0;
+        if (c.blockDamage) baseDmg = block; // 몸통박치기
+        
+        let strBonus = strength;
+        if (c.strMult) strBonus = strength * c.strMult; // 헤비블레이드
+        
+        let dmg = baseDmg + strBonus;
+        if (weak > 0) dmg = Math.floor(dmg * 0.75);
+        dmg *= penNibBonus;
+        
+        const times = c.times || 1;
+        const targets = c.aoe ? enemies.filter(en => en.hp > 0) : [e];
+        
+        targets.forEach(target => {
+          for (let t = 0; t < times; t++) {
+            let finalDmg = dmg;
+            
+            // 취약 보너스 (종이 개구리 포함)
+            if (target.vulnerable > 0) {
+              let vulnMult = 1.5;
+              const paperFrog = relics.find(r => r.vulnBonus);
+              if (paperFrog) vulnMult += paperFrog.vulnBonus;
+              finalDmg = Math.floor(finalDmg * vulnMult);
+            }
+            
+            const absorbed = Math.min(finalDmg, target.block);
+            target.block = Math.max(0, target.block - finalDmg);
+            target.hp -= Math.max(0, finalDmg - absorbed);
+            
+            // 적 피격 애니메이션
+            const enemyEl = document.getElementById(`enemy-${enemies.indexOf(target)}`);
+            if (enemyEl) {
+              enemyEl.classList.add('hit');
+              setTimeout(() => enemyEl.classList.remove('hit'), 300);
+            }
+          }
+        });
+        
+        const totalDmg = dmg * times * targets.length;
+        msgs.push(`${totalDmg} 데미지`);
+        addCombatLog(`${c.name} → ${totalDmg} 데미지`, 'dmg');
+        
+        // 디버프 적용
+        if (c.vulnerable) { e.vulnerable += c.vulnerable; msgs.push(`취약${c.vulnerable}`); }
+        if (c.weak) { e.weak += c.weak; msgs.push(`약화${c.weak}`); }
+        
+        // 분노 (공격시 방어)
+        if (powers.blockOnAttack) {
+          gainBlock(powers.blockOnAttack);
+          msgs.push(`분노로 ${powers.blockOnAttack} 방어`);
+        }
+      }
+      
+      // 방어
+      if (c.block) {
+        gainBlock(c.block);
+        msgs.push(`${c.block + dexterity} 방어`);
+        addCombatLog(`${c.name} → ${c.block + dexterity} 방어`, 'block');
+      }
+      
+      // 파워 카드
+      if (c.type === 'power') {
+        if (c.strength) { strength += c.strength; msgs.push(`힘+${c.strength}`); }
+        if (c.endBlock) { powers.metal = (powers.metal || 0) + c.endBlock; msgs.push(`금속화 ${c.endBlock}`); }
+        if (c.strPerTurn) { powers.demon = (powers.demon || 0) + c.strPerTurn; msgs.push(`악마형상`); }
+        if (c.blockOnAttack) { powers.blockOnAttack = (powers.blockOnAttack || 0) + c.blockOnAttack; }
+        if (c.damageOnBlock) { powers.damageOnBlock = (powers.damageOnBlock || 0) + c.damageOnBlock; }
+        addCombatLog(`${c.name} 발동!`);
+      }
+      
+      // 드로우
+      if (c.draw && !cantDrawThisTurn) {
+        for (let d = 0; d < c.draw; d++) drawCard();
+        msgs.push(`${c.draw} 드로우`);
+      }
+      
+      // 에너지 획득
+      if (c.gainEnergy) {
+        energy += c.gainEnergy;
+        msgs.push(`에너지+${c.gainEnergy}`);
+      }
+      
+      // 자해
+      if (c.selfDamage) {
+        hp -= c.selfDamage;
+        msgs.push(`HP-${c.selfDamage}`);
+      }
+      
+      // 드로우 불가
+      if (c.cantDraw) {
+        cantDrawThisTurn = true;
+      }
+      
+      // 무장 (업그레이드)
+      if (c.upgradeHand) {
+        const upgradeable = hand.filter(card => !card.upgraded && card !== c);
+        if (upgradeable.length > 0) {
+          if (c.upgradeAll) {
+            upgradeable.forEach(card => upgradeCard(card));
+            msgs.push('손패 전체 업그레이드!');
+          } else {
+            upgradeCard(upgradeable[rand(0, upgradeable.length - 1)]);
+            msgs.push('카드 1장 업그레이드');
+          }
+        }
+      }
+      
+      // 분노 (복사본)
+      if (c.addCopy) {
+        const copy = createCard(c.key, c.upgraded);
+        discardPile.push(copy);
+      }
+      
+      // 진정한 투지 (랜덤 소멸)
+      if (c.exhaustRandom && hand.length > 1) {
+        const others = hand.filter((card, idx) => idx !== i);
+        const toExhaust = others[rand(0, others.length - 1)];
+        const exhaustIdx = hand.indexOf(toExhaust);
+        hand.splice(exhaustIdx, 1);
+        exhaustPile.push(toExhaust);
+        msgs.push(`${toExhaust.name} 소멸`);
+      }
+
+      gameMsg = msgs.join(', ') + '!';
+
+      // 카드 처리
+      const played = hand.splice(i, 1)[0];
+      if (c.exhaust) exhaustPile.push(played);
+      else discardPile.push(played);
+
+      render();
+      
+      setTimeout(() => {
+        animating = false;
+        checkEnemyDeath();
+      }, 300);
+    }
+
+    function gainBlock(amount) {
+      const total = amount + dexterity;
+      block += total;
+      
+      // 저거너트
+      if (powers.damageOnBlock) {
+        const target = enemies.find(e => e.hp > 0);
+        if (target) {
+          const dmg = powers.damageOnBlock;
+          const absorbed = Math.min(dmg, target.block);
+          target.block -= absorbed;
+          target.hp -= (dmg - absorbed);
+          addCombatLog(`저거너트 → ${dmg} 데미지`, 'dmg');
+        }
+      }
+    }
+
+    function drawCard() {
+      if (cantDrawThisTurn) return;
+      if (!drawPile.length && discardPile.length) {
+        drawPile = shuffle(discardPile);
+        discardPile = [];
+      }
+      if (drawPile.length && hand.length < 10) {
+        hand.push(drawPile.pop());
+      }
+    }
+
+    function checkEnemyDeath() {
+      const allDead = enemies.every(e => e.hp <= 0);
+      if (allDead) {
+        combatVictory();
+      } else if (hp <= 0) {
+        defeat();
+      } else {
+        render();
+      }
+    }
+
+    function endTurn() {
+      if (animating) return;
+      animating = true;
+      
+      // 오리하르콘 렐릭
+      if (block === 0) {
+        const ori = relics.find(r => r.noBlockGain);
+        if (ori) {
+          block += ori.noBlockGain;
+          addCombatLog(`오리하르콘 → ${ori.noBlockGain} 방어`, 'block');
+        }
+      }
+      
+      // 금속화
+      if (powers.metal) {
+        gainBlock(powers.metal);
+        addCombatLog(`금속화 → ${powers.metal} 방어`, 'block');
+      }
+      
+      render();
+
+      // 적 턴
+      setTimeout(() => {
+        executeEnemyTurns();
+      }, 400);
+    }
+
+    function executeEnemyTurns() {
+      let delay = 0;
+      
+      enemies.forEach((e, idx) => {
+        if (e.hp <= 0) return;
+        
+        setTimeout(() => {
+          const intent = e.intent;
+          
+          // 독 데미지
+          if (e.poison > 0) {
+            e.hp -= e.poison;
+            e.poison -= 1;
+            addCombatLog(`${e.name} 독 → ${e.poison + 1} 데미지`, 'dmg');
+          }
+          
+          if (e.hp <= 0) {
+            render();
+            return;
+          }
+          
+          if (intent.dmg !== undefined) {
+            let dmg = intent.dmg + (e.strength || 0);
+            if (e.weak > 0) dmg = Math.floor(dmg * 0.75);
+            
+            const times = intent.times || 1;
+            let totalDmg = 0;
+            let totalBlocked = 0;
+            
+            // 토리이 렐릭
+            const torii = relics.find(r => r.reduceLowDmg);
+            
+            for (let t = 0; t < times; t++) {
+              let hitDmg = dmg;
+              if (vulnerable > 0) hitDmg = Math.floor(hitDmg * 1.5);
+              
+              // 토리이
+              if (torii && hitDmg <= 5 && hitDmg > 0) hitDmg = 1;
+              
+              const absorbed = Math.min(hitDmg, block);
+              block -= absorbed;
+              hp -= (hitDmg - absorbed);
+              totalDmg += hitDmg;
+              totalBlocked += absorbed;
+            }
+            
+            gameMsg = `${e.name} 공격! ${totalDmg}${totalBlocked > 0 ? ` (${totalBlocked} 방어)` : ''}`;
+            addCombatLog(gameMsg, 'dmg');
+          } else if (intent.block) {
+            e.block += intent.block;
+            if (intent.str) e.strength += intent.str;
+            gameMsg = `${e.name}이(가) 방어!`;
+            addCombatLog(gameMsg, 'block');
+          } else if (intent.ritual) {
+            e.ritual += intent.ritual;
+            gameMsg = `${e.name} 의식! 힘+${intent.ritual}/턴`;
+            addCombatLog(gameMsg);
+          } else if (intent.str) {
+            e.strength += intent.str;
+            gameMsg = `${e.name} 강화! 힘+${intent.str}`;
+            addCombatLog(gameMsg);
+          } else if (intent.debuff) {
+            if (intent.strDown) strength = Math.max(0, strength - intent.strDown);
+            if (intent.dexDown) dexterity = Math.max(0, dexterity - intent.dexDown);
+            gameMsg = `${e.name} 디버프!`;
+            addCombatLog(gameMsg);
+          }
+          
+          // 약화/취약 적용
+          if (intent.weak) weak += intent.weak;
+          
+          render();
+        }, delay);
+        
+        delay += 500;
+      });
+      
+      // 턴 종료 처리
+      setTimeout(() => {
+        if (hp <= 0) {
+          defeat();
+          return;
+        }
+        
+        startNewTurn();
+      }, delay + 300);
+    }
+
+    function startNewTurn() {
+      turn++;
+      firstTurn = false;
+      cantDrawThisTurn = false;
+      
+      // 상태 감소
+      block = 0;
+      weak = Math.max(0, weak - 1);
+      vulnerable = Math.max(0, vulnerable - 1);
+      
+      // 독 처리
+      if (poison > 0) {
+        hp -= poison;
+        poison--;
+        addCombatLog(`독 → ${poison + 1} 데미지`, 'dmg');
+        if (hp <= 0) {
+          defeat();
+          return;
+        }
+      }
+      
+      // 악마형상
+      if (powers.demon) {
+        strength += powers.demon;
+        addCombatLog(`악마형상 → 힘+${powers.demon}`);
+      }
+      
+      // 행복한 꽃
+      const flower = relics.find(r => r.energyEvery);
+      if (flower) {
+        flower.turnCount = (flower.turnCount || 0) + 1;
+        if (flower.turnCount >= flower.energyEvery) {
+          flower.turnCount = 0;
+          energy++;
+          addCombatLog(`행복한 꽃 → 에너지+1`);
+        }
+      }
+      
+      // 적 상태 초기화
+      enemies.forEach(e => {
+        if (e.hp <= 0) return;
+        e.block = 0;
+        e.weak = Math.max(0, e.weak - 1);
+        e.vulnerable = Math.max(0, e.vulnerable - 1);
+        e.strength += e.ritual || 0;
+        e.intent = e.atks[rand(0, e.atks.length - 1)];
+      });
+      
+      // 손패 버리고 드로우
+      discardPile = discardPile.concat(hand);
+      hand = [];
+      energy = maxEnergy;
+      
+      for (let i = 0; i < 5; i++) drawCard();
+      
+      animating = false;
+      gameMsg = `턴 ${turn}`;
+      render();
+    }
+
+    function combatVictory() {
+      aiMsg = '적을 물리쳤습니다!';
+      gameMsg = '';
+      combatLogs = [];
+      
+      // 불타는 피
+      relics.forEach(r => { 
+        if (r.heal) hp = Math.min(maxHp, hp + r.heal); 
+      });
+      
+      // 뼈에 붙은 고기
+      const meat = relics.find(r => r.lowHpHeal);
+      if (meat && hp <= maxHp * 0.5) {
+        hp = Math.min(maxHp, hp + meat.lowHpHeal);
+      }
+      
+      const enemy = enemies[0];
+      const isBoss = enemy.boss;
+      const isElite = enemy.elite;
+      
+      rewardGold = isBoss ? rand(95, 105) : isElite ? rand(25, 35) : rand(10, 20);
+      
+      // 카드 보상
+      const pool = Object.keys(CARDS).filter(k => k !== 'strike' && k !== 'defend');
+      rewardCards = shuffle(pool).slice(0, 3).map(k => createCard(k));
+      
+      // 포션 (40% 확률)
+      const potionPool = Object.keys(POTIONS);
+      rewardPotion = Math.random() < 0.4 ? { ...POTIONS[potionPool[rand(0, potionPool.length - 1)]], uid: uid() } : null;
+      
+      // 엘리트/보스 렐릭
+      if (isElite || isBoss) {
+        const ownedKeys = relics.map(r => r.key);
+        const relicPool = Object.keys(RELICS).filter(k => !ownedKeys.includes(k));
+        if (relicPool.length > 0) {
+          const key = relicPool[rand(0, relicPool.length - 1)];
+          rewardRelic = { ...RELICS[key], key, uid: uid() };
+        }
+      }
+
+      render();
+      
+      setTimeout(() => {
+        if (isBoss && floor >= 13) {
+          victory();
+        } else {
+          state = 'reward';
+          render();
+        }
+      }, 800);
+    }
+
+    function collectGold() { gold += rewardGold; rewardGold = 0; render(); }
+    function collectPotion() { 
+      if (rewardPotion && potions.length < 3) potions.push(rewardPotion); 
+      rewardPotion = null; 
+      render(); 
+    }
+    function collectRelic() {
+      if (rewardRelic) relics.push(rewardRelic);
+      rewardRelic = null;
+      render();
+    }
+    function selectRewardCard(i) { deck.push(rewardCards[i]); rewardCards = []; render(); }
+    function skipRewardCard() { rewardCards = []; render(); }
+    function finishReward() { 
+      rewardCards = []; rewardGold = 0; rewardPotion = null; rewardRelic = null;
+      state = 'map'; 
+      gameMsg = '';
+      autoSave(); 
+      render(); 
+    }
+
+    function usePotion(i) {
+      const p = potions[i];
+      if (!p) return;
+      
+      if (state !== 'combat' && (p.dmg || p.str || p.dex || p.weakAll || p.poison || p.energy)) {
+        gameMsg = '전투 중에만 사용 가능!';
+        render();
+        return;
+      }
+      
+      potions.splice(i, 1);
+      
+      if (p.dmg) {
+        const e = enemies.find(en => en.hp > 0);
+        if (e) {
+          const absorbed = Math.min(p.dmg, e.block);
+          e.block -= absorbed;
+          e.hp -= (p.dmg - absorbed);
+          gameMsg = `${p.name}! ${p.dmg} 데미지!`;
+          addCombatLog(gameMsg, 'dmg');
+          setTimeout(() => checkEnemyDeath(), 300);
+        }
+      }
+      if (p.block) { 
+        gainBlock(p.block); 
+        gameMsg = `${p.name}! ${p.block} 방어!`; 
+        addCombatLog(gameMsg, 'block');
+      }
+      if (p.str) { 
+        strength += p.str; 
+        gameMsg = `${p.name}! 힘+${p.str}!`; 
+      }
+      if (p.dex) { 
+        dexterity += p.dex; 
+        gameMsg = `${p.name}! 민첩+${p.dex}!`; 
+      }
+      if (p.healPct) { 
+        const heal = Math.floor(maxHp * p.healPct);
+        hp = Math.min(maxHp, hp + heal); 
+        gameMsg = `${p.name}! ${heal} 회복!`; 
+        addCombatLog(gameMsg, 'heal');
+      }
+      if (p.weakAll) {
+        enemies.forEach(e => { if (e.hp > 0) e.weak += p.weakAll; });
+        gameMsg = `${p.name}! 적 전체 약화${p.weakAll}!`;
+      }
+      if (p.poison) {
+        const e = enemies.find(en => en.hp > 0);
+        if (e) {
+          e.poison = (e.poison || 0) + p.poison;
+          gameMsg = `${p.name}! 독 ${p.poison}!`;
+        }
+      }
+      if (p.energy) {
+        energy += p.energy;
+        gameMsg = `${p.name}! 에너지+${p.energy}!`;
+      }
+      if (p.randomPower) {
+        const powers = ['strength', 'endBlock', 'strPerTurn'];
+        const chosen = powers[rand(0, powers.length - 1)];
+        if (chosen === 'strength') strength += 1;
+        else if (chosen === 'endBlock') powers.metal = (powers.metal || 0) + 3;
+        else powers.demon = (powers.demon || 0) + 1;
+        gameMsg = `${p.name}! 랜덤 파워 획득!`;
+      }
+      
+      render();
+    }
+
+    // 이벤트
+    function triggerEvent() { 
+      const pool = EVENTS.filter(e => e.id !== 'bigFish' || !currentEvent || currentEvent.id !== 'bigFish');
+      currentEvent = pool[rand(0, pool.length - 1)]; 
+      aiMsg = '무언가 발견!'; 
+      gameMsg = '';
+      state = 'event'; 
+    }
+    
+    function chooseEvent(i) {
+      const c = currentEvent.choices[i];
+      let msg = '';
+      
+      if (c.healPct) { 
+        const heal = Math.floor(maxHp * c.healPct);
+        hp = Math.min(maxHp, hp + heal);
+        msg = `HP ${heal} 회복!`;
+      }
+      if (c.maxHp) { maxHp += c.maxHp; hp += c.maxHp; msg = `최대 HP +${c.maxHp}!`; }
+      if (c.maxHpLoss) { maxHp -= c.maxHpLoss; hp = Math.min(hp, maxHp); msg = `최대 HP -${c.maxHpLoss}...`; }
+      if (c.gold) { gold += c.gold; msg = `금화 +${c.gold}!`; }
+      if (c.damage) { hp -= c.damage; msg += ` HP -${c.damage}`; }
+      if (c.relic || c.rareRelic) {
+        const ownedKeys = relics.map(r => r.key);
+        const pool = Object.keys(RELICS).filter(k => !ownedKeys.includes(k));
+        if (pool.length > 0) {
+          const key = pool[rand(0, pool.length - 1)];
+          relics.push({ ...RELICS[key], key, uid: uid() });
+          msg = `${RELICS[key].name} 획득!`;
+        }
+      }
+      if (c.relicKey) {
+        const ownedKeys = relics.map(r => r.key);
+        if (!ownedKeys.includes(c.relicKey)) {
+          relics.push({ ...RELICS[c.relicKey], key: c.relicKey, uid: uid() });
+          msg = `${RELICS[c.relicKey].name} 획득!`;
+        }
+      }
+      if (c.upgradeRandom) {
+        const upgradeable = deck.filter(card => !card.upgraded);
+        if (upgradeable.length > 0) {
+          upgradeCard(upgradeable[rand(0, upgradeable.length - 1)]);
+          msg = '랜덤 카드 업그레이드!';
+        }
+      }
+      if (c.removeRandom && deck.length > 5) {
+        deck.splice(rand(0, deck.length - 1), 1);
+        msg = '랜덤 카드 제거!';
+      }
+      if (c.randomWheel) {
+        const effects = [
+          () => { gold += 100; return '금화 +100!'; },
+          () => { hp = Math.min(maxHp, hp + Math.floor(maxHp * 0.25)); return 'HP 25% 회복!'; },
+          () => { hp -= 10; return 'HP -10...'; },
+          () => { maxHp += 5; hp += 5; return '최대 HP +5!'; },
+          () => { const u = deck.filter(c => !c.upgraded); if (u.length) upgradeCard(u[0]); return '카드 업그레이드!'; }
+        ];
+        const effect = effects[rand(0, effects.length - 1)];
+        msg = effect();
+      }
+      if (c.combat === 'elite') {
+        currentEvent = null;
+        startCombat('elite');
+        return;
+      }
+      
+      gameMsg = msg || '아무 일도 일어나지 않았다';
+      currentEvent = null;
+      render();
+      setTimeout(() => { state = 'map'; gameMsg = ''; autoSave(); render(); }, 1500);
+    }
+
+    // 휴식처
+    function triggerRest() {
+      aiMsg = '모닥불의 온기...';
+      gameMsg = '';
+      state = 'rest';
+    }
+    
+    function restHeal() {
+      const heal = Math.floor(maxHp * 0.3);
+      hp = Math.min(maxHp, hp + heal);
+      gameMsg = `HP ${heal} 회복!`;
+      render();
+      setTimeout(() => { state = 'map'; gameMsg = ''; autoSave(); render(); }, 1000);
+    }
+    
+    function restUpgrade() {
+      showUpgrade();
+    }
+
+    // 상점
+    function triggerShop() {
+      const cardPool = Object.keys(CARDS).filter(k => k !== 'strike' && k !== 'defend');
+      const cards = shuffle(cardPool).slice(0, 6).map(k => ({
+        item: createCard(k),
+        price: CARDS[k].type === 'power' ? rand(100, 160) : rand(50, 120),
+        sold: false
+      }));
+      
+      const potionPool = Object.keys(POTIONS);
+      const pots = shuffle(potionPool).slice(0, 3).map(k => ({
+        item: { ...POTIONS[k], key: k, uid: uid() },
+        price: rand(40, 80),
+        sold: false
+      }));
+      
+      const ownedRelics = relics.map(r => r.key);
+      const relicPool = Object.keys(RELICS).filter(k => !ownedRelics.includes(k));
+      const shopRelics = shuffle(relicPool).slice(0, 2).map(k => ({
+        item: { ...RELICS[k], key: k, uid: uid() },
+        price: rand(150, 250),
+        sold: false
+      }));
+      
+      shopItems = { 
+        cards, 
+        potions: pots, 
+        relics: shopRelics,
+        removePrice: 75,
+        removeUsed: false
+      };
+      aiMsg = '상인의 미소...';
+      gameMsg = '';
+      state = 'shop';
+    }
+    
+    function buyCard(i) {
+      const it = shopItems.cards[i];
+      if (!it || it.sold) return;
+      if (gold < it.price) { gameMsg = '금화 부족!'; render(); return; }
+      gold -= it.price;
+      deck.push(it.item);
+      it.sold = true;
+      gameMsg = `${it.item.name} 구매!`;
+      render();
+    }
+    
+    function buyPotion(i) {
+      const it = shopItems.potions[i];
+      if (!it || it.sold) return;
+      if (gold < it.price) { gameMsg = '금화 부족!'; render(); return; }
+      if (potions.length >= 3) { gameMsg = '포션 가득!'; render(); return; }
+      gold -= it.price;
+      potions.push(it.item);
+      it.sold = true;
+      gameMsg = `${it.item.name} 구매!`;
+      render();
+    }
+    
+    function buyRelic(i) {
+      const it = shopItems.relics[i];
+      if (!it || it.sold) return;
+      if (gold < it.price) { gameMsg = '금화 부족!'; render(); return; }
+      gold -= it.price;
+      relics.push(it.item);
+      it.sold = true;
+      gameMsg = `${it.item.name} 획득!`;
+      render();
+    }
+    
+    function shopRemoveCard() {
+      if (shopItems.removeUsed) return;
+      if (gold < shopItems.removePrice) { gameMsg = '금화 부족!'; render(); return; }
+      gold -= shopItems.removePrice;
+      showRemove();
+    }
+    
+    function exitShop() { 
+      state = 'map'; 
+      gameMsg = ''; 
+      autoSave();
+      render(); 
+    }
+
+    // 보물
+    function triggerTreasure() {
+      const ownedKeys = relics.map(r => r.key);
+      const pool = Object.keys(RELICS).filter(k => !ownedKeys.includes(k));
+      
+      if (!pool.length) { 
+        gold += 50;
+        gameMsg = '대신 금화 50개를 찾았습니다!';
+        aiMsg = '';
+        render();
+        setTimeout(() => { state = 'map'; gameMsg = ''; autoSave(); render(); }, 1500);
+        return; 
+      }
+      
+      const k = pool[rand(0, pool.length - 1)];
+      relics.push({ ...RELICS[k], key: k, uid: uid() });
+      gameMsg = `${RELICS[k].name} 획득!`;
+      aiMsg = '보물 발견!';
+      render();
+      setTimeout(() => { 
+        state = 'map'; 
+        gameMsg = ''; 
+        autoSave();
+        render(); 
+      }, 1500);
+    }
+
+    function victory() { state = 'victory'; aiMsg = ''; gameMsg = ''; localStorage.removeItem('slayv2-auto'); render(); }
+    function defeat() { aiMsg = '어둠 속으로...'; gameMsg = ''; state = 'defeat'; localStorage.removeItem('slayv2-auto'); render(); }
+    function goToMenu() { state = 'menu'; aiMsg = ''; gameMsg = ''; render(); }
+
+    // 초기화
+    render();
+  </script>
+
+</body>
+</html>
