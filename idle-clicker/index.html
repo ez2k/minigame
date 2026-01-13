@@ -17,6 +17,12 @@
             min-height: 100vh;
             color: #fff;
             overflow-x: hidden;
+            transition: background 0.3s;
+        }
+
+        body.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
         }
 
         .container {
@@ -31,6 +37,7 @@
             padding: 20px 0;
             border-bottom: 2px solid rgba(255, 215, 0, 0.3);
             margin-bottom: 20px;
+            position: relative;
         }
 
         .header h1 {
@@ -39,13 +46,28 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
         }
 
         .gold-display {
             font-size: 2em;
             margin: 15px 0;
             color: #ffd700;
+        }
+
+        body.light-mode .gold-display {
+            color: #b8860b;
         }
 
         .gold-display .amount {
@@ -56,9 +78,14 @@
         .stats-row {
             display: flex;
             justify-content: center;
-            gap: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
             font-size: 0.9em;
             color: #aaa;
+        }
+
+        body.light-mode .stats-row {
+            color: #666;
         }
 
         .stat {
@@ -67,12 +94,32 @@
             gap: 5px;
         }
 
+        /* Buff indicator */
+        .buff-indicator {
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            animation: pulse 1s infinite;
+            display: none;
+        }
+
+        .buff-indicator.active {
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         /* Clicker Area */
         .clicker-area {
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 30px 0;
+            position: relative;
         }
 
         .coin-button {
@@ -93,6 +140,8 @@
             transition: transform 0.1s, box-shadow 0.1s;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            position: relative;
+            z-index: 10;
         }
 
         .coin-button:hover {
@@ -107,6 +156,41 @@
             transform: scale(0.95);
         }
 
+        /* Golden Coin Bonus */
+        .golden-coin {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            font-size: 50px;
+            cursor: pointer;
+            animation: float 2s ease-in-out infinite, glow 0.5s ease-in-out infinite alternate;
+            z-index: 1000;
+            filter: drop-shadow(0 0 20px gold);
+            transition: transform 0.1s;
+        }
+
+        .golden-coin:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px gold); }
+            to { filter: drop-shadow(0 0 30px gold); }
+        }
+
+        /* Particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 20px;
+            z-index: 999;
+        }
+
         .click-text {
             position: fixed;
             pointer-events: none;
@@ -118,14 +202,8 @@
         }
 
         @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-80px) scale(1.5);
-            }
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
         }
 
         /* Tabs */
@@ -133,18 +211,25 @@
             display: flex;
             gap: 5px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
         .tab {
             flex: 1;
-            padding: 12px;
+            min-width: 80px;
+            padding: 12px 8px;
             background: rgba(255, 255, 255, 0.1);
             border: none;
             border-radius: 10px 10px 0 0;
             color: #aaa;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em;
             transition: all 0.3s;
+        }
+
+        body.light-mode .tab {
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
         }
 
         .tab:hover {
@@ -157,6 +242,15 @@
             border-bottom: 2px solid #ffd700;
         }
 
+        .tab .notification {
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
+
         /* Panels */
         .panel {
             display: none;
@@ -166,12 +260,16 @@
             min-height: 300px;
         }
 
+        body.light-mode .panel {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
         .panel.active {
             display: block;
         }
 
-        /* Generators */
-        .generator-item {
+        /* Generator & Upgrade Items */
+        .generator-item, .upgrade-item, .achievement-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -183,18 +281,25 @@
             transition: all 0.3s;
         }
 
-        .generator-item:hover {
+        body.light-mode .generator-item,
+        body.light-mode .upgrade-item,
+        body.light-mode .achievement-item {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .generator-item:hover, .upgrade-item:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(255, 215, 0, 0.3);
         }
 
-        .generator-info {
+        .generator-info, .upgrade-info {
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        .generator-icon {
+        .generator-icon, .upgrade-icon {
             font-size: 2.5em;
             width: 60px;
             text-align: center;
@@ -203,6 +308,10 @@
         .generator-details h3 {
             color: #fff;
             margin-bottom: 5px;
+        }
+
+        body.light-mode .generator-details h3 {
+            color: #333;
         }
 
         .generator-details p {
@@ -272,38 +381,118 @@
             color: #ffd700;
         }
 
-        /* Upgrades */
-        .upgrade-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
-        }
-
-        .upgrade-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .upgrade-item.purchased {
+        /* Achievements */
+        .achievement-item {
             opacity: 0.5;
-            border-color: rgba(0, 255, 0, 0.3);
         }
 
-        .upgrade-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .achievement-item.unlocked {
+            opacity: 1;
+            border-color: rgba(255, 215, 0, 0.5);
+            background: rgba(255, 215, 0, 0.1);
         }
 
-        .upgrade-icon {
+        .achievement-icon {
             font-size: 2em;
             width: 50px;
             text-align: center;
+            filter: grayscale(100%);
+        }
+
+        .achievement-item.unlocked .achievement-icon {
+            filter: none;
+        }
+
+        .achievement-reward {
+            color: #ffd700;
+            font-size: 0.85em;
+        }
+
+        /* Lucky Spin */
+        .spin-area {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spin-wheel {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff6b6b 0deg 45deg,
+                #ffd93d 45deg 90deg,
+                #6bcb77 90deg 135deg,
+                #4d96ff 135deg 180deg,
+                #ff6b6b 180deg 225deg,
+                #ffd93d 225deg 270deg,
+                #6bcb77 270deg 315deg,
+                #4d96ff 315deg 360deg
+            );
+            margin: 20px auto;
+            position: relative;
+            border: 5px solid #ffd700;
+            transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+        }
+
+        .spin-wheel::before {
+            content: '▼';
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            color: #ffd700;
+        }
+
+        .spin-wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .spin-btn {
+            padding: 15px 40px;
+            background: linear-gradient(145deg, #ffd700, #b8860b);
+            border: none;
+            border-radius: 10px;
+            color: #1a1a2e;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .spin-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .spin-cooldown {
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        /* Chart */
+        .chart-container {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
         }
 
         /* Prestige */
@@ -331,11 +520,6 @@
             margin: 15px 0;
         }
 
-        .prestige-bonus {
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-
         .prestige-btn {
             padding: 15px 40px;
             background: linear-gradient(145deg, #9370db, #8a2be2);
@@ -348,20 +532,9 @@
             transition: all 0.3s;
         }
 
-        .prestige-btn:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 5px 30px rgba(147, 112, 219, 0.5);
-        }
-
         .prestige-btn:disabled {
             background: #555;
             cursor: not-allowed;
-        }
-
-        .prestige-requirement {
-            color: #888;
-            font-size: 0.9em;
-            margin-top: 15px;
         }
 
         /* Settings */
@@ -389,21 +562,32 @@
             transition: all 0.3s;
         }
 
-        .setting-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
         .setting-btn.danger {
             background: rgba(255, 0, 0, 0.2);
             border-color: rgba(255, 0, 0, 0.3);
         }
 
-        .setting-btn.danger:hover {
-            background: rgba(255, 0, 0, 0.4);
+        /* Records */
+        .records-area {
+            padding: 20px;
+        }
+
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .record-value {
+            color: #ffd700;
+            font-weight: bold;
         }
 
         /* Offline Popup */
-        .offline-popup {
+        .popup {
             position: fixed;
             top: 0;
             left: 0;
@@ -416,11 +600,11 @@
             z-index: 2000;
         }
 
-        .offline-popup.hidden {
+        .popup.hidden {
             display: none;
         }
 
-        .offline-content {
+        .popup-content {
             background: linear-gradient(145deg, #1a1a2e, #16213e);
             border: 2px solid #ffd700;
             border-radius: 20px;
@@ -429,23 +613,18 @@
             max-width: 400px;
         }
 
-        .offline-content h2 {
+        .popup-content h2 {
             color: #ffd700;
             margin-bottom: 20px;
         }
 
-        .offline-earnings {
+        .popup-earnings {
             font-size: 2em;
             color: #ffd700;
             margin: 20px 0;
         }
 
-        .offline-time {
-            color: #aaa;
-            margin-bottom: 20px;
-        }
-
-        .offline-btn {
+        .popup-btn {
             padding: 15px 40px;
             background: linear-gradient(145deg, #ffd700, #b8860b);
             border: none;
@@ -454,101 +633,100 @@
             font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .offline-btn:hover {
-            transform: scale(1.05);
+        /* Buff Popup */
+        .buff-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #ff6b6b, #ffd93d);
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a1a2e;
+            z-index: 2000;
+            animation: buffPopup 2s forwards;
+        }
+
+        @keyframes buffPopup {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
         /* Responsive */
         @media (max-width: 600px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .gold-display {
-                font-size: 1.5em;
-            }
-
-            .coin-button {
-                width: 150px;
-                height: 150px;
-                font-size: 60px;
-            }
-
-            .stats-row {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .generator-item {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .generator-right {
-                text-align: center;
-            }
-
-            .buy-amount {
-                justify-content: center;
-            }
+            .header h1 { font-size: 1.8em; }
+            .gold-display { font-size: 1.5em; }
+            .coin-button { width: 150px; height: 150px; font-size: 60px; }
+            .stats-row { flex-direction: column; gap: 5px; }
+            .generator-item, .upgrade-item { flex-direction: column; gap: 15px; text-align: center; }
+            .generator-right { text-align: center; }
+            .tab { padding: 10px 5px; font-size: 0.8em; }
         }
     </style>
 </head>
 <body>
     <!-- Offline Popup -->
-    <div id="offlinePopup" class="offline-popup hidden">
-        <div class="offline-content">
-            <h2>다시 오셨군요!</h2>
-            <p class="offline-time" id="offlineTime"></p>
+    <div id="offlinePopup" class="popup hidden">
+        <div class="popup-content">
+            <h2>다시 오셨군요! 🎉</h2>
+            <p id="offlineTime"></p>
             <p>오프라인 동안 벌어들인 골드:</p>
-            <div class="offline-earnings" id="offlineEarnings">+0</div>
-            <button class="offline-btn" onclick="closeOfflinePopup()">받기!</button>
+            <div class="popup-earnings" id="offlineEarnings">+0</div>
+            <button class="popup-btn" onclick="closeOfflinePopup()">받기!</button>
+        </div>
+    </div>
+
+    <!-- Spin Result Popup -->
+    <div id="spinResultPopup" class="popup hidden">
+        <div class="popup-content">
+            <h2>🎰 럭키 스핀 결과!</h2>
+            <div class="popup-earnings" id="spinResult"></div>
+            <button class="popup-btn" onclick="closeSpinPopup()">확인</button>
         </div>
     </div>
 
     <div class="container">
         <!-- Header -->
         <div class="header">
+            <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
             <h1>골드러시 클리커</h1>
             <div class="gold-display">
-                <span>💰</span> <span class="amount" id="goldAmount">0</span> 골드
+                💰 <span class="amount" id="goldAmount">0</span> 골드
             </div>
             <div class="stats-row">
-                <div class="stat">
-                    <span>👆</span>
-                    <span>클릭당: <span id="clickPower">1</span></span>
-                </div>
-                <div class="stat">
-                    <span>⚡</span>
-                    <span>초당: <span id="perSecond">0</span></span>
-                </div>
-                <div class="stat">
-                    <span>💎</span>
-                    <span>보석: <span id="gems">0</span></span>
-                </div>
+                <div class="stat">👆 클릭당: <span id="clickPower">1</span></div>
+                <div class="stat">⚡ 초당: <span id="perSecond">0</span></div>
+                <div class="stat">💎 보석: <span id="gems">0</span></div>
+                <div class="stat">⏰ <span id="playTime">00:00:00</span></div>
             </div>
+            <div class="buff-indicator" id="buffIndicator">🔥 2배 버프! <span id="buffTimer">30</span>초</div>
         </div>
 
         <!-- Clicker -->
-        <div class="clicker-area">
+        <div class="clicker-area" id="clickerArea">
             <button class="coin-button" id="coinBtn">💰</button>
         </div>
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" data-tab="generators">🏭 생산시설</button>
-            <button class="tab" data-tab="upgrades">⬆️ 업그레이드</button>
+            <button class="tab active" data-tab="generators">🏭 생산</button>
+            <button class="tab" data-tab="upgrades">⬆️ 강화</button>
+            <button class="tab" data-tab="achievements">🎯 도전</button>
+            <button class="tab" data-tab="spin">🎰 스핀</button>
+            <button class="tab" data-tab="stats">📊 통계</button>
             <button class="tab" data-tab="prestige">💎 환생</button>
             <button class="tab" data-tab="settings">⚙️ 설정</button>
         </div>
 
         <!-- Panels -->
         <div id="generators" class="panel active">
-            <div class="buy-amount" style="margin-bottom: 15px; justify-content: flex-start;">
+            <div class="buy-amount" style="margin-bottom: 15px;">
                 <span style="color: #aaa; margin-right: 10px;">구매 수량:</span>
                 <button class="amount-btn active" data-amount="1">x1</button>
                 <button class="amount-btn" data-amount="10">x10</button>
@@ -562,6 +740,57 @@
             <div id="upgradeList"></div>
         </div>
 
+        <div id="achievements" class="panel">
+            <div id="achievementList"></div>
+        </div>
+
+        <div id="spin" class="panel">
+            <div class="spin-area">
+                <h2 style="margin-bottom: 20px;">🎰 럭키 스핀</h2>
+                <p style="color: #aaa; margin-bottom: 20px;">무료 스핀으로 보상을 받으세요!</p>
+                <div class="spin-wheel" id="spinWheel">
+                    <div class="spin-wheel-center">🎁</div>
+                </div>
+                <button class="spin-btn" id="spinBtn" onclick="doSpin()">스핀!</button>
+                <p class="spin-cooldown" id="spinCooldown"></p>
+            </div>
+        </div>
+
+        <div id="stats" class="panel">
+            <div class="records-area">
+                <h3 style="margin-bottom: 20px;">📊 통계 & 기록</h3>
+                <div class="chart-container">
+                    <canvas id="goldChart" class="chart-canvas"></canvas>
+                </div>
+                <div style="margin-top: 20px;">
+                    <div class="record-item">
+                        <span>🏆 최고 골드</span>
+                        <span class="record-value" id="recordGold">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span>👆 총 클릭 수</span>
+                        <span class="record-value" id="recordClicks">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span>💰 총 획득 골드</span>
+                        <span class="record-value" id="recordTotalGold">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span>💎 총 획득 보석</span>
+                        <span class="record-value" id="recordGems">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span>🔄 환생 횟수</span>
+                        <span class="record-value" id="recordPrestige">0</span>
+                    </div>
+                    <div class="record-item">
+                        <span>🎯 달성 업적</span>
+                        <span class="record-value" id="recordAchievements">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="prestige" class="panel">
             <div class="prestige-area">
                 <div class="prestige-info">
@@ -570,11 +799,9 @@
                     <div class="prestige-gems">
                         획득 예정: <span id="prestigeGain">0</span> 💎
                     </div>
-                    <p class="prestige-bonus">
-                        현재 보너스: <span id="prestigeBonus">0</span>% 추가 골드
-                    </p>
-                    <button class="prestige-btn" id="prestigeBtn" disabled>환생하기</button>
-                    <p class="prestige-requirement" id="prestigeReq">1,000,000 골드 필요</p>
+                    <p style="color: #aaa;">현재 보너스: <span id="prestigeBonus">0</span>% 추가 골드</p>
+                    <button class="prestige-btn" id="prestigeBtn" disabled onclick="doPrestige()">환생하기</button>
+                    <p style="color: #888; margin-top: 15px;" id="prestigeReq">1,000,000 골드 필요</p>
                 </div>
             </div>
         </div>
@@ -582,12 +809,12 @@
         <div id="settings" class="panel">
             <div class="settings-area">
                 <div class="setting-item">
-                    <span>💾 수동 저장</span>
-                    <button class="setting-btn" onclick="saveGame()">저장하기</button>
+                    <span>🔊 사운드</span>
+                    <button class="setting-btn" id="soundToggle" onclick="toggleSound()">ON</button>
                 </div>
                 <div class="setting-item">
-                    <span>📊 통계 보기</span>
-                    <button class="setting-btn" onclick="showStats()">통계</button>
+                    <span>💾 수동 저장</span>
+                    <button class="setting-btn" onclick="saveGame()">저장하기</button>
                 </div>
                 <div class="setting-item">
                     <span>🗑️ 게임 초기화</span>
@@ -598,7 +825,7 @@
     </div>
 
     <script>
-        // Game State
+        // ==================== GAME STATE ====================
         let gameState = {
             gold: 0,
             totalGold: 0,
@@ -607,15 +834,27 @@
             perSecond: 0,
             gems: 0,
             totalGems: 0,
+            prestigeCount: 0,
             generators: {},
             upgrades: {},
+            achievements: {},
             lastSave: Date.now(),
-            startTime: Date.now()
+            startTime: Date.now(),
+            sessionStart: Date.now(),
+            lastSpinTime: 0,
+            highestGold: 0,
+            darkMode: true,
+            soundEnabled: true
         };
 
         let buyAmount = 1;
+        let globalMultiplier = 1;
+        let generatorMultipliers = {};
+        let buffActive = false;
+        let buffEndTime = 0;
+        let goldHistory = [];
 
-        // Generators Data
+        // ==================== GAME DATA ====================
         const generators = [
             { id: 'cursor', name: '자동 커서', icon: '👆', basePrice: 15, baseProduction: 0.1 },
             { id: 'miner', name: '광부', icon: '⛏️', basePrice: 100, baseProduction: 1 },
@@ -628,7 +867,6 @@
             { id: 'timemachine', name: '타임머신', icon: '⏰', basePrice: 5100000000, baseProduction: 260000 }
         ];
 
-        // Upgrades Data
         const upgrades = [
             { id: 'click1', name: '강화된 손가락', icon: '👆', price: 100, desc: '클릭당 +1', effect: () => gameState.clickPower += 1 },
             { id: 'click2', name: '황금 손가락', icon: '✨', price: 500, desc: '클릭당 +5', effect: () => gameState.clickPower += 5 },
@@ -643,20 +881,71 @@
             { id: 'global2', name: '골드 피버', icon: '🔥', price: 1000000000, desc: '모든 생산량 2배', globalMultiplier: 2 }
         ];
 
-        let globalMultiplier = 1;
-        let generatorMultipliers = {};
+        const achievements = [
+            { id: 'click10', name: '초보 클리커', icon: '👆', desc: '10번 클릭하기', condition: () => gameState.totalClicks >= 10, reward: 10 },
+            { id: 'click100', name: '열정 클리커', icon: '🔥', desc: '100번 클릭하기', condition: () => gameState.totalClicks >= 100, reward: 50 },
+            { id: 'click1000', name: '클릭 마스터', icon: '⚡', desc: '1,000번 클릭하기', condition: () => gameState.totalClicks >= 1000, reward: 200 },
+            { id: 'gold100', name: '동전 수집가', icon: '🪙', desc: '100 골드 모으기', condition: () => gameState.highestGold >= 100, reward: 20 },
+            { id: 'gold10000', name: '부자의 시작', icon: '💰', desc: '10,000 골드 모으기', condition: () => gameState.highestGold >= 10000, reward: 100 },
+            { id: 'gold1m', name: '백만장자', icon: '💎', desc: '1,000,000 골드 모으기', condition: () => gameState.highestGold >= 1000000, reward: 1000 },
+            { id: 'gold1b', name: '억만장자', icon: '👑', desc: '1,000,000,000 골드 모으기', condition: () => gameState.highestGold >= 1000000000, reward: 10000 },
+            { id: 'prestige1', name: '환생자', icon: '🔄', desc: '첫 환생하기', condition: () => gameState.prestigeCount >= 1, reward: 500 },
+            { id: 'prestige5', name: '윤회의 달인', icon: '🌀', desc: '5번 환생하기', condition: () => gameState.prestigeCount >= 5, reward: 2000 },
+            { id: 'gen10', name: '산업혁명', icon: '🏭', desc: '생산시설 10개 보유', condition: () => Object.values(gameState.generators).reduce((a,b) => a+b, 0) >= 10, reward: 100 },
+            { id: 'gen100', name: '산업왕', icon: '🏰', desc: '생산시설 100개 보유', condition: () => Object.values(gameState.generators).reduce((a,b) => a+b, 0) >= 100, reward: 1000 }
+        ];
 
-        // Format number
+        const spinRewards = [
+            { type: 'gold', multiplier: 10, label: '골드 x10', color: '#ffd700' },
+            { type: 'gold', multiplier: 50, label: '골드 x50', color: '#ffd700' },
+            { type: 'gold', multiplier: 100, label: '골드 x100', color: '#ffd700' },
+            { type: 'buff', duration: 30, label: '30초 2배', color: '#ff6b6b' },
+            { type: 'buff', duration: 60, label: '60초 2배', color: '#ff6b6b' },
+            { type: 'clickPower', amount: 5, label: '클릭+5', color: '#6bcb77' },
+            { type: 'clickPower', amount: 20, label: '클릭+20', color: '#6bcb77' },
+            { type: 'gems', amount: 1, label: '보석+1', color: '#da70d6' }
+        ];
+
+        // ==================== AUDIO ====================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const sounds = {
+                click: { freq: 800, duration: 0.05 },
+                buy: { freq: 600, duration: 0.1 },
+                achievement: { freq: 1000, duration: 0.2 },
+                spin: { freq: 400, duration: 0.3 },
+                bonus: { freq: 1200, duration: 0.15 }
+            };
+
+            const sound = sounds[type] || sounds.click;
+            oscillator.frequency.setValueAtTime(sound.freq, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + sound.duration);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + sound.duration);
+        }
+
+        // ==================== UTILITIES ====================
         function formatNumber(num) {
-            if (num < 1) return num.toFixed(1); // 0.1 같은 소수 표시
+            if (num < 1) return num.toFixed(1);
             if (num < 1000) return Math.floor(num).toLocaleString();
 
             const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
             const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
 
-            if (tier >= suffixes.length) {
-                return num.toExponential(2);
-            }
+            if (tier >= suffixes.length) return num.toExponential(2);
 
             const suffix = suffixes[tier];
             const scale = Math.pow(10, tier * 3);
@@ -665,7 +954,91 @@
             return scaled.toFixed(scaled < 10 ? 2 : 1) + suffix;
         }
 
-        // Calculate generator price
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // ==================== PARTICLES ====================
+        function createParticles(x, y, count = 5) {
+            const emojis = ['✨', '⭐', '💫', '🌟'];
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+
+                const angle = (Math.random() * 360) * (Math.PI / 180);
+                const velocity = 50 + Math.random() * 100;
+                const dx = Math.cos(angle) * velocity;
+                const dy = Math.sin(angle) * velocity;
+
+                document.body.appendChild(particle);
+
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${dx}px, ${dy}px) scale(0)`, opacity: 0 }
+                ], { duration: 1000, easing: 'ease-out' });
+
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        // ==================== GOLDEN COIN ====================
+        let goldenCoinTimeout = null;
+
+        function spawnGoldenCoin() {
+            if (document.querySelector('.golden-coin')) return;
+
+            const coin = document.createElement('div');
+            coin.className = 'golden-coin';
+            coin.textContent = '🌟';
+            coin.style.left = (Math.random() * (window.innerWidth - 100) + 50) + 'px';
+            coin.style.top = (Math.random() * (window.innerHeight - 200) + 100) + 'px';
+
+            coin.onclick = () => {
+                const bonus = Math.max(gameState.perSecond * 30, gameState.clickPower * 100);
+                gameState.gold += bonus;
+                gameState.totalGold += bonus;
+
+                playSound('bonus');
+                createParticles(parseFloat(coin.style.left), parseFloat(coin.style.top), 15);
+
+                showBuffPopup(`+${formatNumber(bonus)} 골드!`);
+                coin.remove();
+                scheduleGoldenCoin();
+            };
+
+            document.body.appendChild(coin);
+            setTimeout(() => coin.remove(), 10000);
+        }
+
+        function scheduleGoldenCoin() {
+            const delay = 30000 + Math.random() * 60000; // 30-90초
+            goldenCoinTimeout = setTimeout(spawnGoldenCoin, delay);
+        }
+
+        // ==================== BUFF SYSTEM ====================
+        function activateBuff(duration) {
+            buffActive = true;
+            buffEndTime = Date.now() + duration * 1000;
+            document.getElementById('buffIndicator').classList.add('active');
+            showBuffPopup(`🔥 ${duration}초 2배 버프!`);
+            playSound('bonus');
+        }
+
+        function showBuffPopup(text) {
+            const popup = document.createElement('div');
+            popup.className = 'buff-popup';
+            popup.textContent = text;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+        }
+
+        // ==================== CALCULATIONS ====================
         function getGeneratorPrice(gen, amount = 1) {
             const owned = gameState.generators[gen.id] || 0;
             let total = 0;
@@ -675,11 +1048,9 @@
             return total;
         }
 
-        // Calculate max affordable
         function getMaxAffordable(gen) {
             const owned = gameState.generators[gen.id] || 0;
-            let count = 0;
-            let total = 0;
+            let count = 0, total = 0;
             while (total + Math.floor(gen.basePrice * Math.pow(1.15, owned + count)) <= gameState.gold) {
                 total += Math.floor(gen.basePrice * Math.pow(1.15, owned + count));
                 count++;
@@ -688,15 +1059,11 @@
             return count;
         }
 
-        // Get actual buy amount
         function getActualBuyAmount(gen) {
-            if (buyAmount === 'max') {
-                return getMaxAffordable(gen);
-            }
+            if (buyAmount === 'max') return getMaxAffordable(gen);
             return Math.min(buyAmount, getMaxAffordable(gen));
         }
 
-        // Calculate production
         function calculateProduction() {
             let total = 0;
             generators.forEach(gen => {
@@ -705,35 +1072,54 @@
                 total += owned * gen.baseProduction * multiplier * globalMultiplier;
             });
 
-            // Prestige bonus
             const prestigeBonus = 1 + (gameState.gems * 0.01);
             total *= prestigeBonus;
+
+            if (buffActive) total *= 2;
 
             return total;
         }
 
-        // Click handler
+        function calculatePrestigeGain() {
+            if (gameState.totalGold < 1000000) return 0;
+            return Math.floor(Math.sqrt(gameState.totalGold / 1000000));
+        }
+
+        // ==================== GAME ACTIONS ====================
         function handleClick(e) {
             const prestigeBonus = 1 + (gameState.gems * 0.01);
-            const earned = gameState.clickPower * prestigeBonus;
+            let earned = gameState.clickPower * prestigeBonus;
+            if (buffActive) earned *= 2;
+
             gameState.gold += earned;
             gameState.totalGold += earned;
             gameState.totalClicks++;
+
+            if (gameState.gold > gameState.highestGold) {
+                gameState.highestGold = gameState.gold;
+            }
+
+            playSound('click');
+
+            const x = e.clientX || e.touches?.[0]?.clientX || window.innerWidth/2;
+            const y = e.clientY || e.touches?.[0]?.clientY || window.innerHeight/2;
 
             // Floating text
             const text = document.createElement('div');
             text.className = 'click-text';
             text.textContent = '+' + formatNumber(earned);
-            text.style.left = (e.clientX || e.touches?.[0]?.clientX || window.innerWidth/2) + 'px';
-            text.style.top = (e.clientY || e.touches?.[0]?.clientY || window.innerHeight/2) + 'px';
-            text.style.fontSize = Math.min(20 + earned/100, 40) + 'px';
+            text.style.left = x + 'px';
+            text.style.top = y + 'px';
             document.body.appendChild(text);
             setTimeout(() => text.remove(), 1000);
 
+            // Particles
+            createParticles(x, y, 3);
+
+            checkAchievements();
             updateUI();
         }
 
-        // Buy generator
         function buyGenerator(genId) {
             const gen = generators.find(g => g.id === genId);
             const amount = getActualBuyAmount(gen);
@@ -744,12 +1130,13 @@
                 gameState.gold -= price;
                 gameState.generators[genId] = (gameState.generators[genId] || 0) + amount;
                 gameState.perSecond = calculateProduction();
-                fullRender(); // 구매 후 전체 다시 그리기
+                playSound('buy');
+                checkAchievements();
+                fullRender();
                 updateUI();
             }
         }
 
-        // Buy upgrade
         function buyUpgrade(upgradeId) {
             const upgrade = upgrades.find(u => u.id === upgradeId);
             if (gameState.upgrades[upgradeId]) return;
@@ -767,25 +1154,19 @@
             }
 
             gameState.perSecond = calculateProduction();
-            fullRender(); // 구매 후 전체 다시 그리기
+            playSound('buy');
+            fullRender();
             updateUI();
         }
 
-        // Calculate prestige gain
-        function calculatePrestigeGain() {
-            if (gameState.totalGold < 1000000) return 0;
-            return Math.floor(Math.sqrt(gameState.totalGold / 1000000));
-        }
-
-        // Prestige
         function doPrestige() {
             const gain = calculatePrestigeGain();
             if (gain <= 0) return;
-
             if (!confirm(`환생하시겠습니까?\n\n${gain}개의 보석을 획득합니다.\n모든 골드와 시설이 초기화됩니다.`)) return;
 
             gameState.gems += gain;
             gameState.totalGems += gain;
+            gameState.prestigeCount++;
             gameState.gold = 0;
             gameState.totalGold = 0;
             gameState.clickPower = 1;
@@ -796,12 +1177,140 @@
             generatorMultipliers = {};
 
             gameState.perSecond = calculateProduction();
-            fullRender(); // 환생 후 전체 다시 그리기
+            playSound('achievement');
+            checkAchievements();
+            fullRender();
             updateUI();
             saveGame();
         }
 
-        // Render generators
+        // ==================== LUCKY SPIN ====================
+        function doSpin() {
+            const now = Date.now();
+            const cooldown = 5 * 60 * 1000; // 5분
+            if (now - gameState.lastSpinTime < cooldown) return;
+
+            gameState.lastSpinTime = now;
+            playSound('spin');
+
+            const wheel = document.getElementById('spinWheel');
+            const spins = 5 + Math.floor(Math.random() * 5);
+            const extraDegrees = Math.random() * 360;
+            const totalRotation = spins * 360 + extraDegrees;
+
+            wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+            setTimeout(() => {
+                const rewardIndex = Math.floor((360 - (extraDegrees % 360)) / 45) % 8;
+                const reward = spinRewards[rewardIndex];
+
+                let resultText = '';
+                switch (reward.type) {
+                    case 'gold':
+                        const goldReward = Math.max(gameState.perSecond, gameState.clickPower) * reward.multiplier;
+                        gameState.gold += goldReward;
+                        gameState.totalGold += goldReward;
+                        resultText = `+${formatNumber(goldReward)} 골드!`;
+                        break;
+                    case 'buff':
+                        activateBuff(reward.duration);
+                        resultText = `${reward.duration}초 2배 버프!`;
+                        break;
+                    case 'clickPower':
+                        gameState.clickPower += reward.amount;
+                        resultText = `클릭 파워 +${reward.amount}!`;
+                        break;
+                    case 'gems':
+                        gameState.gems += reward.amount;
+                        gameState.totalGems += reward.amount;
+                        resultText = `보석 +${reward.amount}!`;
+                        break;
+                }
+
+                document.getElementById('spinResult').textContent = resultText;
+                document.getElementById('spinResultPopup').classList.remove('hidden');
+                playSound('achievement');
+                updateUI();
+            }, 3000);
+        }
+
+        function closeSpinPopup() {
+            document.getElementById('spinResultPopup').classList.add('hidden');
+        }
+
+        // ==================== ACHIEVEMENTS ====================
+        function checkAchievements() {
+            let newAchievement = false;
+            achievements.forEach(ach => {
+                if (!gameState.achievements[ach.id] && ach.condition()) {
+                    gameState.achievements[ach.id] = true;
+                    gameState.gold += ach.reward;
+                    gameState.totalGold += ach.reward;
+                    newAchievement = true;
+                    showBuffPopup(`🎯 ${ach.name} 달성! +${ach.reward}`);
+                    playSound('achievement');
+                }
+            });
+            if (newAchievement) renderAchievements();
+        }
+
+        // ==================== THEME ====================
+        function toggleTheme() {
+            gameState.darkMode = !gameState.darkMode;
+            document.body.classList.toggle('light-mode', !gameState.darkMode);
+            document.getElementById('themeToggle').textContent = gameState.darkMode ? '🌙' : '☀️';
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById('soundToggle').textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+        }
+
+        // ==================== CHART ====================
+        function updateChart() {
+            goldHistory.push(gameState.gold);
+            if (goldHistory.length > 60) goldHistory.shift();
+
+            const canvas = document.getElementById('goldChart');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (goldHistory.length < 2) return;
+
+            const max = Math.max(...goldHistory, 1);
+            const step = width / (goldHistory.length - 1);
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#ffd700';
+            ctx.lineWidth = 2;
+
+            goldHistory.forEach((val, i) => {
+                const x = i * step;
+                const y = height - (val / max) * (height - 20) - 10;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+
+            ctx.stroke();
+
+            // Fill gradient
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        // ==================== RENDERING ====================
         function renderGenerators() {
             const container = document.getElementById('generatorList');
             container.innerHTML = generators.map(gen => {
@@ -832,7 +1341,6 @@
             }).join('');
         }
 
-        // Render upgrades
         function renderUpgrades() {
             const container = document.getElementById('upgradeList');
             container.innerHTML = upgrades.map(upgrade => {
@@ -858,28 +1366,34 @@
             }).join('');
         }
 
-        // Update UI (숫자만 업데이트, DOM 재생성 안함)
-        function updateUI() {
-            document.getElementById('goldAmount').textContent = formatNumber(gameState.gold);
-            document.getElementById('clickPower').textContent = formatNumber(gameState.clickPower);
-            document.getElementById('perSecond').textContent = formatNumber(gameState.perSecond);
-            document.getElementById('gems').textContent = formatNumber(gameState.gems);
-
-            // Prestige
-            const gain = calculatePrestigeGain();
-            document.getElementById('prestigeGain').textContent = formatNumber(gain);
-            document.getElementById('prestigeBonus').textContent = gameState.gems;
-            document.getElementById('prestigeBtn').disabled = gain <= 0;
-            document.getElementById('prestigeReq').textContent = gain > 0 ?
-                '환생 가능!' : `${formatNumber(1000000)} 골드 필요`;
-
-            // 버튼 상태만 업데이트 (DOM 재생성 안함)
-            updateButtonStates();
+        function renderAchievements() {
+            const container = document.getElementById('achievementList');
+            const unlocked = Object.keys(gameState.achievements).length;
+            container.innerHTML = achievements.map(ach => {
+                const isUnlocked = gameState.achievements[ach.id];
+                return `
+                    <div class="achievement-item ${isUnlocked ? 'unlocked' : ''}">
+                        <div class="generator-info">
+                            <div class="achievement-icon">${ach.icon}</div>
+                            <div class="generator-details">
+                                <h3>${ach.name}</h3>
+                                <p>${ach.desc}</p>
+                                <p class="achievement-reward">보상: +${ach.reward} 골드</p>
+                            </div>
+                        </div>
+                        <div>${isUnlocked ? '✅' : '🔒'}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // 버튼 상태만 업데이트
+        function fullRender() {
+            renderGenerators();
+            renderUpgrades();
+            renderAchievements();
+        }
+
         function updateButtonStates() {
-            // Generator 버튼들
             document.querySelectorAll('#generatorList .buy-btn').forEach((btn, i) => {
                 const gen = generators[i];
                 if (!gen) return;
@@ -890,7 +1404,6 @@
                 btn.textContent = amount > 0 ? `x${amount} - ${formatNumber(price)}` : '구매 불가';
             });
 
-            // Upgrade 버튼들
             document.querySelectorAll('#upgradeList .buy-btn').forEach((btn, i) => {
                 const upgrade = upgrades[i];
                 if (!upgrade) return;
@@ -901,16 +1414,55 @@
             });
         }
 
-        // 전체 UI 다시 그리기 (구매 후에만 호출)
-        function fullRender() {
-            renderGenerators();
-            renderUpgrades();
+        function updateUI() {
+            document.getElementById('goldAmount').textContent = formatNumber(gameState.gold);
+            document.getElementById('clickPower').textContent = formatNumber(gameState.clickPower);
+            document.getElementById('perSecond').textContent = formatNumber(gameState.perSecond);
+            document.getElementById('gems').textContent = formatNumber(gameState.gems);
+
+            // Play time
+            const playSeconds = Math.floor((Date.now() - gameState.sessionStart) / 1000);
+            document.getElementById('playTime').textContent = formatTime(playSeconds);
+
+            // Buff
+            if (buffActive) {
+                const remaining = Math.max(0, Math.ceil((buffEndTime - Date.now()) / 1000));
+                document.getElementById('buffTimer').textContent = remaining;
+                if (remaining <= 0) {
+                    buffActive = false;
+                    document.getElementById('buffIndicator').classList.remove('active');
+                }
+            }
+
+            // Prestige
+            const gain = calculatePrestigeGain();
+            document.getElementById('prestigeGain').textContent = formatNumber(gain);
+            document.getElementById('prestigeBonus').textContent = gameState.gems;
+            document.getElementById('prestigeBtn').disabled = gain <= 0;
+            document.getElementById('prestigeReq').textContent = gain > 0 ? '환생 가능!' : `${formatNumber(1000000)} 골드 필요`;
+
+            // Spin cooldown
+            const spinCooldown = 5 * 60 * 1000;
+            const spinRemaining = Math.max(0, spinCooldown - (Date.now() - gameState.lastSpinTime));
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = spinRemaining > 0;
+            document.getElementById('spinCooldown').textContent = spinRemaining > 0 ?
+                `다음 스핀까지: ${Math.ceil(spinRemaining / 1000)}초` : '스핀 가능!';
+
+            // Records
+            document.getElementById('recordGold').textContent = formatNumber(gameState.highestGold);
+            document.getElementById('recordClicks').textContent = formatNumber(gameState.totalClicks);
+            document.getElementById('recordTotalGold').textContent = formatNumber(gameState.totalGold);
+            document.getElementById('recordGems').textContent = formatNumber(gameState.totalGems);
+            document.getElementById('recordPrestige').textContent = gameState.prestigeCount;
+            document.getElementById('recordAchievements').textContent = Object.keys(gameState.achievements).length + '/' + achievements.length;
+
+            updateButtonStates();
         }
 
-        // 자동 생산 애니메이션 타이머
+        // ==================== GAME LOOP ====================
         let autoAnimationTimer = 0;
 
-        // 자동 생산 플로팅 텍스트
         function showAutoEarning(amount) {
             const coinBtn = document.getElementById('coinBtn');
             const rect = coinBtn.getBoundingClientRect();
@@ -918,35 +1470,38 @@
             const text = document.createElement('div');
             text.className = 'click-text';
             text.textContent = '+' + formatNumber(amount);
-            text.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 60) + 'px';
-            text.style.top = (rect.top + rect.height / 2 + (Math.random() - 0.5) * 40) + 'px';
+            text.style.left = (rect.left + rect.width/2 + (Math.random()-0.5)*60) + 'px';
+            text.style.top = (rect.top + rect.height/2 + (Math.random()-0.5)*40) + 'px';
             text.style.fontSize = '18px';
-            text.style.color = '#90EE90'; // 연두색으로 구분
+            text.style.color = '#90EE90';
             document.body.appendChild(text);
             setTimeout(() => text.remove(), 1000);
         }
 
-        // Game loop
         function gameLoop() {
-            // 매 틱마다 생산량 재계산
             gameState.perSecond = calculateProduction();
 
             if (gameState.perSecond > 0) {
-                const earned = gameState.perSecond / 10; // 100ms마다 실행되므로 10으로 나눔
+                const earned = gameState.perSecond / 10;
                 gameState.gold += earned;
                 gameState.totalGold += earned;
 
-                // 0.5초마다 애니메이션 표시
+                if (gameState.gold > gameState.highestGold) {
+                    gameState.highestGold = gameState.gold;
+                }
+
                 autoAnimationTimer += 100;
                 if (autoAnimationTimer >= 500) {
-                    showAutoEarning(gameState.perSecond / 2); // 0.5초치 표시
+                    showAutoEarning(gameState.perSecond / 2);
                     autoAnimationTimer = 0;
                 }
             }
+
+            checkAchievements();
             updateUI();
         }
 
-        // Save game
+        // ==================== SAVE/LOAD ====================
         function saveGame() {
             gameState.lastSave = Date.now();
             localStorage.setItem('goldRushClicker', JSON.stringify(gameState));
@@ -956,13 +1511,14 @@
             }));
         }
 
-        // Load game
         function loadGame() {
             const saved = localStorage.getItem('goldRushClicker');
             const multipliers = localStorage.getItem('goldRushMultipliers');
 
             if (saved) {
-                gameState = JSON.parse(saved);
+                const loaded = JSON.parse(saved);
+                gameState = { ...gameState, ...loaded };
+                gameState.sessionStart = Date.now();
 
                 if (multipliers) {
                     const m = JSON.parse(multipliers);
@@ -970,17 +1526,22 @@
                     generatorMultipliers = m.generators || {};
                 }
 
-                // Calculate offline earnings
+                // Theme
+                document.body.classList.toggle('light-mode', !gameState.darkMode);
+                document.getElementById('themeToggle').textContent = gameState.darkMode ? '🌙' : '☀️';
+                document.getElementById('soundToggle').textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+
+                // Offline earnings
                 const now = Date.now();
                 const elapsed = (now - gameState.lastSave) / 1000;
 
                 if (elapsed > 60 && gameState.perSecond > 0) {
-                    const maxOfflineTime = 8 * 60 * 60; // 8 hours max
+                    const maxOfflineTime = 8 * 60 * 60;
                     const offlineTime = Math.min(elapsed, maxOfflineTime);
-                    const offlineEarnings = gameState.perSecond * offlineTime * 0.5; // 50% efficiency
+                    const offlineEarnings = gameState.perSecond * offlineTime * 0.5;
 
                     document.getElementById('offlineTime').textContent =
-                        `${Math.floor(offlineTime / 3600)}시간 ${Math.floor((offlineTime % 3600) / 60)}분 동안`;
+                        `${Math.floor(offlineTime/3600)}시간 ${Math.floor((offlineTime%3600)/60)}분 동안`;
                     document.getElementById('offlineEarnings').textContent = '+' + formatNumber(offlineEarnings);
                     document.getElementById('offlinePopup').classList.remove('hidden');
 
@@ -996,29 +1557,15 @@
             document.getElementById('offlinePopup').classList.add('hidden');
         }
 
-        // Reset game
         function resetGame() {
             if (!confirm('정말 게임을 초기화하시겠습니까?\n모든 진행 상황이 삭제됩니다!')) return;
-
             localStorage.removeItem('goldRushClicker');
             localStorage.removeItem('goldRushMultipliers');
             location.reload();
         }
 
-        // Show stats
-        function showStats() {
-            const playTime = Math.floor((Date.now() - gameState.startTime) / 1000);
-            const hours = Math.floor(playTime / 3600);
-            const minutes = Math.floor((playTime % 3600) / 60);
-
-            alert(`📊 게임 통계\n\n` +
-                `총 획득 골드: ${formatNumber(gameState.totalGold)}\n` +
-                `총 클릭 수: ${formatNumber(gameState.totalClicks)}\n` +
-                `총 획득 보석: ${formatNumber(gameState.totalGems)}\n` +
-                `플레이 시간: ${hours}시간 ${minutes}분`);
-        }
-
-        // Tab switching
+        // ==================== INITIALIZATION ====================
+        // Tabs
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1028,33 +1575,35 @@
             });
         });
 
-        // Buy amount buttons
+        // Buy amount
         document.querySelectorAll('.amount-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 buyAmount = btn.dataset.amount === 'max' ? 'max' : parseInt(btn.dataset.amount);
-                fullRender(); // 수량 변경 시 가격 재계산
+                fullRender();
                 updateUI();
             });
         });
 
-        // Initialize
+        // Click handlers
         document.getElementById('coinBtn').addEventListener('click', handleClick);
         document.getElementById('coinBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             handleClick(e);
         });
-        document.getElementById('prestigeBtn').addEventListener('click', doPrestige);
 
+        // Load and start
         loadGame();
-        gameState.perSecond = calculateProduction(); // 초기 생산량 계산
-        fullRender(); // 초기 렌더링
+        gameState.perSecond = calculateProduction();
+        fullRender();
         updateUI();
+        scheduleGoldenCoin();
 
         // Game loops
         setInterval(gameLoop, 100);
         setInterval(saveGame, 30000);
+        setInterval(updateChart, 1000);
     </script>
 </body>
 </html>
