@@ -743,6 +743,7 @@
                 gameState.gold -= price;
                 gameState.generators[genId] = (gameState.generators[genId] || 0) + amount;
                 gameState.perSecond = calculateProduction();
+                fullRender(); // 구매 후 전체 다시 그리기
                 updateUI();
             }
         }
@@ -765,6 +766,7 @@
             }
 
             gameState.perSecond = calculateProduction();
+            fullRender(); // 구매 후 전체 다시 그리기
             updateUI();
         }
 
@@ -793,6 +795,7 @@
             generatorMultipliers = {};
 
             gameState.perSecond = calculateProduction();
+            fullRender(); // 환생 후 전체 다시 그리기
             updateUI();
             saveGame();
         }
@@ -854,7 +857,7 @@
             }).join('');
         }
 
-        // Update UI
+        // Update UI (숫자만 업데이트, DOM 재생성 안함)
         function updateUI() {
             document.getElementById('goldAmount').textContent = formatNumber(gameState.gold);
             document.getElementById('clickPower').textContent = formatNumber(gameState.clickPower);
@@ -869,6 +872,36 @@
             document.getElementById('prestigeReq').textContent = gain > 0 ?
                 '환생 가능!' : `${formatNumber(1000000)} 골드 필요`;
 
+            // 버튼 상태만 업데이트 (DOM 재생성 안함)
+            updateButtonStates();
+        }
+
+        // 버튼 상태만 업데이트
+        function updateButtonStates() {
+            // Generator 버튼들
+            document.querySelectorAll('#generatorList .buy-btn').forEach((btn, i) => {
+                const gen = generators[i];
+                if (!gen) return;
+                const amount = buyAmount === 'max' ? getMaxAffordable(gen) : buyAmount;
+                const price = getGeneratorPrice(gen, amount);
+                const canBuy = gameState.gold >= price && amount > 0;
+                btn.disabled = !canBuy;
+                btn.textContent = amount > 0 ? `x${amount} - ${formatNumber(price)}` : '구매 불가';
+            });
+
+            // Upgrade 버튼들
+            document.querySelectorAll('#upgradeList .buy-btn').forEach((btn, i) => {
+                const upgrade = upgrades[i];
+                if (!upgrade) return;
+                const purchased = gameState.upgrades[upgrade.id];
+                const canBuy = !purchased && gameState.gold >= upgrade.price;
+                btn.disabled = !canBuy || purchased;
+                btn.textContent = purchased ? '구매완료' : formatNumber(upgrade.price);
+            });
+        }
+
+        // 전체 UI 다시 그리기 (구매 후에만 호출)
+        function fullRender() {
             renderGenerators();
             renderUpgrades();
         }
@@ -974,6 +1007,7 @@
                 document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 buyAmount = btn.dataset.amount === 'max' ? 'max' : parseInt(btn.dataset.amount);
+                fullRender(); // 수량 변경 시 가격 재계산
                 updateUI();
             });
         });
@@ -988,6 +1022,7 @@
 
         loadGame();
         gameState.perSecond = calculateProduction(); // 초기 생산량 계산
+        fullRender(); // 초기 렌더링
         updateUI();
 
         // Game loops
