@@ -869,83 +869,130 @@
             margin-bottom: 20px;
         }
 
-        /* Responsive */
-        /* ==================== MOBILE OPTIMIZATION ==================== */
+        /* ==================== MOBILE OPTIMIZATION v2.0 ==================== */
+
+        /* Mobile-First Variables */
+        @media (max-width: 600px) {
+            :root {
+                --mobile-nav-height: 70px;
+                --mobile-spacing: 12px;
+                --mobile-radius: 16px;
+                --touch-min: 48px;
+                --glass-bg: rgba(15, 15, 35, 0.85);
+                --glass-border: rgba(255, 255, 255, 0.08);
+                --accent-glow: rgba(0, 255, 136, 0.15);
+            }
+        }
+
         @media (max-width: 600px) {
             body {
-                padding-bottom: 80px; /* Space for bottom nav */
+                padding-bottom: calc(var(--mobile-nav-height) + 10px);
+                background: linear-gradient(165deg, #0a0a18 0%, #12122a 40%, #0a1628 100%);
             }
 
             .container {
-                padding: 12px;
+                padding: var(--mobile-spacing);
             }
 
-            /* Header - Compact Mode */
+            /* ===== HEADER REDESIGN ===== */
             .header {
-                padding: 12px 0;
-                margin-bottom: 12px;
+                padding: 16px var(--mobile-spacing);
+                margin-bottom: 8px;
+                background: var(--glass-bg);
+                border-radius: var(--mobile-radius);
+                border: 1px solid var(--glass-border);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
             }
 
             .header h1 {
-                font-size: 1.6em;
-                margin-bottom: 8px;
+                font-size: 1.4em;
+                margin-bottom: 12px;
+                letter-spacing: 0.5px;
             }
 
+            /* Main Balance Card */
             .coin-display {
-                font-size: 1.8em;
-                margin: 8px 0;
-                padding: 10px;
-                background: rgba(247, 147, 26, 0.1);
-                border-radius: 12px;
-                border: 1px solid rgba(247, 147, 26, 0.3);
+                font-size: 1.5em;
+                margin: 0 0 12px;
+                padding: 16px;
+                background: linear-gradient(145deg, rgba(247, 147, 26, 0.15), rgba(247, 147, 26, 0.05));
+                border-radius: 14px;
+                border: 1px solid rgba(247, 147, 26, 0.25);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .coin-display::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+                animation: shimmer 3s infinite;
+            }
+
+            @keyframes shimmer {
+                100% { left: 100%; }
             }
 
             .coin-display .amount {
-                font-size: 1.2em;
+                font-size: 1.15em;
+                font-weight: 700;
             }
 
-            /* Market Display - Grid Layout */
+            /* Market Info - Compact 2x2 Grid */
             .market-display {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 8px;
-                padding: 8px;
-                font-size: 0.85em;
+                padding: 0;
+                background: transparent;
+                font-size: 0.82em;
             }
 
             .market-display > div {
-                padding: 8px;
-                background: rgba(0, 0, 0, 0.3);
-                border-radius: 8px;
+                padding: 10px 8px;
+                background: rgba(0, 0, 0, 0.25);
+                border-radius: 10px;
                 text-align: center;
+                border: 1px solid var(--glass-border);
             }
 
             .live-indicator {
                 grid-column: span 2;
                 justify-content: center;
+                padding: 8px !important;
+                background: rgba(0, 255, 136, 0.08) !important;
+                border-color: rgba(0, 255, 136, 0.2) !important;
             }
 
             .price-tag {
                 flex-direction: column;
-                gap: 2px !important;
+                gap: 3px !important;
+                font-size: 0.95em;
             }
 
             .usd-value {
                 font-size: 0.95em;
+                font-weight: 600;
             }
 
-            /* Stats Row - Horizontal Scroll */
+            /* Stats - Pill Style Horizontal Scroll */
             .stats-row {
                 display: flex;
                 flex-direction: row;
                 overflow-x: auto;
-                gap: 12px;
-                padding: 10px 0;
-                margin: 10px -12px;
-                padding-left: 12px;
-                padding-right: 12px;
+                gap: 8px;
+                padding: 12px 0 8px;
+                margin: 8px calc(-1 * var(--mobile-spacing)) 0;
+                padding-left: var(--mobile-spacing);
+                padding-right: var(--mobile-spacing);
                 scrollbar-width: none;
                 -ms-overflow-style: none;
+                -webkit-overflow-scrolling: touch;
             }
 
             .stats-row::-webkit-scrollbar {
@@ -954,54 +1001,87 @@
 
             .stat {
                 flex-shrink: 0;
-                padding: 8px 12px;
-                background: rgba(255, 255, 255, 0.05);
+                padding: 8px 14px;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
                 border-radius: 20px;
-                font-size: 0.8em;
+                font-size: 0.78em;
                 white-space: nowrap;
+                border: 1px solid var(--glass-border);
+                color: #ccc;
+            }
+
+            .stat span {
+                color: #00ff88;
+                font-weight: 600;
             }
 
             /* Hashrate Bar */
             .hashrate-bar {
-                height: 6px;
-                margin-top: 10px;
+                height: 5px;
+                margin-top: 12px;
+                border-radius: 3px;
+                background: rgba(255, 255, 255, 0.06);
             }
 
-            /* Mining Button - Larger Touch Target */
+            .hashrate-fill {
+                border-radius: 3px;
+            }
+
+            .mining-indicator {
+                font-size: 0.75em;
+                padding: 5px 14px;
+                margin-top: 8px;
+                border-radius: 15px;
+            }
+
+            /* ===== MINING BUTTON ===== */
             .clicker-area {
-                padding: 20px 0;
+                padding: 20px 0 15px;
             }
 
             .mine-button {
-                width: 140px;
-                height: 140px;
-                border-width: 4px;
+                width: 130px;
+                height: 130px;
+                border-width: 5px;
+                box-shadow:
+                    0 8px 30px rgba(247, 147, 26, 0.35),
+                    inset 0 -4px 15px rgba(0, 0, 0, 0.3),
+                    inset 0 4px 15px rgba(255, 255, 255, 0.2);
             }
 
             .mine-button::after {
-                font-size: 55px;
+                font-size: 50px;
             }
 
-            /* Bottom Navigation Tabs */
+            .mine-button:active {
+                transform: scale(0.92);
+                box-shadow:
+                    0 4px 15px rgba(247, 147, 26, 0.25),
+                    inset 0 2px 10px rgba(0, 0, 0, 0.4);
+            }
+
+            /* ===== BOTTOM NAVIGATION ===== */
             .tabs {
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
                 display: flex;
+                justify-content: space-around;
                 flex-wrap: nowrap;
                 gap: 0;
                 margin: 0;
-                padding: 0;
-                background: linear-gradient(180deg, rgba(10, 10, 26, 0.95) 0%, rgba(10, 10, 26, 1) 100%);
-                border-top: 1px solid rgba(0, 255, 136, 0.2);
+                padding: 0 4px;
+                height: var(--mobile-nav-height);
+                background: linear-gradient(180deg, rgba(10, 10, 26, 0.97) 0%, rgba(8, 8, 20, 1) 100%);
+                border-top: 1px solid rgba(0, 255, 136, 0.15);
                 border-radius: 0;
                 z-index: 1000;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
                 overflow-x: auto;
                 scrollbar-width: none;
                 -ms-overflow-style: none;
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
             }
 
             .tabs::-webkit-scrollbar {
@@ -1009,18 +1089,24 @@
             }
 
             .tab {
-                flex: 0 0 auto;
-                min-width: 60px;
-                padding: 12px 8px 16px;
+                flex: 1 0 auto;
+                min-width: 56px;
+                max-width: 80px;
+                padding: 8px 4px 12px;
                 border-radius: 0;
-                font-size: 0.7em;
+                font-size: 0.65em;
+                font-weight: 500;
+                letter-spacing: -0.2px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
                 gap: 4px;
-                border-bottom: none;
                 background: transparent;
-                transition: all 0.2s ease;
+                color: rgba(255, 255, 255, 0.5);
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                border-bottom: none;
             }
 
             .tab::before {
@@ -1029,65 +1115,95 @@
                 top: 0;
                 left: 50%;
                 transform: translateX(-50%) scaleX(0);
-                width: 30px;
-                height: 3px;
-                background: #00ff88;
-                border-radius: 0 0 3px 3px;
-                transition: transform 0.2s ease;
+                width: 24px;
+                height: 2px;
+                background: linear-gradient(90deg, #00ff88, #00ccff);
+                border-radius: 0 0 2px 2px;
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .tab.active {
+                color: #00ff88;
+                background: linear-gradient(180deg, rgba(0, 255, 136, 0.12) 0%, transparent 100%);
             }
 
             .tab.active::before {
                 transform: translateX(-50%) scaleX(1);
             }
 
-            .tab.active {
-                background: rgba(0, 255, 136, 0.1);
-                color: #00ff88;
-                border-bottom: none;
-            }
-
             .tab.locked {
-                opacity: 0.4;
+                opacity: 0.35;
+                color: rgba(255, 255, 255, 0.3);
             }
 
             .tab .unlock-hint {
-                font-size: 0.6em;
+                font-size: 0.55em;
+                color: rgba(255, 255, 255, 0.4);
             }
 
-            /* Panel Styles */
+            /* Tab Icons - Larger & More Visible */
+            .tab::after {
+                content: none;
+            }
+
+            /* ===== PANELS ===== */
             .panel {
-                border-radius: 15px;
-                padding: 12px;
-                margin-bottom: 20px;
+                background: var(--glass-bg);
+                border-radius: var(--mobile-radius);
+                padding: 14px;
+                margin-bottom: 15px;
                 min-height: auto;
+                border: 1px solid var(--glass-border);
             }
 
-            /* Miner/Upgrade Items - Card Style */
-            .miner-item, .upgrade-item, .feature-item, .achievement-item {
+            /* ===== ITEM CARDS ===== */
+            .miner-item, .upgrade-item, .feature-item {
                 flex-direction: column;
-                gap: 12px;
+                gap: 14px;
                 text-align: center;
-                padding: 16px;
-                border-radius: 16px;
+                padding: 18px 14px;
+                border-radius: var(--mobile-radius);
                 margin-bottom: 12px;
+                background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+                border: 1px solid var(--glass-border);
+                transition: all 0.2s ease;
+            }
+
+            .miner-item:active, .upgrade-item:active {
+                background: rgba(0, 255, 136, 0.05);
+                border-color: rgba(0, 255, 136, 0.2);
+                transform: scale(0.98);
             }
 
             .miner-info, .upgrade-info {
                 flex-direction: column;
-                gap: 10px;
+                gap: 8px;
             }
 
             .miner-icon, .upgrade-icon {
-                font-size: 2.2em;
+                font-size: 2.4em;
                 width: auto;
+                filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
             }
 
             .miner-details h3 {
-                font-size: 1.1em;
+                font-size: 1.05em;
+                font-weight: 600;
+                color: #fff;
             }
 
             .miner-details p {
+                font-size: 0.82em;
+                color: #aaa;
+                line-height: 1.4;
+            }
+
+            .miner-owned {
                 font-size: 0.85em;
+                padding: 4px 12px;
+                background: rgba(0, 255, 136, 0.1);
+                border-radius: 12px;
+                display: inline-block;
             }
 
             .miner-right {
@@ -1095,227 +1211,309 @@
                 width: 100%;
             }
 
-            /* Buy Buttons - Full Width */
+            /* ===== BUTTONS ===== */
             .buy-btn {
                 width: 100%;
                 padding: 14px 20px;
-                font-size: 1em;
-                min-height: 48px;
+                font-size: 0.95em;
+                font-weight: 600;
+                min-height: var(--touch-min);
                 border-radius: 12px;
+                background: linear-gradient(145deg, #00ff88, #00cc6a);
+                box-shadow: 0 4px 15px rgba(0, 255, 136, 0.25);
+                transition: all 0.15s ease;
             }
 
-            /* Buy Amount Selector */
+            .buy-btn:active:not(:disabled) {
+                transform: scale(0.97);
+                box-shadow: 0 2px 8px rgba(0, 255, 136, 0.2);
+            }
+
+            .buy-btn:disabled {
+                background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+                box-shadow: none;
+            }
+
+            /* Amount Selector */
             .buy-amount {
                 justify-content: center;
-                gap: 8px;
-                margin-bottom: 16px !important;
-                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 14px !important;
+                flex-wrap: nowrap;
             }
 
             .amount-btn {
-                padding: 10px 16px;
-                font-size: 0.9em;
-                min-height: 44px;
+                padding: 10px 14px;
+                font-size: 0.85em;
+                font-weight: 500;
+                min-height: 42px;
                 border-radius: 10px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid var(--glass-border);
+                transition: all 0.15s ease;
             }
 
-            /* Market Panel */
+            .amount-btn.active {
+                background: rgba(0, 255, 136, 0.15);
+                border-color: rgba(0, 255, 136, 0.4);
+                color: #00ff88;
+            }
+
+            .amount-btn:active {
+                transform: scale(0.95);
+            }
+
+            /* ===== MARKET PANEL ===== */
+            .market-area {
+                padding: 0;
+            }
+
+            .market-area h3 {
+                font-size: 0.95em;
+                margin-bottom: 12px;
+                color: #ccc;
+            }
+
             .coin-selector {
                 gap: 8px;
+                margin-bottom: 16px;
             }
 
             .coin-option {
-                min-width: calc(33% - 6px);
-                padding: 12px 8px;
+                min-width: calc(33.33% - 6px);
+                padding: 14px 8px;
+                border-radius: 12px;
+                background: rgba(255, 255, 255, 0.03);
+                border: 2px solid var(--glass-border);
+            }
+
+            .coin-option.active {
+                border-color: #f7931a;
+                background: rgba(247, 147, 26, 0.1);
+                box-shadow: 0 0 20px rgba(247, 147, 26, 0.15);
             }
 
             .coin-option .coin-icon {
-                font-size: 1.6em;
+                font-size: 1.8em;
+                margin-bottom: 6px;
             }
 
             .coin-option .coin-name {
-                font-size: 0.85em;
+                font-size: 0.8em;
+                font-weight: 600;
             }
 
             .coin-option .coin-price {
-                font-size: 0.75em;
+                font-size: 0.7em;
+                margin-top: 4px;
             }
 
             .price-chart {
-                height: 150px;
+                height: 140px;
                 padding: 12px;
+                border-radius: 12px;
+                background: rgba(0, 0, 0, 0.25);
+                border: 1px solid var(--glass-border);
             }
 
             .exchange-area {
                 flex-direction: column;
+                gap: 10px;
+                margin-top: 16px;
             }
 
             .exchange-btn {
                 padding: 16px;
-                font-size: 1.1em;
-                min-height: 54px;
+                font-size: 1em;
+                min-height: 52px;
+                border-radius: 12px;
+                font-weight: 600;
             }
 
-            /* Staking Items */
+            .sell-btn {
+                box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+            }
+
+            /* ===== SPECIAL PANELS ===== */
             .staking-item {
                 padding: 16px;
+                border-radius: var(--mobile-radius);
             }
 
-            .staking-item h4 {
-                font-size: 1em;
-            }
-
-            /* DeFi Pools */
             .defi-pool {
                 padding: 16px;
+                border-radius: var(--mobile-radius);
             }
 
-            /* Security Status */
             .security-status {
-                padding: 12px;
-                flex-direction: column;
-                text-align: center;
-                gap: 8px;
+                padding: 14px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                border-radius: 12px;
             }
 
-            /* Event Banner */
             .event-banner {
-                padding: 12px;
-                font-size: 0.95em;
+                padding: 14px;
+                font-size: 0.9em;
+                border-radius: 12px;
             }
 
             .whale-alert {
-                padding: 12px;
+                padding: 14px;
+                border-radius: 12px;
             }
 
-            /* Prestige Area */
+            /* Prestige */
             .prestige-area {
-                padding: 16px;
+                padding: 10px;
             }
 
             .prestige-info {
                 padding: 20px 16px;
+                border-radius: var(--mobile-radius);
             }
 
             .prestige-tokens {
-                font-size: 1.6em;
+                font-size: 1.5em;
             }
 
             .prestige-btn {
                 width: 100%;
                 padding: 16px;
+                border-radius: 12px;
+                font-size: 1em;
             }
 
             /* Settings */
             .setting-item {
                 padding: 14px;
+                border-radius: 12px;
             }
 
             .setting-btn {
                 min-height: 44px;
-                padding: 12px 20px;
+                padding: 12px 18px;
+                border-radius: 10px;
             }
 
-            /* Records */
             .record-item {
                 padding: 14px;
+                border-radius: 10px;
             }
 
             /* Locked Panel */
             .locked-panel {
-                padding: 30px 16px;
+                padding: 35px 16px;
             }
 
             .locked-panel .lock-icon {
-                font-size: 3em;
+                font-size: 3.5em;
+                opacity: 0.7;
             }
 
-            /* Popups */
+            .unlock-progress {
+                border-radius: 10px;
+                height: 16px;
+            }
+
+            /* ===== ACHIEVEMENTS ===== */
+            .achievement-item {
+                padding: 14px;
+                flex-direction: row;
+                gap: 12px;
+                text-align: left;
+                border-radius: 12px;
+            }
+
+            .achievement-icon {
+                font-size: 2em;
+                width: 50px;
+                flex-shrink: 0;
+            }
+
+            /* ===== POPUPS ===== */
             .popup-content {
                 margin: 16px;
-                padding: 24px 16px;
+                padding: 28px 20px;
                 max-width: calc(100% - 32px);
+                border-radius: 20px;
+                background: linear-gradient(165deg, #0a0a1a 0%, #15153a 100%);
+            }
+
+            .popup-content h2 {
+                font-size: 1.3em;
             }
 
             .popup-earnings {
-                font-size: 1.6em;
+                font-size: 1.8em;
+                margin: 16px 0;
             }
 
             .popup-btn {
                 width: 100%;
                 padding: 16px;
+                border-radius: 12px;
+                font-size: 1.05em;
             }
 
-            /* Bonus Popup */
             .bonus-popup {
-                padding: 16px 24px;
-                font-size: 1.2em;
-                width: calc(100% - 32px);
-                max-width: 300px;
+                padding: 18px 28px;
+                font-size: 1.15em;
+                width: calc(100% - 40px);
+                max-width: 280px;
+                border-radius: 16px;
             }
 
-            /* Block Found */
             .block-found {
-                padding: 20px 30px;
-                font-size: 1.4em;
+                padding: 22px 35px;
+                font-size: 1.3em;
+                border-radius: 16px;
             }
 
-            /* Click Text */
-            .click-text {
-                font-size: 1.2em;
-            }
-
-            /* Achievement Items */
-            .achievement-item {
-                padding: 14px;
-            }
-
-            .achievement-icon {
-                font-size: 1.8em;
-                width: 45px;
-            }
-
-            /* Hack Popup */
             .hack-popup {
                 margin: 16px;
-                padding: 24px 16px;
+                padding: 28px 20px;
                 max-width: calc(100% - 32px);
+                border-radius: 20px;
             }
 
-            /* Mining Indicator */
-            .mining-indicator {
-                font-size: 0.8em;
-                padding: 4px 12px;
+            .click-text {
+                font-size: 1.1em;
+                font-weight: 700;
             }
         }
 
-        /* Extra Small Devices */
+        /* ===== EXTRA SMALL (360px) ===== */
         @media (max-width: 360px) {
             .header h1 {
-                font-size: 1.4em;
+                font-size: 1.25em;
             }
 
             .coin-display {
-                font-size: 1.5em;
+                font-size: 1.35em;
+                padding: 14px;
             }
 
             .mine-button {
-                width: 120px;
-                height: 120px;
+                width: 110px;
+                height: 110px;
             }
 
             .mine-button::after {
-                font-size: 45px;
+                font-size: 42px;
             }
 
             .tab {
-                min-width: 50px;
-                padding: 10px 6px 14px;
-                font-size: 0.6em;
+                min-width: 48px;
+                padding: 8px 3px 10px;
+                font-size: 0.58em;
             }
 
             .market-display {
                 grid-template-columns: 1fr;
+                gap: 6px;
             }
 
             .live-indicator {
@@ -1324,100 +1522,169 @@
 
             .stat {
                 padding: 6px 10px;
-                font-size: 0.75em;
+                font-size: 0.72em;
+            }
+
+            .coin-option {
+                min-width: calc(50% - 4px);
             }
         }
 
-        /* Landscape Mode on Mobile */
+        /* ===== LANDSCAPE MODE ===== */
         @media (max-width: 900px) and (orientation: landscape) {
             body {
-                padding-bottom: 60px;
+                padding-bottom: 55px;
             }
 
             .header {
-                padding: 8px 0;
+                padding: 10px;
+                margin-bottom: 6px;
             }
 
             .header h1 {
-                font-size: 1.4em;
+                font-size: 1.2em;
+                margin-bottom: 8px;
             }
 
             .coin-display {
-                font-size: 1.4em;
-                margin: 6px 0;
-            }
-
-            .clicker-area {
-                padding: 10px 0;
-            }
-
-            .mine-button {
-                width: 100px;
-                height: 100px;
-            }
-
-            .mine-button::after {
-                font-size: 40px;
-            }
-
-            .tabs {
-                position: fixed;
-                bottom: 0;
-            }
-
-            .tab {
-                padding: 8px 10px 12px;
+                font-size: 1.2em;
+                margin: 0 0 8px;
+                padding: 10px;
             }
 
             .market-display {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 8px;
+                gap: 6px;
+            }
+
+            .market-display > div {
+                flex: 1 1 auto;
+            }
+
+            .clicker-area {
+                padding: 8px 0;
+            }
+
+            .mine-button {
+                width: 90px;
+                height: 90px;
+            }
+
+            .mine-button::after {
+                font-size: 35px;
+            }
+
+            .tabs {
+                height: 55px;
+            }
+
+            .tab {
+                padding: 6px 8px 8px;
+                font-size: 0.6em;
+                gap: 2px;
+            }
+
+            .stats-row {
+                padding: 6px 0;
+                margin: 4px 0 0;
+            }
+
+            .panel {
+                padding: 10px;
             }
         }
 
-        /* Touch Device Optimizations */
+        /* ===== TOUCH DEVICE OPTIMIZATIONS ===== */
         @media (hover: none) and (pointer: coarse) {
             .mine-button:hover {
                 transform: none;
+                box-shadow:
+                    0 10px 30px rgba(247, 147, 26, 0.4),
+                    inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                    inset 0 5px 20px rgba(255, 255, 255, 0.3);
             }
 
             .mine-button:active {
-                transform: scale(0.95);
+                transform: scale(0.92);
             }
 
             .buy-btn:hover:not(:disabled) {
                 transform: none;
-            }
-
-            .buy-btn:active:not(:disabled) {
-                transform: scale(0.98);
+                box-shadow: 0 4px 15px rgba(0, 255, 136, 0.25);
             }
 
             .tab:hover {
                 background: transparent;
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .tab.active:hover {
+                color: #00ff88;
+                background: linear-gradient(180deg, rgba(0, 255, 136, 0.12) 0%, transparent 100%);
             }
 
             .tab:active {
-                background: rgba(0, 255, 136, 0.1);
+                background: rgba(0, 255, 136, 0.08);
             }
 
             .miner-item:hover, .upgrade-item:hover, .feature-item:hover {
                 transform: none;
-                background: rgba(255, 255, 255, 0.05);
+                background: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+                border-color: var(--glass-border);
+            }
+
+            .coin-option:hover {
+                background: rgba(255, 255, 255, 0.03);
+            }
+
+            .coin-option.active:hover {
+                background: rgba(247, 147, 26, 0.1);
+            }
+
+            /* Smooth scroll behavior */
+            .tabs, .stats-row {
+                scroll-behavior: smooth;
             }
         }
 
-        /* Safe Area for Notched Devices */
+        /* ===== SAFE AREA (NOTCHED DEVICES) ===== */
         @supports (padding-bottom: env(safe-area-inset-bottom)) {
             @media (max-width: 600px) {
                 body {
-                    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+                    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + 10px);
                 }
 
                 .tabs {
                     padding-bottom: env(safe-area-inset-bottom);
+                    height: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom));
                 }
+            }
+        }
+
+        /* ===== REDUCED MOTION ===== */
+        @media (prefers-reduced-motion: reduce) {
+            .coin-display::before {
+                animation: none;
+            }
+
+            .mine-button,
+            .buy-btn,
+            .tab,
+            .miner-item,
+            .upgrade-item {
+                transition: none;
+            }
+        }
+
+        /* ===== DARK MODE ENHANCEMENT ===== */
+        @media (prefers-color-scheme: dark) and (max-width: 600px) {
+            .header {
+                background: rgba(10, 10, 25, 0.9);
+            }
+
+            .panel {
+                background: rgba(10, 10, 25, 0.85);
             }
         }
     </style>
