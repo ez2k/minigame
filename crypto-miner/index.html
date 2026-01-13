@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>크립토 마이너</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0f2460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(0, 255, 136, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00ff88, #00ccff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.5)); }
+            50% { filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.8)); }
+        }
+
+        .coin-display {
+            font-size: 2em;
+            margin: 15px 0;
+            color: #f7931a;
+        }
+
+        .coin-display .amount {
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        /* Market Price */
+        .market-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .price-tag {
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .price-up { color: #00ff88; }
+        .price-down { color: #ff4444; }
+
+        .usd-value {
+            color: #00ff88;
+            font-size: 1.1em;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 15px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Hashrate indicator */
+        .hashrate-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .hashrate-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            border-radius: 4px;
+            transition: width 0.3s;
+            animation: hashPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes hashPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Mining Animation */
+        .mining-indicator {
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #000;
+            animation: pulse 1s infinite;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .mining-indicator.active {
+            display: inline-block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        /* Clicker Area */
+        .clicker-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 0;
+            position: relative;
+        }
+
+        .mine-button {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #f7931a, #e2820a);
+            border: 6px solid #d4760a;
+            cursor: pointer;
+            font-size: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 10px 30px rgba(247, 147, 26, 0.4),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                inset 0 5px 20px rgba(255, 255, 255, 0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+
+        .mine-button:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 15px 40px rgba(247, 147, 26, 0.6),
+                inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                inset 0 5px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .mine-button:active {
+            transform: scale(0.95);
+        }
+
+        .mine-button::after {
+            content: '₿';
+            position: absolute;
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Block Found Animation */
+        .block-found {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #f7931a, #00ff88);
+            padding: 30px 50px;
+            border-radius: 20px;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #000;
+            z-index: 2000;
+            animation: blockFound 3s forwards;
+        }
+
+        @keyframes blockFound {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        /* Particles */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 20px;
+            z-index: 999;
+        }
+
+        .click-text {
+            position: fixed;
+            pointer-events: none;
+            font-weight: bold;
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.8);
+            animation: floatUp 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 70px;
+            padding: 12px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px 10px 0 0;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab.active {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border-bottom: 2px solid #00ff88;
+        }
+
+        /* Panels */
+        .panel {
+            display: none;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 0 0 15px 15px;
+            padding: 15px;
+            min-height: 300px;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Miner & Upgrade Items */
+        .miner-item, .upgrade-item, .achievement-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .miner-item:hover, .upgrade-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .miner-info, .upgrade-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .miner-icon, .upgrade-icon {
+            font-size: 2.5em;
+            width: 60px;
+            text-align: center;
+        }
+
+        .miner-details h3 {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .miner-details p {
+            color: #aaa;
+            font-size: 0.85em;
+        }
+
+        .miner-owned {
+            color: #00ff88;
+            font-size: 0.9em;
+            margin-top: 3px;
+        }
+
+        .miner-right {
+            text-align: right;
+        }
+
+        .buy-btn {
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .buy-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .buy-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .buy-amount {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            justify-content: flex-end;
+        }
+
+        .amount-btn {
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .amount-btn:hover {
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        .amount-btn.active {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        /* Achievements */
+        .achievement-item {
+            opacity: 0.5;
+        }
+
+        .achievement-item.unlocked {
+            opacity: 1;
+            border-color: rgba(0, 255, 136, 0.5);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .achievement-icon {
+            font-size: 2em;
+            width: 50px;
+            text-align: center;
+            filter: grayscale(100%);
+        }
+
+        .achievement-item.unlocked .achievement-icon {
+            filter: none;
+        }
+
+        .achievement-reward {
+            color: #f7931a;
+            font-size: 0.85em;
+        }
+
+        /* Market Panel */
+        .market-area {
+            padding: 20px;
+        }
+
+        .coin-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .coin-option {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .coin-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .coin-option.active {
+            border-color: #f7931a;
+            background: rgba(247, 147, 26, 0.1);
+        }
+
+        .coin-option .coin-icon {
+            font-size: 2em;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .coin-option .coin-name {
+            font-weight: bold;
+        }
+
+        .coin-option .coin-price {
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        .price-chart {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            height: 200px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .exchange-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .exchange-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sell-btn {
+            background: linear-gradient(145deg, #00ff88, #00cc6a);
+            color: #000;
+        }
+
+        .sell-btn:hover:not(:disabled) {
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .sell-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        /* Halving Event */
+        .halving-banner {
+            background: linear-gradient(90deg, #f7931a, #ff6b6b, #f7931a);
+            background-size: 200% 100%;
+            animation: halvingGlow 2s linear infinite;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        @keyframes halvingGlow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        /* Prestige */
+        .prestige-area {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .prestige-info {
+            background: linear-gradient(145deg, rgba(0, 204, 255, 0.2), rgba(0, 255, 136, 0.2));
+            border: 2px solid rgba(0, 204, 255, 0.5);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .prestige-info h2 {
+            color: #00ccff;
+            margin-bottom: 15px;
+        }
+
+        .prestige-tokens {
+            font-size: 2em;
+            color: #00ccff;
+            margin: 15px 0;
+        }
+
+        .prestige-btn {
+            padding: 15px 40px;
+            background: linear-gradient(145deg, #00ccff, #0099cc);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .prestige-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        /* Settings */
+        .settings-area {
+            padding: 20px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .setting-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .setting-btn.danger {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: rgba(255, 0, 0, 0.3);
+        }
+
+        /* Records */
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .record-value {
+            color: #f7931a;
+            font-weight: bold;
+        }
+
+        /* Popup */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .popup.hidden {
+            display: none;
+        }
+
+        .popup-content {
+            background: linear-gradient(145deg, #0a0a1a, #1a1a3e);
+            border: 2px solid #00ff88;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .popup-content h2 {
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .popup-earnings {
+            font-size: 2em;
+            color: #f7931a;
+            margin: 20px 0;
+        }
+
+        .popup-btn {
+            padding: 15px 40px;
+            background: linear-gradient(145deg, #00ff88, #00cc6a);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Bonus Popup */
+        .bonus-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #00ff88, #00ccff);
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000;
+            z-index: 2000;
+            animation: bonusPopup 2s forwards;
+        }
+
+        @keyframes bonusPopup {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8em; }
+            .coin-display { font-size: 1.5em; }
+            .mine-button { width: 150px; height: 150px; }
+            .mine-button::after { font-size: 60px; }
+            .stats-row { flex-direction: column; gap: 5px; }
+            .miner-item, .upgrade-item { flex-direction: column; gap: 15px; text-align: center; }
+            .miner-right { text-align: center; }
+            .tab { padding: 10px 5px; font-size: 0.75em; }
+            .market-display { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Offline Popup -->
+    <div id="offlinePopup" class="popup hidden">
+        <div class="popup-content">
+            <h2>채굴기가 열심히 일했어요! 🎉</h2>
+            <p id="offlineTime"></p>
+            <p>오프라인 동안 채굴한 코인:</p>
+            <div class="popup-earnings" id="offlineEarnings">+0 BTC</div>
+            <button class="popup-btn" onclick="closeOfflinePopup()">받기!</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>크립토 마이너</h1>
+            <div class="coin-display">
+                ₿ <span class="amount" id="coinAmount">0</span> <span id="coinSymbol">BTC</span>
+            </div>
+            <div class="market-display">
+                <div class="price-tag">
+                    💵 시세: $<span id="marketPrice">50000</span>
+                    <span id="priceChange" class="price-up">▲ +0%</span>
+                </div>
+                <div class="usd-value">
+                    💰 총 가치: $<span id="totalUSD">0</span>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat">⛏️ 클릭: <span id="hashPower">1</span> H</div>
+                <div class="stat">⚡ 해시레이트: <span id="hashRate">0</span> H/s</div>
+                <div class="stat">🪙 토큰: <span id="tokens">0</span></div>
+                <div class="stat">⏰ <span id="playTime">00:00:00</span></div>
+            </div>
+            <div class="hashrate-bar">
+                <div class="hashrate-fill" id="hashrateFill" style="width: 0%"></div>
+            </div>
+            <div class="mining-indicator" id="miningIndicator">⛏️ 채굴 중...</div>
+        </div>
+
+        <!-- Clicker -->
+        <div class="clicker-area" id="clickerArea">
+            <button class="mine-button" id="mineBtn"></button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="miners">⛏️ 채굴기</button>
+            <button class="tab" data-tab="upgrades">⬆️ 업그레이드</button>
+            <button class="tab" data-tab="market">📈 거래소</button>
+            <button class="tab" data-tab="achievements">🏆 업적</button>
+            <button class="tab" data-tab="stats">📊 통계</button>
+            <button class="tab" data-tab="prestige">🔄 하드포크</button>
+            <button class="tab" data-tab="settings">⚙️ 설정</button>
+        </div>
+
+        <!-- Panels -->
+        <div id="miners" class="panel active">
+            <div class="buy-amount" style="margin-bottom: 15px;">
+                <span style="color: #aaa; margin-right: 10px;">구매 수량:</span>
+                <button class="amount-btn active" data-amount="1">x1</button>
+                <button class="amount-btn" data-amount="10">x10</button>
+                <button class="amount-btn" data-amount="100">x100</button>
+                <button class="amount-btn" data-amount="max">MAX</button>
+            </div>
+            <div id="minerList"></div>
+        </div>
+
+        <div id="upgrades" class="panel">
+            <div id="upgradeList"></div>
+        </div>
+
+        <div id="market" class="panel">
+            <div class="market-area">
+                <h3 style="margin-bottom: 15px;">🪙 코인 선택</h3>
+                <div class="coin-selector" id="coinSelector"></div>
+
+                <h3 style="margin: 20px 0 15px;">📈 가격 차트 (24시간)</h3>
+                <div class="price-chart">
+                    <canvas id="priceChart" class="chart-canvas"></canvas>
+                </div>
+
+                <div class="exchange-area">
+                    <button class="exchange-btn sell-btn" id="sellBtn" onclick="sellCoins()">
+                        전량 매도 ($<span id="sellValue">0</span>)
+                    </button>
+                </div>
+                <p style="color: #888; text-align: center; margin-top: 15px;">
+                    💡 USD로 환전하면 업그레이드 구매에 사용됩니다
+                </p>
+            </div>
+        </div>
+
+        <div id="achievements" class="panel">
+            <div id="achievementList"></div>
+        </div>
+
+        <div id="stats" class="panel">
+            <div class="records-area" style="padding: 20px;">
+                <h3 style="margin-bottom: 20px;">📊 채굴 통계</h3>
+                <div class="record-item">
+                    <span>₿ 최고 보유량</span>
+                    <span class="record-value" id="recordCoins">0</span>
+                </div>
+                <div class="record-item">
+                    <span>💵 총 환전 USD</span>
+                    <span class="record-value" id="recordUSD">$0</span>
+                </div>
+                <div class="record-item">
+                    <span>👆 총 클릭 수</span>
+                    <span class="record-value" id="recordClicks">0</span>
+                </div>
+                <div class="record-item">
+                    <span>⛏️ 총 채굴량</span>
+                    <span class="record-value" id="recordMined">0</span>
+                </div>
+                <div class="record-item">
+                    <span>🔄 하드포크 횟수</span>
+                    <span class="record-value" id="recordForks">0</span>
+                </div>
+                <div class="record-item">
+                    <span>🏆 달성 업적</span>
+                    <span class="record-value" id="recordAchievements">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="prestige" class="panel">
+            <div class="prestige-area">
+                <div class="prestige-info">
+                    <h2>🔄 하드포크 시스템</h2>
+                    <p>모든 코인과 채굴기를 초기화하고<br>영구 보너스 토큰을 획득하세요!</p>
+                    <div class="prestige-tokens">
+                        획득 예정: <span id="forkGain">0</span> 🪙
+                    </div>
+                    <p style="color: #aaa;">현재 보너스: <span id="forkBonus">0</span>% 추가 해시파워</p>
+                    <button class="prestige-btn" id="forkBtn" disabled onclick="doHardFork()">하드포크 실행</button>
+                    <p style="color: #888; margin-top: 15px;" id="forkReq">총 $1,000,000 환전 필요</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings" class="panel">
+            <div class="settings-area">
+                <div class="setting-item">
+                    <span>🔊 사운드</span>
+                    <button class="setting-btn" id="soundToggle" onclick="toggleSound()">ON</button>
+                </div>
+                <div class="setting-item">
+                    <span>💾 수동 저장</span>
+                    <button class="setting-btn" onclick="saveGame()">저장하기</button>
+                </div>
+                <div class="setting-item">
+                    <span>🗑️ 게임 초기화</span>
+                    <button class="setting-btn danger" onclick="resetGame()">초기화</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== GAME STATE ====================
+        let gameState = {
+            coins: 0,
+            usd: 0,
+            totalMined: 0,
+            totalUSD: 0,
+            totalClicks: 0,
+            hashPower: 1,
+            hashRate: 0,
+            tokens: 0,
+            totalTokens: 0,
+            forkCount: 0,
+            miners: {},
+            upgrades: {},
+            achievements: {},
+            selectedCoin: 'btc',
+            lastSave: Date.now(),
+            sessionStart: Date.now(),
+            highestCoins: 0,
+            soundEnabled: true
+        };
+
+        let buyAmount = 1;
+        let globalMultiplier = 1;
+        let minerMultipliers = {};
+        let priceHistory = [];
+        let currentPrice = 50000;
+        let priceDirection = 1;
+
+        // ==================== COIN DATA ====================
+        const coinTypes = {
+            btc: { name: 'Bitcoin', symbol: 'BTC', icon: '₿', basePrice: 50000, color: '#f7931a', volatility: 0.02 },
+            eth: { name: 'Ethereum', symbol: 'ETH', icon: 'Ξ', basePrice: 3000, color: '#627eea', volatility: 0.03 },
+            doge: { name: 'Dogecoin', symbol: 'DOGE', icon: '🐕', basePrice: 0.15, color: '#c3a634', volatility: 0.05 }
+        };
+
+        // ==================== MINER DATA ====================
+        const miners = [
+            { id: 'cpu', name: 'CPU 채굴', icon: '💻', basePrice: 15, baseHash: 0.1, desc: '기본적인 CPU 채굴' },
+            { id: 'gpu', name: 'GPU 채굴기', icon: '🎮', basePrice: 100, baseHash: 1, desc: '그래픽 카드 채굴' },
+            { id: 'asic', name: 'ASIC 마이너', icon: '🔲', basePrice: 1100, baseHash: 8, desc: '전용 채굴 장비' },
+            { id: 'farm', name: '채굴 농장', icon: '🏭', basePrice: 12000, baseHash: 47, desc: '대규모 채굴 시설' },
+            { id: 'pool', name: '채굴 풀', icon: '🌊', basePrice: 130000, baseHash: 260, desc: '협력 채굴 네트워크' },
+            { id: 'quantum', name: '양자 컴퓨터', icon: '⚛️', basePrice: 1400000, baseHash: 1400, desc: '차세대 양자 채굴' },
+            { id: 'ai', name: 'AI 채굴 시스템', icon: '🤖', basePrice: 20000000, baseHash: 7800, desc: 'AI 최적화 채굴' },
+            { id: 'fusion', name: '핵융합 채굴소', icon: '☀️', basePrice: 330000000, baseHash: 44000, desc: '무한 에너지 채굴' },
+            { id: 'dyson', name: '다이슨 스피어', icon: '🌐', basePrice: 5100000000, baseHash: 260000, desc: '항성 에너지 채굴' }
+        ];
+
+        const upgrades = [
+            { id: 'hash1', name: '오버클럭', icon: '⚡', price: 100, desc: '클릭 해시 +1', effect: () => gameState.hashPower += 1 },
+            { id: 'hash2', name: '쿨링 시스템', icon: '❄️', price: 500, desc: '클릭 해시 +5', effect: () => gameState.hashPower += 5 },
+            { id: 'hash3', name: '전력 최적화', icon: '🔋', price: 10000, desc: '클릭 해시 +50', effect: () => gameState.hashPower += 50 },
+            { id: 'cpu1', name: 'CPU 업그레이드', icon: '💻', price: 100, desc: 'CPU 효율 2배', requires: 'cpu', multiplier: 2 },
+            { id: 'gpu1', name: 'GPU 최적화', icon: '🎮', price: 1000, desc: 'GPU 효율 2배', requires: 'gpu', multiplier: 2 },
+            { id: 'asic1', name: 'ASIC 펌웨어', icon: '🔲', price: 11000, desc: 'ASIC 효율 2배', requires: 'asic', multiplier: 2 },
+            { id: 'farm1', name: '농장 확장', icon: '🏗️', price: 120000, desc: '농장 효율 2배', requires: 'farm', multiplier: 2 },
+            { id: 'pool1', name: '풀 최적화', icon: '📊', price: 1300000, desc: '풀 효율 2배', requires: 'pool', multiplier: 2 },
+            { id: 'global1', name: '블록체인 최적화', icon: '🔗', price: 10000000, desc: '모든 해시레이트 +50%', globalMultiplier: 1.5 },
+            { id: 'hash4', name: '신경망 해싱', icon: '🧠', price: 100000000, desc: '클릭 해시 +500', effect: () => gameState.hashPower += 500 },
+            { id: 'global2', name: '양자 가속', icon: '🚀', price: 1000000000, desc: '모든 해시레이트 2배', globalMultiplier: 2 }
+        ];
+
+        const achievements = [
+            { id: 'click10', name: '첫 발걸음', icon: '👆', desc: '10번 클릭', condition: () => gameState.totalClicks >= 10, reward: 10 },
+            { id: 'click100', name: '열정 채굴러', icon: '⛏️', desc: '100번 클릭', condition: () => gameState.totalClicks >= 100, reward: 50 },
+            { id: 'click1000', name: '채굴 마스터', icon: '💎', desc: '1,000번 클릭', condition: () => gameState.totalClicks >= 1000, reward: 200 },
+            { id: 'coin1', name: '첫 코인', icon: '🪙', desc: '1 BTC 채굴', condition: () => gameState.totalMined >= 1, reward: 100 },
+            { id: 'coin100', name: '비트코인 보유자', icon: '₿', desc: '100 BTC 채굴', condition: () => gameState.totalMined >= 100, reward: 1000 },
+            { id: 'usd1m', name: '백만장자', icon: '💵', desc: '$1,000,000 환전', condition: () => gameState.totalUSD >= 1000000, reward: 5000 },
+            { id: 'usd1b', name: '억만장자', icon: '💰', desc: '$1,000,000,000 환전', condition: () => gameState.totalUSD >= 1000000000, reward: 50000 },
+            { id: 'fork1', name: '첫 하드포크', icon: '🔄', desc: '첫 하드포크 실행', condition: () => gameState.forkCount >= 1, reward: 500 },
+            { id: 'fork5', name: '포크 마스터', icon: '🌐', desc: '5번 하드포크', condition: () => gameState.forkCount >= 5, reward: 2000 },
+            { id: 'miner10', name: '채굴 시작', icon: '🏭', desc: '채굴기 10개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 10, reward: 100 },
+            { id: 'miner100', name: '채굴 제국', icon: '👑', desc: '채굴기 100개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 100, reward: 1000 }
+        ];
+
+        // ==================== AUDIO ====================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            const sounds = {
+                click: { freq: 600, duration: 0.05 },
+                buy: { freq: 800, duration: 0.1 },
+                achievement: { freq: 1000, duration: 0.2 },
+                sell: { freq: 1200, duration: 0.15 },
+                block: { freq: 1500, duration: 0.3 }
+            };
+
+            const sound = sounds[type] || sounds.click;
+            oscillator.frequency.setValueAtTime(sound.freq, audioCtx.currentTime);
+            oscillator.type = 'sine';
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + sound.duration);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + sound.duration);
+        }
+
+        // ==================== UTILITIES ====================
+        function formatNumber(num) {
+            if (num < 0.0001) return num.toExponential(2);
+            if (num < 1) return num.toFixed(4);
+            if (num < 1000) return num.toFixed(2);
+
+            const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
+            const tier = Math.floor(Math.log10(Math.abs(num)) / 3);
+
+            if (tier >= suffixes.length) return num.toExponential(2);
+
+            const suffix = suffixes[tier];
+            const scale = Math.pow(10, tier * 3);
+            const scaled = num / scale;
+
+            return scaled.toFixed(scaled < 10 ? 2 : 1) + suffix;
+        }
+
+        function formatUSD(num) {
+            return '$' + formatNumber(num);
+        }
+
+        function formatTime(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // ==================== PRICE SIMULATION ====================
+        function updatePrice() {
+            const coin = coinTypes[gameState.selectedCoin];
+            const change = (Math.random() - 0.5) * coin.volatility * currentPrice;
+
+            // Add trend momentum
+            if (Math.random() < 0.1) priceDirection *= -1;
+            currentPrice += change + (priceDirection * coin.volatility * currentPrice * 0.1);
+
+            // Keep price within bounds
+            currentPrice = Math.max(coin.basePrice * 0.3, Math.min(coin.basePrice * 3, currentPrice));
+
+            priceHistory.push(currentPrice);
+            if (priceHistory.length > 60) priceHistory.shift();
+        }
+
+        // ==================== PARTICLES ====================
+        function createParticles(x, y, count = 5) {
+            const emojis = ['⚡', '💎', '✨', '🔥'];
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+
+                const angle = (Math.random() * 360) * (Math.PI / 180);
+                const velocity = 50 + Math.random() * 100;
+                const dx = Math.cos(angle) * velocity;
+                const dy = Math.sin(angle) * velocity;
+
+                document.body.appendChild(particle);
+
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${dx}px, ${dy}px) scale(0)`, opacity: 0 }
+                ], { duration: 1000, easing: 'ease-out' });
+
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        function showBonusPopup(text) {
+            const popup = document.createElement('div');
+            popup.className = 'bonus-popup';
+            popup.textContent = text;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+        }
+
+        // ==================== BLOCK FOUND EVENT ====================
+        function showBlockFound(amount) {
+            const block = document.createElement('div');
+            block.className = 'block-found';
+            block.innerHTML = `🎉 블록 발견!<br>+${formatNumber(amount)} ${coinTypes[gameState.selectedCoin].symbol}`;
+            document.body.appendChild(block);
+            playSound('block');
+            setTimeout(() => block.remove(), 3000);
+        }
+
+        // ==================== CALCULATIONS ====================
+        function getMinerPrice(miner, amount = 1) {
+            const owned = gameState.miners[miner.id] || 0;
+            let total = 0;
+            for (let i = 0; i < amount; i++) {
+                total += Math.floor(miner.basePrice * Math.pow(1.15, owned + i));
+            }
+            return total;
+        }
+
+        function getMaxAffordable(miner) {
+            const owned = gameState.miners[miner.id] || 0;
+            let count = 0, total = 0;
+            while (total + Math.floor(miner.basePrice * Math.pow(1.15, owned + count)) <= gameState.usd) {
+                total += Math.floor(miner.basePrice * Math.pow(1.15, owned + count));
+                count++;
+                if (count > 1000) break;
+            }
+            return count;
+        }
+
+        function getActualBuyAmount(miner) {
+            if (buyAmount === 'max') return getMaxAffordable(miner);
+            return Math.min(buyAmount, getMaxAffordable(miner));
+        }
+
+        function calculateHashRate() {
+            let total = 0;
+            miners.forEach(miner => {
+                const owned = gameState.miners[miner.id] || 0;
+                const multiplier = minerMultipliers[miner.id] || 1;
+                total += owned * miner.baseHash * multiplier * globalMultiplier;
+            });
+
+            const tokenBonus = 1 + (gameState.tokens * 0.01);
+            total *= tokenBonus;
+
+            return total;
+        }
+
+        function calculateForkGain() {
+            if (gameState.totalUSD < 1000000) return 0;
+            return Math.floor(Math.sqrt(gameState.totalUSD / 1000000));
+        }
+
+        // ==================== GAME ACTIONS ====================
+        function handleClick(e) {
+            const tokenBonus = 1 + (gameState.tokens * 0.01);
+            const earned = gameState.hashPower * tokenBonus * 0.00001; // Convert hash to coin
+
+            gameState.coins += earned;
+            gameState.totalMined += earned;
+            gameState.totalClicks++;
+
+            if (gameState.coins > gameState.highestCoins) {
+                gameState.highestCoins = gameState.coins;
+            }
+
+            playSound('click');
+
+            const x = e.clientX || e.touches?.[0]?.clientX || window.innerWidth/2;
+            const y = e.clientY || e.touches?.[0]?.clientY || window.innerHeight/2;
+
+            const text = document.createElement('div');
+            text.className = 'click-text';
+            text.textContent = '+' + formatNumber(earned);
+            text.style.left = x + 'px';
+            text.style.top = y + 'px';
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 1000);
+
+            createParticles(x, y, 3);
+
+            checkAchievements();
+            updateUI();
+        }
+
+        function buyMiner(minerId) {
+            const miner = miners.find(m => m.id === minerId);
+            const amount = getActualBuyAmount(miner);
+            if (amount <= 0) return;
+
+            const price = getMinerPrice(miner, amount);
+            if (gameState.usd >= price) {
+                gameState.usd -= price;
+                gameState.miners[minerId] = (gameState.miners[minerId] || 0) + amount;
+                gameState.hashRate = calculateHashRate();
+                playSound('buy');
+                checkAchievements();
+                fullRender();
+                updateUI();
+            }
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = upgrades.find(u => u.id === upgradeId);
+            if (gameState.upgrades[upgradeId]) return;
+            if (gameState.usd < upgrade.price) return;
+
+            gameState.usd -= upgrade.price;
+            gameState.upgrades[upgradeId] = true;
+
+            if (upgrade.effect) upgrade.effect();
+            if (upgrade.multiplier && upgrade.requires) {
+                minerMultipliers[upgrade.requires] = (minerMultipliers[upgrade.requires] || 1) * upgrade.multiplier;
+            }
+            if (upgrade.globalMultiplier) {
+                globalMultiplier *= upgrade.globalMultiplier;
+            }
+
+            gameState.hashRate = calculateHashRate();
+            playSound('buy');
+            fullRender();
+            updateUI();
+        }
+
+        function sellCoins() {
+            if (gameState.coins <= 0) return;
+
+            const value = gameState.coins * currentPrice;
+            gameState.usd += value;
+            gameState.totalUSD += value;
+            gameState.coins = 0;
+
+            playSound('sell');
+            showBonusPopup(`+${formatUSD(value)} 환전 완료!`);
+            checkAchievements();
+            updateUI();
+        }
+
+        function selectCoin(coinId) {
+            gameState.selectedCoin = coinId;
+            currentPrice = coinTypes[coinId].basePrice;
+            priceHistory = [currentPrice];
+            renderCoinSelector();
+            updateUI();
+        }
+
+        function doHardFork() {
+            const gain = calculateForkGain();
+            if (gain <= 0) return;
+            if (!confirm(`하드포크를 실행하시겠습니까?\n\n${gain}개의 토큰을 획득합니다.\n모든 코인, USD, 채굴기가 초기화됩니다.`)) return;
+
+            gameState.tokens += gain;
+            gameState.totalTokens += gain;
+            gameState.forkCount++;
+            gameState.coins = 0;
+            gameState.usd = 0;
+            gameState.totalUSD = 0;
+            gameState.hashPower = 1;
+            gameState.miners = {};
+            gameState.upgrades = {};
+
+            globalMultiplier = 1;
+            minerMultipliers = {};
+
+            gameState.hashRate = calculateHashRate();
+            playSound('achievement');
+            checkAchievements();
+            fullRender();
+            updateUI();
+            saveGame();
+        }
+
+        // ==================== ACHIEVEMENTS ====================
+        function checkAchievements() {
+            let newAchievement = false;
+            achievements.forEach(ach => {
+                if (!gameState.achievements[ach.id] && ach.condition()) {
+                    gameState.achievements[ach.id] = true;
+                    gameState.usd += ach.reward;
+                    newAchievement = true;
+                    showBonusPopup(`🏆 ${ach.name} 달성! +$${ach.reward}`);
+                    playSound('achievement');
+                }
+            });
+            if (newAchievement) renderAchievements();
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById('soundToggle').textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+        }
+
+        // ==================== CHART ====================
+        function updateChart() {
+            const canvas = document.getElementById('priceChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const width = canvas.parentElement.clientWidth;
+            const height = canvas.parentElement.clientHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (priceHistory.length < 2) return;
+
+            const max = Math.max(...priceHistory);
+            const min = Math.min(...priceHistory);
+            const range = max - min || 1;
+            const step = width / (priceHistory.length - 1);
+
+            // Gradient fill
+            ctx.beginPath();
+            const coin = coinTypes[gameState.selectedCoin];
+
+            priceHistory.forEach((val, i) => {
+                const x = i * step;
+                const y = height - ((val - min) / range) * (height - 40) - 20;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+
+            ctx.strokeStyle = coin.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.closePath();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, coin.color + '40');
+            gradient.addColorStop(1, coin.color + '00');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+
+        // ==================== RENDERING ====================
+        function renderCoinSelector() {
+            const container = document.getElementById('coinSelector');
+            container.innerHTML = Object.entries(coinTypes).map(([id, coin]) => `
+                <div class="coin-option ${gameState.selectedCoin === id ? 'active' : ''}" onclick="selectCoin('${id}')">
+                    <span class="coin-icon">${coin.icon}</span>
+                    <div class="coin-name">${coin.name}</div>
+                    <div class="coin-price">${coin.symbol}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderMiners() {
+            const container = document.getElementById('minerList');
+            container.innerHTML = miners.map(miner => {
+                const owned = gameState.miners[miner.id] || 0;
+                const amount = buyAmount === 'max' ? getMaxAffordable(miner) : buyAmount;
+                const price = getMinerPrice(miner, amount);
+                const canBuy = gameState.usd >= price && amount > 0;
+                const multiplier = minerMultipliers[miner.id] || 1;
+                const hashRate = miner.baseHash * multiplier * globalMultiplier;
+
+                return `
+                    <div class="miner-item">
+                        <div class="miner-info">
+                            <div class="miner-icon">${miner.icon}</div>
+                            <div class="miner-details">
+                                <h3>${miner.name}</h3>
+                                <p>${miner.desc}</p>
+                                <p style="color: #00ff88;">${formatNumber(hashRate)} H/s</p>
+                                <p class="miner-owned">보유: ${owned}대</p>
+                            </div>
+                        </div>
+                        <div class="miner-right">
+                            <button class="buy-btn" ${!canBuy ? 'disabled' : ''} onclick="buyMiner('${miner.id}')">
+                                ${amount > 0 ? `x${amount} - ${formatUSD(price)}` : '구매 불가'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderUpgrades() {
+            const container = document.getElementById('upgradeList');
+            container.innerHTML = upgrades.map(upgrade => {
+                const purchased = gameState.upgrades[upgrade.id];
+                const canBuy = !purchased && gameState.usd >= upgrade.price;
+
+                return `
+                    <div class="upgrade-item ${purchased ? 'purchased' : ''}">
+                        <div class="upgrade-info">
+                            <div class="upgrade-icon">${upgrade.icon}</div>
+                            <div class="miner-details">
+                                <h3>${upgrade.name}</h3>
+                                <p>${upgrade.desc}</p>
+                            </div>
+                        </div>
+                        <div class="miner-right">
+                            <button class="buy-btn" ${!canBuy ? 'disabled' : ''} onclick="buyUpgrade('${upgrade.id}')">
+                                ${purchased ? '구매완료' : formatUSD(upgrade.price)}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAchievements() {
+            const container = document.getElementById('achievementList');
+            container.innerHTML = achievements.map(ach => {
+                const isUnlocked = gameState.achievements[ach.id];
+                return `
+                    <div class="achievement-item ${isUnlocked ? 'unlocked' : ''}">
+                        <div class="miner-info">
+                            <div class="achievement-icon">${ach.icon}</div>
+                            <div class="miner-details">
+                                <h3>${ach.name}</h3>
+                                <p>${ach.desc}</p>
+                                <p class="achievement-reward">보상: +$${ach.reward}</p>
+                            </div>
+                        </div>
+                        <div>${isUnlocked ? '✅' : '🔒'}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function fullRender() {
+            renderCoinSelector();
+            renderMiners();
+            renderUpgrades();
+            renderAchievements();
+        }
+
+        function updateButtonStates() {
+            document.querySelectorAll('#minerList .buy-btn').forEach((btn, i) => {
+                const miner = miners[i];
+                if (!miner) return;
+                const amount = buyAmount === 'max' ? getMaxAffordable(miner) : buyAmount;
+                const price = getMinerPrice(miner, amount);
+                const canBuy = gameState.usd >= price && amount > 0;
+                btn.disabled = !canBuy;
+                btn.textContent = amount > 0 ? `x${amount} - ${formatUSD(price)}` : '구매 불가';
+            });
+
+            document.querySelectorAll('#upgradeList .buy-btn').forEach((btn, i) => {
+                const upgrade = upgrades[i];
+                if (!upgrade) return;
+                const purchased = gameState.upgrades[upgrade.id];
+                const canBuy = !purchased && gameState.usd >= upgrade.price;
+                btn.disabled = !canBuy || purchased;
+                btn.textContent = purchased ? '구매완료' : formatUSD(upgrade.price);
+            });
+        }
+
+        function updateUI() {
+            const coin = coinTypes[gameState.selectedCoin];
+
+            document.getElementById('coinAmount').textContent = formatNumber(gameState.coins);
+            document.getElementById('coinSymbol').textContent = coin.symbol;
+            document.getElementById('hashPower').textContent = formatNumber(gameState.hashPower);
+            document.getElementById('hashRate').textContent = formatNumber(gameState.hashRate);
+            document.getElementById('tokens').textContent = formatNumber(gameState.tokens);
+
+            // Market
+            document.getElementById('marketPrice').textContent = formatNumber(currentPrice);
+            const totalValue = gameState.coins * currentPrice;
+            document.getElementById('totalUSD').textContent = formatNumber(totalValue + gameState.usd);
+
+            // Price change indicator
+            const priceChange = document.getElementById('priceChange');
+            if (priceHistory.length > 1) {
+                const oldPrice = priceHistory[0];
+                const change = ((currentPrice - oldPrice) / oldPrice) * 100;
+                priceChange.textContent = (change >= 0 ? '▲ +' : '▼ ') + change.toFixed(2) + '%';
+                priceChange.className = change >= 0 ? 'price-up' : 'price-down';
+            }
+
+            // Sell value
+            document.getElementById('sellValue').textContent = formatNumber(gameState.coins * currentPrice);
+            document.getElementById('sellBtn').disabled = gameState.coins <= 0;
+
+            // Hashrate bar
+            const maxHash = 1000000;
+            const hashPercent = Math.min(100, (gameState.hashRate / maxHash) * 100);
+            document.getElementById('hashrateFill').style.width = hashPercent + '%';
+
+            // Mining indicator
+            const miningIndicator = document.getElementById('miningIndicator');
+            miningIndicator.classList.toggle('active', gameState.hashRate > 0);
+
+            // Play time
+            const playSeconds = Math.floor((Date.now() - gameState.sessionStart) / 1000);
+            document.getElementById('playTime').textContent = formatTime(playSeconds);
+
+            // Hard Fork
+            const gain = calculateForkGain();
+            document.getElementById('forkGain').textContent = formatNumber(gain);
+            document.getElementById('forkBonus').textContent = gameState.tokens;
+            document.getElementById('forkBtn').disabled = gain <= 0;
+            document.getElementById('forkReq').textContent = gain > 0 ? '하드포크 가능!' : `총 ${formatUSD(1000000)} 환전 필요`;
+
+            // Records
+            document.getElementById('recordCoins').textContent = formatNumber(gameState.highestCoins) + ' ' + coin.symbol;
+            document.getElementById('recordUSD').textContent = formatUSD(gameState.totalUSD);
+            document.getElementById('recordClicks').textContent = formatNumber(gameState.totalClicks);
+            document.getElementById('recordMined').textContent = formatNumber(gameState.totalMined) + ' ' + coin.symbol;
+            document.getElementById('recordForks').textContent = gameState.forkCount;
+            document.getElementById('recordAchievements').textContent = Object.keys(gameState.achievements).length + '/' + achievements.length;
+
+            updateButtonStates();
+        }
+
+        // ==================== GAME LOOP ====================
+        let blockFindChance = 0;
+
+        function gameLoop() {
+            gameState.hashRate = calculateHashRate();
+
+            if (gameState.hashRate > 0) {
+                const tokenBonus = 1 + (gameState.tokens * 0.01);
+                const earned = (gameState.hashRate * tokenBonus * 0.00001) / 10;
+                gameState.coins += earned;
+                gameState.totalMined += earned;
+
+                if (gameState.coins > gameState.highestCoins) {
+                    gameState.highestCoins = gameState.coins;
+                }
+
+                // Block found chance
+                blockFindChance += gameState.hashRate * 0.000001;
+                if (Math.random() < blockFindChance / 1000) {
+                    const bonus = gameState.hashRate * 0.01;
+                    gameState.coins += bonus;
+                    gameState.totalMined += bonus;
+                    showBlockFound(bonus);
+                    blockFindChance = 0;
+                }
+            }
+
+            checkAchievements();
+            updateUI();
+        }
+
+        // ==================== SAVE/LOAD ====================
+        function saveGame() {
+            gameState.lastSave = Date.now();
+            localStorage.setItem('cryptoMiner', JSON.stringify(gameState));
+            localStorage.setItem('cryptoMinerMultipliers', JSON.stringify({
+                global: globalMultiplier,
+                miners: minerMultipliers
+            }));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('cryptoMiner');
+            const multipliers = localStorage.getItem('cryptoMinerMultipliers');
+
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                gameState = { ...gameState, ...loaded };
+                gameState.sessionStart = Date.now();
+
+                if (multipliers) {
+                    const m = JSON.parse(multipliers);
+                    globalMultiplier = m.global || 1;
+                    minerMultipliers = m.miners || {};
+                }
+
+                document.getElementById('soundToggle').textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+
+                // Initialize price for selected coin
+                currentPrice = coinTypes[gameState.selectedCoin].basePrice;
+                priceHistory = [currentPrice];
+
+                // Offline earnings
+                const now = Date.now();
+                const elapsed = (now - gameState.lastSave) / 1000;
+
+                if (elapsed > 60 && gameState.hashRate > 0) {
+                    const maxOfflineTime = 8 * 60 * 60;
+                    const offlineTime = Math.min(elapsed, maxOfflineTime);
+                    const offlineEarnings = gameState.hashRate * 0.00001 * offlineTime * 0.5;
+
+                    document.getElementById('offlineTime').textContent =
+                        `${Math.floor(offlineTime/3600)}시간 ${Math.floor((offlineTime%3600)/60)}분 동안`;
+                    document.getElementById('offlineEarnings').textContent = '+' + formatNumber(offlineEarnings) + ' ' + coinTypes[gameState.selectedCoin].symbol;
+                    document.getElementById('offlinePopup').classList.remove('hidden');
+
+                    gameState.coins += offlineEarnings;
+                    gameState.totalMined += offlineEarnings;
+                }
+
+                gameState.hashRate = calculateHashRate();
+            }
+        }
+
+        function closeOfflinePopup() {
+            document.getElementById('offlinePopup').classList.add('hidden');
+        }
+
+        function resetGame() {
+            if (!confirm('정말 게임을 초기화하시겠습니까?\n모든 진행 상황이 삭제됩니다!')) return;
+            localStorage.removeItem('cryptoMiner');
+            localStorage.removeItem('cryptoMinerMultipliers');
+            location.reload();
+        }
+
+        // ==================== INITIALIZATION ====================
+        // Tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Buy amount
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                buyAmount = btn.dataset.amount === 'max' ? 'max' : parseInt(btn.dataset.amount);
+                fullRender();
+                updateUI();
+            });
+        });
+
+        // Click handlers
+        document.getElementById('mineBtn').addEventListener('click', handleClick);
+        document.getElementById('mineBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleClick(e);
+        });
+
+        // Load and start
+        loadGame();
+        gameState.hashRate = calculateHashRate();
+        fullRender();
+        updateUI();
+
+        // Game loops
+        setInterval(gameLoop, 100);
+        setInterval(saveGame, 30000);
+        setInterval(updatePrice, 2000);
+        setInterval(updateChart, 1000);
+    </script>
+</body>
+</html>
