@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -68,6 +68,7 @@
             padding: 10px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
+            flex-wrap: wrap;
         }
 
         .price-tag {
@@ -129,7 +130,7 @@
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
             font-size: 0.9em;
             color: #aaa;
             margin-top: 15px;
@@ -284,21 +285,21 @@
         /* Tabs */
         .tabs {
             display: flex;
-            gap: 5px;
+            gap: 3px;
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
 
         .tab {
             flex: 1;
-            min-width: 70px;
-            padding: 12px 8px;
+            min-width: 60px;
+            padding: 10px 5px;
             background: rgba(255, 255, 255, 0.1);
             border: none;
             border-radius: 10px 10px 0 0;
             color: #aaa;
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: 0.75em;
             transition: all 0.3s;
         }
 
@@ -310,6 +311,17 @@
             background: rgba(0, 255, 136, 0.2);
             color: #00ff88;
             border-bottom: 2px solid #00ff88;
+        }
+
+        .tab.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .tab .unlock-hint {
+            font-size: 0.7em;
+            display: block;
+            color: #888;
         }
 
         /* Panels */
@@ -325,8 +337,40 @@
             display: block;
         }
 
+        /* Locked Panel */
+        .locked-panel {
+            text-align: center;
+            padding: 50px 20px;
+            color: #888;
+        }
+
+        .locked-panel .lock-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .locked-panel h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .unlock-progress {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 20px;
+            margin: 20px auto;
+            max-width: 300px;
+            overflow: hidden;
+        }
+
+        .unlock-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            transition: width 0.5s;
+        }
+
         /* Miner & Upgrade Items */
-        .miner-item, .upgrade-item, .achievement-item {
+        .miner-item, .upgrade-item, .achievement-item, .feature-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -338,7 +382,7 @@
             transition: all 0.3s;
         }
 
-        .miner-item:hover, .upgrade-item:hover {
+        .miner-item:hover, .upgrade-item:hover, .feature-item:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(0, 255, 136, 0.3);
         }
@@ -547,12 +591,12 @@
             cursor: not-allowed;
         }
 
-        /* Halving Event */
-        .halving-banner {
-            background: linear-gradient(90deg, #f7931a, #ff6b6b, #f7931a);
+        /* Event Banner */
+        .event-banner {
+            background: linear-gradient(90deg, #ff6b6b, #f7931a, #ff6b6b);
             background-size: 200% 100%;
-            animation: halvingGlow 2s linear infinite;
-            padding: 10px;
+            animation: eventGlow 2s linear infinite;
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
             margin-bottom: 15px;
@@ -560,9 +604,74 @@
             color: #000;
         }
 
-        @keyframes halvingGlow {
+        @keyframes eventGlow {
             0% { background-position: 0% 50%; }
             100% { background-position: 200% 50%; }
+        }
+
+        /* Whale Alert */
+        .whale-alert {
+            background: linear-gradient(145deg, #00ccff, #0099ff);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            animation: whaleAlert 1s ease-in-out infinite;
+        }
+
+        @keyframes whaleAlert {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* Staking */
+        .staking-item {
+            background: rgba(0, 204, 255, 0.1);
+            border: 2px solid rgba(0, 204, 255, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .staking-item.active {
+            border-color: #00ccff;
+            animation: stakingGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes stakingGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 204, 255, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(0, 204, 255, 0.5); }
+        }
+
+        /* Security */
+        .security-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .security-status.danger {
+            background: rgba(255, 68, 68, 0.2);
+            border: 2px solid rgba(255, 68, 68, 0.5);
+            animation: dangerPulse 1s infinite;
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* DeFi */
+        .defi-pool {
+            background: linear-gradient(145deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.2));
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
         }
 
         /* Prestige */
@@ -724,6 +833,42 @@
             100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
         }
 
+        /* Hack Alert */
+        .hack-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.3);
+            z-index: 1999;
+            animation: hackFlash 0.5s infinite;
+        }
+
+        @keyframes hackFlash {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.1; }
+        }
+
+        .hack-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1a0a0a, #3e1a1a);
+            border: 3px solid #ff4444;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            z-index: 2000;
+            max-width: 400px;
+        }
+
+        .hack-popup h2 {
+            color: #ff4444;
+            margin-bottom: 20px;
+        }
+
         /* Responsive */
         @media (max-width: 600px) {
             .header h1 { font-size: 1.8em; }
@@ -731,9 +876,9 @@
             .mine-button { width: 150px; height: 150px; }
             .mine-button::after { font-size: 60px; }
             .stats-row { flex-direction: column; gap: 5px; }
-            .miner-item, .upgrade-item { flex-direction: column; gap: 15px; text-align: center; }
+            .miner-item, .upgrade-item, .feature-item { flex-direction: column; gap: 15px; text-align: center; }
             .miner-right { text-align: center; }
-            .tab { padding: 10px 5px; font-size: 0.75em; }
+            .tab { padding: 8px 3px; font-size: 0.65em; min-width: 50px; }
             .market-display { flex-direction: column; gap: 10px; }
         }
     </style>
@@ -747,6 +892,17 @@
             <p>오프라인 동안 채굴한 코인:</p>
             <div class="popup-earnings" id="offlineEarnings">+0 BTC</div>
             <button class="popup-btn" onclick="closeOfflinePopup()">받기!</button>
+        </div>
+    </div>
+
+    <!-- Hack Popup -->
+    <div id="hackPopup" class="popup hidden">
+        <div id="hackOverlay" class="hack-overlay"></div>
+        <div class="hack-popup">
+            <h2>🚨 해킹 시도 감지!</h2>
+            <p id="hackMessage">해커가 당신의 지갑을 노리고 있습니다!</p>
+            <div class="popup-earnings" id="hackDamage" style="color: #ff4444;">-0 BTC</div>
+            <button class="popup-btn" style="background: linear-gradient(145deg, #ff4444, #cc0000);" onclick="closeHackPopup()">확인</button>
         </div>
     </div>
 
@@ -767,14 +923,14 @@
                     <span id="priceChange" class="price-up">▲ +0%</span>
                 </div>
                 <div class="usd-value">
-                    💰 총 가치: $<span id="totalUSD">0</span>
+                    💰 USD: $<span id="totalUSD">0</span>
                 </div>
             </div>
             <div class="stats-row">
                 <div class="stat">⛏️ 클릭: <span id="hashPower">1</span> H</div>
-                <div class="stat">⚡ 해시레이트: <span id="hashRate">0</span> H/s</div>
+                <div class="stat">⚡ 해시: <span id="hashRate">0</span> H/s</div>
                 <div class="stat">🪙 토큰: <span id="tokens">0</span></div>
-                <div class="stat">⏰ <span id="playTime">00:00:00</span></div>
+                <div class="stat">🔒 보안: <span id="securityLevel">0</span>%</div>
             </div>
             <div class="hashrate-bar">
                 <div class="hashrate-fill" id="hashrateFill" style="width: 0%"></div>
@@ -789,13 +945,16 @@
 
         <!-- Tabs -->
         <div class="tabs">
-            <button class="tab active" data-tab="miners">⛏️ 채굴기</button>
-            <button class="tab" data-tab="upgrades">⬆️ 업그레이드</button>
-            <button class="tab" data-tab="market">📈 거래소</button>
+            <button class="tab active" data-tab="miners">⛏️ 채굴</button>
+            <button class="tab" data-tab="upgrades">⬆️ 강화</button>
+            <button class="tab" data-tab="market">📈 거래</button>
+            <button class="tab" data-tab="events" id="eventsTab">📰 이벤트</button>
+            <button class="tab" data-tab="staking" id="stakingTab">💎 스테이킹</button>
+            <button class="tab" data-tab="security" id="securityTab">🔐 보안</button>
+            <button class="tab" data-tab="defi" id="defiTab">🏦 DeFi</button>
             <button class="tab" data-tab="achievements">🏆 업적</button>
-            <button class="tab" data-tab="stats">📊 통계</button>
-            <button class="tab" data-tab="prestige">🔄 하드포크</button>
-            <button class="tab" data-tab="settings">⚙️ 설정</button>
+            <button class="tab" data-tab="prestige">🔄 포크</button>
+            <button class="tab" data-tab="settings">⚙️</button>
         </div>
 
         <!-- Panels -->
@@ -829,44 +988,27 @@
                         전량 매도 ($<span id="sellValue">0</span>)
                     </button>
                 </div>
-                <p style="color: #888; text-align: center; margin-top: 15px;">
-                    💡 USD로 환전하면 업그레이드 구매에 사용됩니다
-                </p>
             </div>
+        </div>
+
+        <div id="events" class="panel">
+            <div id="eventsContent"></div>
+        </div>
+
+        <div id="staking" class="panel">
+            <div id="stakingContent"></div>
+        </div>
+
+        <div id="security" class="panel">
+            <div id="securityContent"></div>
+        </div>
+
+        <div id="defi" class="panel">
+            <div id="defiContent"></div>
         </div>
 
         <div id="achievements" class="panel">
             <div id="achievementList"></div>
-        </div>
-
-        <div id="stats" class="panel">
-            <div class="records-area" style="padding: 20px;">
-                <h3 style="margin-bottom: 20px;">📊 채굴 통계</h3>
-                <div class="record-item">
-                    <span>₿ 최고 보유량</span>
-                    <span class="record-value" id="recordCoins">0</span>
-                </div>
-                <div class="record-item">
-                    <span>💵 총 환전 USD</span>
-                    <span class="record-value" id="recordUSD">$0</span>
-                </div>
-                <div class="record-item">
-                    <span>👆 총 클릭 수</span>
-                    <span class="record-value" id="recordClicks">0</span>
-                </div>
-                <div class="record-item">
-                    <span>⛏️ 총 채굴량</span>
-                    <span class="record-value" id="recordMined">0</span>
-                </div>
-                <div class="record-item">
-                    <span>🔄 하드포크 횟수</span>
-                    <span class="record-value" id="recordForks">0</span>
-                </div>
-                <div class="record-item">
-                    <span>🏆 달성 업적</span>
-                    <span class="record-value" id="recordAchievements">0</span>
-                </div>
-            </div>
         </div>
 
         <div id="prestige" class="panel">
@@ -895,8 +1037,39 @@
                     <button class="setting-btn" onclick="saveGame()">저장하기</button>
                 </div>
                 <div class="setting-item">
+                    <span>📊 통계 보기</span>
+                    <button class="setting-btn" onclick="showStats()">통계</button>
+                </div>
+                <div class="setting-item">
                     <span>🗑️ 게임 초기화</span>
                     <button class="setting-btn danger" onclick="resetGame()">초기화</button>
+                </div>
+            </div>
+            <div id="statsArea" style="display: none; padding: 20px;">
+                <h3 style="margin-bottom: 20px;">📊 채굴 통계</h3>
+                <div class="record-item">
+                    <span>₿ 최고 보유량</span>
+                    <span class="record-value" id="recordCoins">0</span>
+                </div>
+                <div class="record-item">
+                    <span>💵 총 환전 USD</span>
+                    <span class="record-value" id="recordUSD">$0</span>
+                </div>
+                <div class="record-item">
+                    <span>👆 총 클릭 수</span>
+                    <span class="record-value" id="recordClicks">0</span>
+                </div>
+                <div class="record-item">
+                    <span>⛏️ 총 채굴량</span>
+                    <span class="record-value" id="recordMined">0</span>
+                </div>
+                <div class="record-item">
+                    <span>🔄 하드포크 횟수</span>
+                    <span class="record-value" id="recordForks">0</span>
+                </div>
+                <div class="record-item">
+                    <span>🏆 달성 업적</span>
+                    <span class="record-value" id="recordAchievements">0</span>
                 </div>
             </div>
         </div>
@@ -922,7 +1095,18 @@
             lastSave: Date.now(),
             sessionStart: Date.now(),
             highestCoins: 0,
-            soundEnabled: true
+            soundEnabled: true,
+            // New systems
+            securityLevel: 0,
+            securityUpgrades: {},
+            stakedCoins: {},
+            stakingStartTime: {},
+            defiPools: {},
+            whaleAlertActive: false,
+            currentEvent: null,
+            eventEndTime: 0,
+            totalHackLoss: 0,
+            hackDefended: 0
         };
 
         let buyAmount = 1;
@@ -939,6 +1123,30 @@
             doge: { usd: 0.15, usd_24h_change: 0 }
         };
         let lastApiCall = 0;
+
+        // ==================== UNLOCK CONDITIONS ====================
+        const UNLOCK_CONDITIONS = {
+            events: { type: 'usd', value: 100000, name: '시장 이벤트', desc: '$100K 환전 후 해금' },
+            staking: { type: 'fork', value: 1, name: '스테이킹', desc: '첫 하드포크 후 해금' },
+            security: { type: 'fork', value: 1, name: '보안 시스템', desc: '첫 하드포크 후 해금' },
+            defi: { type: 'fork', value: 3, name: 'DeFi', desc: '3회 하드포크 후 해금' }
+        };
+
+        function isUnlocked(feature) {
+            const cond = UNLOCK_CONDITIONS[feature];
+            if (!cond) return true;
+            if (cond.type === 'usd') return gameState.totalUSD >= cond.value;
+            if (cond.type === 'fork') return gameState.forkCount >= cond.value;
+            return false;
+        }
+
+        function getUnlockProgress(feature) {
+            const cond = UNLOCK_CONDITIONS[feature];
+            if (!cond) return 100;
+            if (cond.type === 'usd') return Math.min(100, (gameState.totalUSD / cond.value) * 100);
+            if (cond.type === 'fork') return Math.min(100, (gameState.forkCount / cond.value) * 100);
+            return 0;
+        }
 
         // ==================== COIN DATA ====================
         const coinTypes = {
@@ -974,18 +1182,64 @@
             { id: 'global2', name: '양자 가속', icon: '🚀', price: 1000000000, desc: '모든 해시레이트 2배', globalMultiplier: 2 }
         ];
 
+        // ==================== ACHIEVEMENTS (10x rewards!) ====================
         const achievements = [
-            { id: 'click10', name: '첫 발걸음', icon: '👆', desc: '10번 클릭', condition: () => gameState.totalClicks >= 10, reward: 10 },
-            { id: 'click100', name: '열정 채굴러', icon: '⛏️', desc: '100번 클릭', condition: () => gameState.totalClicks >= 100, reward: 50 },
-            { id: 'click1000', name: '채굴 마스터', icon: '💎', desc: '1,000번 클릭', condition: () => gameState.totalClicks >= 1000, reward: 200 },
-            { id: 'coin1', name: '첫 코인', icon: '🪙', desc: '1 BTC 채굴', condition: () => gameState.totalMined >= 1, reward: 100 },
-            { id: 'coin100', name: '비트코인 보유자', icon: '₿', desc: '100 BTC 채굴', condition: () => gameState.totalMined >= 100, reward: 1000 },
-            { id: 'usd1m', name: '백만장자', icon: '💵', desc: '$1,000,000 환전', condition: () => gameState.totalUSD >= 1000000, reward: 5000 },
-            { id: 'usd1b', name: '억만장자', icon: '💰', desc: '$1,000,000,000 환전', condition: () => gameState.totalUSD >= 1000000000, reward: 50000 },
-            { id: 'fork1', name: '첫 하드포크', icon: '🔄', desc: '첫 하드포크 실행', condition: () => gameState.forkCount >= 1, reward: 500 },
-            { id: 'fork5', name: '포크 마스터', icon: '🌐', desc: '5번 하드포크', condition: () => gameState.forkCount >= 5, reward: 2000 },
-            { id: 'miner10', name: '채굴 시작', icon: '🏭', desc: '채굴기 10개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 10, reward: 100 },
-            { id: 'miner100', name: '채굴 제국', icon: '👑', desc: '채굴기 100개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 100, reward: 1000 }
+            { id: 'click10', name: '첫 발걸음', icon: '👆', desc: '10번 클릭', condition: () => gameState.totalClicks >= 10, reward: 100 },
+            { id: 'click100', name: '열정 채굴러', icon: '⛏️', desc: '100번 클릭', condition: () => gameState.totalClicks >= 100, reward: 500 },
+            { id: 'click1000', name: '채굴 마스터', icon: '💎', desc: '1,000번 클릭', condition: () => gameState.totalClicks >= 1000, reward: 2000 },
+            { id: 'click10000', name: '전설의 채굴러', icon: '👑', desc: '10,000번 클릭', condition: () => gameState.totalClicks >= 10000, reward: 10000 },
+            { id: 'coin1', name: '첫 코인', icon: '🪙', desc: '1 BTC 채굴', condition: () => gameState.totalMined >= 1, reward: 1000 },
+            { id: 'coin100', name: '비트코인 보유자', icon: '₿', desc: '100 BTC 채굴', condition: () => gameState.totalMined >= 100, reward: 10000 },
+            { id: 'coin1000', name: '코인 왕', icon: '🏆', desc: '1,000 BTC 채굴', condition: () => gameState.totalMined >= 1000, reward: 50000 },
+            { id: 'usd100k', name: '성공의 시작', icon: '💵', desc: '$100,000 환전', condition: () => gameState.totalUSD >= 100000, reward: 10000 },
+            { id: 'usd1m', name: '백만장자', icon: '💰', desc: '$1,000,000 환전', condition: () => gameState.totalUSD >= 1000000, reward: 50000 },
+            { id: 'usd100m', name: '억만장자', icon: '🤑', desc: '$100,000,000 환전', condition: () => gameState.totalUSD >= 100000000, reward: 500000 },
+            { id: 'usd1b', name: '재벌', icon: '🏦', desc: '$1,000,000,000 환전', condition: () => gameState.totalUSD >= 1000000000, reward: 5000000 },
+            { id: 'fork1', name: '첫 하드포크', icon: '🔄', desc: '첫 하드포크 실행', condition: () => gameState.forkCount >= 1, reward: 5000 },
+            { id: 'fork5', name: '포크 마스터', icon: '🌐', desc: '5번 하드포크', condition: () => gameState.forkCount >= 5, reward: 20000 },
+            { id: 'fork10', name: '블록체인 신', icon: '⚡', desc: '10번 하드포크', condition: () => gameState.forkCount >= 10, reward: 100000 },
+            { id: 'miner10', name: '채굴 시작', icon: '🏭', desc: '채굴기 10개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 10, reward: 1000 },
+            { id: 'miner100', name: '채굴 제국', icon: '👑', desc: '채굴기 100개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 100, reward: 10000 },
+            { id: 'miner500', name: '채굴 군주', icon: '🌟', desc: '채굴기 500개 보유', condition: () => Object.values(gameState.miners).reduce((a,b) => a+b, 0) >= 500, reward: 50000 },
+            { id: 'security50', name: '보안 전문가', icon: '🔒', desc: '보안 50% 달성', condition: () => gameState.securityLevel >= 50, reward: 20000 },
+            { id: 'security100', name: '철벽 방어', icon: '🛡️', desc: '보안 100% 달성', condition: () => gameState.securityLevel >= 100, reward: 100000 },
+            { id: 'defend10', name: '해커 사냥꾼', icon: '🎯', desc: '해킹 10회 방어', condition: () => gameState.hackDefended >= 10, reward: 30000 }
+        ];
+
+        // ==================== MARKET EVENTS ====================
+        const marketEvents = [
+            { id: 'bull', name: '🐂 강세장!', desc: '모든 코인 가격 +30%', effect: { priceMultiplier: 1.3 }, duration: 60 },
+            { id: 'bear', name: '🐻 약세장!', desc: '모든 코인 가격 -20%', effect: { priceMultiplier: 0.8 }, duration: 60 },
+            { id: 'elon', name: '🚀 일론 트윗!', desc: 'DOGE 가격 2배!', effect: { coinMultiplier: { doge: 2 } }, duration: 45 },
+            { id: 'halving', name: '⛏️ 반감기!', desc: '채굴량 50%, 가격 +50%', effect: { miningMultiplier: 0.5, priceMultiplier: 1.5 }, duration: 90 },
+            { id: 'etf', name: '📈 ETF 승인!', desc: 'BTC 가격 +40%', effect: { coinMultiplier: { btc: 1.4 } }, duration: 60 },
+            { id: 'regulation', name: '⚖️ 규제 뉴스', desc: '모든 가격 -15%', effect: { priceMultiplier: 0.85 }, duration: 45 },
+            { id: 'adoption', name: '🏪 대량 채택!', desc: '모든 해시레이트 +50%', effect: { hashMultiplier: 1.5 }, duration: 60 },
+            { id: 'fomo', name: '😱 FOMO 발생!', desc: '클릭 보상 3배!', effect: { clickMultiplier: 3 }, duration: 30 }
+        ];
+
+        // ==================== STAKING OPTIONS ====================
+        const stakingOptions = [
+            { id: 'flex', name: '유동 스테이킹', icon: '💧', apy: 5, lockDays: 0, desc: '언제든 출금 가능' },
+            { id: 'week', name: '주간 스테이킹', icon: '📅', apy: 15, lockDays: 7, desc: '7일 잠금' },
+            { id: 'month', name: '월간 스테이킹', icon: '🗓️', apy: 30, lockDays: 30, desc: '30일 잠금' },
+            { id: 'year', name: '연간 스테이킹', icon: '🎯', apy: 100, lockDays: 365, desc: '365일 잠금, 최고 수익!' }
+        ];
+
+        // ==================== SECURITY UPGRADES ====================
+        const securityUpgrades = [
+            { id: 'firewall', name: '방화벽', icon: '🔥', price: 5000, security: 10, desc: '기본 보안 강화' },
+            { id: '2fa', name: '2단계 인증', icon: '📱', price: 20000, security: 15, desc: '계정 보호 강화' },
+            { id: 'coldwallet', name: '콜드월렛', icon: '❄️', price: 100000, security: 25, desc: '오프라인 보관' },
+            { id: 'multisig', name: '멀티시그', icon: '🔑', price: 500000, security: 20, desc: '다중 서명 필요' },
+            { id: 'insurance', name: '해킹 보험', icon: '🛡️', price: 2000000, security: 30, desc: '손실 50% 보상' }
+        ];
+
+        // ==================== DEFI POOLS ====================
+        const defiPools = [
+            { id: 'liquidity', name: '유동성 풀', icon: '💧', minDeposit: 10000, dailyReturn: 0.5, risk: 10, desc: '안정적인 수익' },
+            { id: 'yield', name: '이자 농사', icon: '🌾', minDeposit: 50000, dailyReturn: 2, risk: 25, desc: '높은 수익, 중간 위험' },
+            { id: 'leverage', name: '레버리지 풀', icon: '📈', minDeposit: 100000, dailyReturn: 5, risk: 50, desc: '고위험 고수익!' }
         ];
 
         // ==================== AUDIO ====================
@@ -1007,7 +1261,9 @@
                 buy: { freq: 800, duration: 0.1 },
                 achievement: { freq: 1000, duration: 0.2 },
                 sell: { freq: 1200, duration: 0.15 },
-                block: { freq: 1500, duration: 0.3 }
+                block: { freq: 1500, duration: 0.3 },
+                hack: { freq: 200, duration: 0.5 },
+                whale: { freq: 400, duration: 0.3 }
             };
 
             const sound = sounds[type] || sounds.click;
@@ -1051,7 +1307,7 @@
 
         // ==================== REAL-TIME PRICE API ====================
         const COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,dogecoin&vs_currencies=usd&include_24hr_change=true';
-        const API_COOLDOWN = 60000; // 1분마다 API 호출
+        const API_COOLDOWN = 60000;
 
         async function fetchRealPrices() {
             const now = Date.now();
@@ -1065,27 +1321,16 @@
                 const data = await response.json();
 
                 realPrices = {
-                    btc: {
-                        usd: data.bitcoin.usd,
-                        usd_24h_change: data.bitcoin.usd_24h_change || 0
-                    },
-                    eth: {
-                        usd: data.ethereum.usd,
-                        usd_24h_change: data.ethereum.usd_24h_change || 0
-                    },
-                    doge: {
-                        usd: data.dogecoin.usd,
-                        usd_24h_change: data.dogecoin.usd_24h_change || 0
-                    }
+                    btc: { usd: data.bitcoin.usd, usd_24h_change: data.bitcoin.usd_24h_change || 0 },
+                    eth: { usd: data.ethereum.usd, usd_24h_change: data.ethereum.usd_24h_change || 0 },
+                    doge: { usd: data.dogecoin.usd, usd_24h_change: data.dogecoin.usd_24h_change || 0 }
                 };
 
                 isLivePrice = true;
                 updateLiveIndicator(true);
-                renderCoinSelector(); // 코인 선택기 가격 업데이트
-                console.log('✅ 실시간 시세 업데이트:', realPrices);
+                renderCoinSelector();
 
             } catch (error) {
-                console.warn('⚠️ API 호출 실패, 시뮬레이션 모드:', error.message);
                 isLivePrice = false;
                 updateLiveIndicator(false);
             }
@@ -1100,25 +1345,33 @@
                 status.textContent = '실시간';
             } else {
                 indicator.className = 'live-indicator offline';
-                status.textContent = '시뮬레이션';
+                status.textContent = '시뮬';
             }
         }
 
         function updatePrice() {
             const coin = coinTypes[gameState.selectedCoin];
+            let eventMultiplier = 1;
+
+            // Apply event effects
+            if (gameState.currentEvent && Date.now() < gameState.eventEndTime) {
+                const event = marketEvents.find(e => e.id === gameState.currentEvent);
+                if (event?.effect.priceMultiplier) eventMultiplier *= event.effect.priceMultiplier;
+                if (event?.effect.coinMultiplier?.[gameState.selectedCoin]) {
+                    eventMultiplier *= event.effect.coinMultiplier[gameState.selectedCoin];
+                }
+            }
 
             if (isLivePrice) {
-                // 실시간 가격 사용
-                currentPrice = realPrices[gameState.selectedCoin].usd;
+                currentPrice = realPrices[gameState.selectedCoin].usd * eventMultiplier;
                 priceChange24h = realPrices[gameState.selectedCoin].usd_24h_change;
             } else {
-                // 시뮬레이션 폴백
                 const change = (Math.random() - 0.5) * coin.volatility * currentPrice;
                 if (Math.random() < 0.1) priceDirection *= -1;
                 currentPrice += change + (priceDirection * coin.volatility * currentPrice * 0.1);
                 currentPrice = Math.max(coin.basePrice * 0.3, Math.min(coin.basePrice * 3, currentPrice));
+                currentPrice *= eventMultiplier;
 
-                // 시뮬레이션에서 24h 변동률 계산
                 if (priceHistory.length > 0) {
                     const oldPrice = priceHistory[0];
                     priceChange24h = ((currentPrice - oldPrice) / oldPrice) * 100;
@@ -1163,7 +1416,6 @@
             setTimeout(() => popup.remove(), 2000);
         }
 
-        // ==================== BLOCK FOUND EVENT ====================
         function showBlockFound(amount) {
             const block = document.createElement('div');
             block.className = 'block-found';
@@ -1201,10 +1453,17 @@
 
         function calculateHashRate() {
             let total = 0;
+            let eventMultiplier = 1;
+
+            if (gameState.currentEvent && Date.now() < gameState.eventEndTime) {
+                const event = marketEvents.find(e => e.id === gameState.currentEvent);
+                if (event?.effect.hashMultiplier) eventMultiplier = event.effect.hashMultiplier;
+            }
+
             miners.forEach(miner => {
                 const owned = gameState.miners[miner.id] || 0;
                 const multiplier = minerMultipliers[miner.id] || 1;
-                total += owned * miner.baseHash * multiplier * globalMultiplier;
+                total += owned * miner.baseHash * multiplier * globalMultiplier * eventMultiplier;
             });
 
             const tokenBonus = 1 + (gameState.tokens * 0.01);
@@ -1218,10 +1477,27 @@
             return Math.floor(Math.sqrt(gameState.totalUSD / 1000000));
         }
 
+        function calculateSecurityLevel() {
+            let level = 0;
+            securityUpgrades.forEach(upgrade => {
+                if (gameState.securityUpgrades[upgrade.id]) {
+                    level += upgrade.security;
+                }
+            });
+            return Math.min(100, level);
+        }
+
         // ==================== GAME ACTIONS ====================
         function handleClick(e) {
+            let clickMultiplier = 1;
+
+            if (gameState.currentEvent && Date.now() < gameState.eventEndTime) {
+                const event = marketEvents.find(ev => ev.id === gameState.currentEvent);
+                if (event?.effect.clickMultiplier) clickMultiplier = event.effect.clickMultiplier;
+            }
+
             const tokenBonus = 1 + (gameState.tokens * 0.01);
-            const earned = gameState.hashPower * tokenBonus * 0.00001; // Convert hash to coin
+            const earned = gameState.hashPower * tokenBonus * 0.00001 * clickMultiplier;
 
             gameState.coins += earned;
             gameState.totalMined += earned;
@@ -1300,12 +1576,12 @@
             playSound('sell');
             showBonusPopup(`+${formatUSD(value)} 환전 완료!`);
             checkAchievements();
+            updateTabStates();
             updateUI();
         }
 
         function selectCoin(coinId) {
             gameState.selectedCoin = coinId;
-            // 실시간 가격이 있으면 사용, 없으면 기본값
             currentPrice = isLivePrice ? realPrices[coinId].usd : coinTypes[coinId].basePrice;
             priceChange24h = isLivePrice ? realPrices[coinId].usd_24h_change : 0;
             priceHistory = [currentPrice];
@@ -1333,10 +1609,202 @@
 
             gameState.hashRate = calculateHashRate();
             playSound('achievement');
+            showBonusPopup(`🔄 하드포크 완료! +${gain} 토큰`);
             checkAchievements();
+            updateTabStates();
             fullRender();
             updateUI();
             saveGame();
+        }
+
+        // ==================== STAKING SYSTEM ====================
+        function stakeCoins(optionId, amount) {
+            if (gameState.coins < amount) return;
+
+            gameState.coins -= amount;
+            gameState.stakedCoins[optionId] = (gameState.stakedCoins[optionId] || 0) + amount;
+            gameState.stakingStartTime[optionId] = Date.now();
+
+            playSound('buy');
+            showBonusPopup(`💎 ${formatNumber(amount)} ${coinTypes[gameState.selectedCoin].symbol} 스테이킹!`);
+            renderStaking();
+            updateUI();
+        }
+
+        function unstakeCoins(optionId) {
+            const option = stakingOptions.find(o => o.id === optionId);
+            const staked = gameState.stakedCoins[optionId] || 0;
+            if (staked <= 0) return;
+
+            const startTime = gameState.stakingStartTime[optionId] || Date.now();
+            const daysStaked = (Date.now() - startTime) / (1000 * 60 * 60 * 24);
+
+            if (option.lockDays > 0 && daysStaked < option.lockDays) {
+                if (!confirm(`아직 잠금 기간이 끝나지 않았습니다.\n조기 출금 시 보상 없이 원금만 돌려받습니다.\n계속하시겠습니까?`)) return;
+                gameState.coins += staked;
+            } else {
+                const reward = staked * (option.apy / 100) * (daysStaked / 365);
+                gameState.coins += staked + reward;
+                showBonusPopup(`💰 +${formatNumber(reward)} ${coinTypes[gameState.selectedCoin].symbol} 이자!`);
+            }
+
+            gameState.stakedCoins[optionId] = 0;
+            delete gameState.stakingStartTime[optionId];
+
+            playSound('sell');
+            renderStaking();
+            updateUI();
+        }
+
+        // ==================== SECURITY SYSTEM ====================
+        function buySecurityUpgrade(upgradeId) {
+            const upgrade = securityUpgrades.find(u => u.id === upgradeId);
+            if (gameState.securityUpgrades[upgradeId]) return;
+            if (gameState.usd < upgrade.price) return;
+
+            gameState.usd -= upgrade.price;
+            gameState.securityUpgrades[upgradeId] = true;
+            gameState.securityLevel = calculateSecurityLevel();
+
+            playSound('buy');
+            showBonusPopup(`🔐 보안 +${upgrade.security}%!`);
+            checkAchievements();
+            renderSecurity();
+            updateUI();
+        }
+
+        function triggerHackAttempt() {
+            if (!isUnlocked('security')) return;
+            if (gameState.coins <= 0) return;
+            if (Math.random() > 0.02) return; // 2% chance per tick
+
+            const hackPower = Math.random() * 100;
+            const defended = hackPower < gameState.securityLevel;
+
+            if (defended) {
+                gameState.hackDefended++;
+                showBonusPopup(`🛡️ 해킹 방어 성공!`);
+                playSound('achievement');
+            } else {
+                const lossPercent = Math.min(50, (hackPower - gameState.securityLevel)) / 100;
+                let loss = gameState.coins * lossPercent;
+
+                // Insurance reduces loss by 50%
+                if (gameState.securityUpgrades['insurance']) {
+                    loss *= 0.5;
+                }
+
+                gameState.coins -= loss;
+                gameState.totalHackLoss += loss;
+
+                document.getElementById('hackDamage').textContent = `-${formatNumber(loss)} ${coinTypes[gameState.selectedCoin].symbol}`;
+                document.getElementById('hackMessage').textContent = `해커가 ${(lossPercent * 100).toFixed(0)}%의 코인을 훔쳤습니다!`;
+                document.getElementById('hackPopup').classList.remove('hidden');
+                playSound('hack');
+            }
+
+            checkAchievements();
+        }
+
+        function closeHackPopup() {
+            document.getElementById('hackPopup').classList.add('hidden');
+        }
+
+        // ==================== DEFI SYSTEM ====================
+        function depositDeFi(poolId, amount) {
+            const pool = defiPools.find(p => p.id === poolId);
+            if (gameState.usd < amount || amount < pool.minDeposit) return;
+
+            gameState.usd -= amount;
+            gameState.defiPools[poolId] = {
+                amount: (gameState.defiPools[poolId]?.amount || 0) + amount,
+                startTime: Date.now()
+            };
+
+            playSound('buy');
+            showBonusPopup(`🏦 ${formatUSD(amount)} DeFi 예치!`);
+            renderDeFi();
+            updateUI();
+        }
+
+        function withdrawDeFi(poolId) {
+            const pool = defiPools.find(p => p.id === poolId);
+            const deposit = gameState.defiPools[poolId];
+            if (!deposit || deposit.amount <= 0) return;
+
+            const daysDeposited = (Date.now() - deposit.startTime) / (1000 * 60 * 60 * 24);
+            const reward = deposit.amount * (pool.dailyReturn / 100) * daysDeposited;
+
+            // Risk check
+            if (Math.random() * 100 < pool.risk) {
+                const lossPercent = Math.random() * 0.3;
+                const loss = deposit.amount * lossPercent;
+                gameState.usd += deposit.amount - loss;
+                showBonusPopup(`⚠️ 손실 발생! -${formatUSD(loss)}`);
+            } else {
+                gameState.usd += deposit.amount + reward;
+                showBonusPopup(`💰 +${formatUSD(reward)} 수익!`);
+            }
+
+            gameState.defiPools[poolId] = { amount: 0, startTime: 0 };
+            playSound('sell');
+            renderDeFi();
+            updateUI();
+        }
+
+        // ==================== MARKET EVENTS ====================
+        function triggerMarketEvent() {
+            if (!isUnlocked('events')) return;
+            if (gameState.currentEvent && Date.now() < gameState.eventEndTime) return;
+            if (Math.random() > 0.01) return; // 1% chance per tick
+
+            const event = marketEvents[Math.floor(Math.random() * marketEvents.length)];
+            gameState.currentEvent = event.id;
+            gameState.eventEndTime = Date.now() + (event.duration * 1000);
+
+            showBonusPopup(`${event.name}`);
+            playSound('achievement');
+            renderEvents();
+        }
+
+        function triggerWhaleAlert() {
+            if (!isUnlocked('events')) return;
+            if (Math.random() > 0.005) return; // 0.5% chance
+
+            gameState.whaleAlertActive = true;
+            playSound('whale');
+
+            setTimeout(() => {
+                if (gameState.whaleAlertActive) {
+                    // Whale caused price movement
+                    const direction = Math.random() > 0.5 ? 1.2 : 0.8;
+                    currentPrice *= direction;
+                    gameState.whaleAlertActive = false;
+                    renderEvents();
+                }
+            }, 10000);
+
+            renderEvents();
+        }
+
+        function actOnWhale(action) {
+            if (!gameState.whaleAlertActive) return;
+
+            const direction = Math.random() > 0.5;
+            const correct = (action === 'buy' && direction) || (action === 'sell' && !direction);
+
+            if (correct) {
+                const bonus = gameState.coins * 0.1;
+                gameState.coins += bonus;
+                showBonusPopup(`🐋 예측 성공! +${formatNumber(bonus)}`);
+            } else {
+                showBonusPopup(`😅 예측 실패!`);
+            }
+
+            gameState.whaleAlertActive = false;
+            playSound('sell');
+            renderEvents();
+            updateUI();
         }
 
         // ==================== ACHIEVEMENTS ====================
@@ -1347,7 +1815,7 @@
                     gameState.achievements[ach.id] = true;
                     gameState.usd += ach.reward;
                     newAchievement = true;
-                    showBonusPopup(`🏆 ${ach.name} 달성! +$${ach.reward}`);
+                    showBonusPopup(`🏆 ${ach.name} 달성! +${formatUSD(ach.reward)}`);
                     playSound('achievement');
                 }
             });
@@ -1357,6 +1825,11 @@
         function toggleSound() {
             gameState.soundEnabled = !gameState.soundEnabled;
             document.getElementById('soundToggle').textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+        }
+
+        function showStats() {
+            const statsArea = document.getElementById('statsArea');
+            statsArea.style.display = statsArea.style.display === 'none' ? 'block' : 'none';
         }
 
         // ==================== CHART ====================
@@ -1380,7 +1853,6 @@
             const range = max - min || 1;
             const step = width / (priceHistory.length - 1);
 
-            // Gradient fill
             ctx.beginPath();
             const coin = coinTypes[gameState.selectedCoin];
 
@@ -1407,6 +1879,40 @@
         }
 
         // ==================== RENDERING ====================
+        function updateTabStates() {
+            ['events', 'staking', 'security', 'defi'].forEach(feature => {
+                const tab = document.getElementById(feature + 'Tab');
+                if (tab) {
+                    if (isUnlocked(feature)) {
+                        tab.classList.remove('locked');
+                        tab.innerHTML = tab.innerHTML.split('<span')[0];
+                    } else {
+                        tab.classList.add('locked');
+                        const cond = UNLOCK_CONDITIONS[feature];
+                        if (!tab.innerHTML.includes('unlock-hint')) {
+                            tab.innerHTML += `<span class="unlock-hint">🔒</span>`;
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderLockedPanel(feature) {
+            const cond = UNLOCK_CONDITIONS[feature];
+            const progress = getUnlockProgress(feature);
+            return `
+                <div class="locked-panel">
+                    <div class="lock-icon">🔒</div>
+                    <h3>${cond.name}</h3>
+                    <p>${cond.desc}</p>
+                    <div class="unlock-progress">
+                        <div class="unlock-progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <p>${progress.toFixed(1)}% 진행</p>
+                </div>
+            `;
+        }
+
         function renderCoinSelector() {
             const container = document.getElementById('coinSelector');
             container.innerHTML = Object.entries(coinTypes).map(([id, coin]) => {
@@ -1484,21 +1990,233 @@
         function renderAchievements() {
             const container = document.getElementById('achievementList');
             container.innerHTML = achievements.map(ach => {
-                const isUnlocked = gameState.achievements[ach.id];
+                const isUnlockedAch = gameState.achievements[ach.id];
                 return `
-                    <div class="achievement-item ${isUnlocked ? 'unlocked' : ''}">
+                    <div class="achievement-item ${isUnlockedAch ? 'unlocked' : ''}">
                         <div class="miner-info">
                             <div class="achievement-icon">${ach.icon}</div>
                             <div class="miner-details">
                                 <h3>${ach.name}</h3>
                                 <p>${ach.desc}</p>
-                                <p class="achievement-reward">보상: +$${ach.reward}</p>
+                                <p class="achievement-reward">보상: +${formatUSD(ach.reward)}</p>
                             </div>
                         </div>
-                        <div>${isUnlocked ? '✅' : '🔒'}</div>
+                        <div>${isUnlockedAch ? '✅' : '🔒'}</div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function renderEvents() {
+            const container = document.getElementById('eventsContent');
+
+            if (!isUnlocked('events')) {
+                container.innerHTML = renderLockedPanel('events');
+                return;
+            }
+
+            let content = '<h3 style="margin-bottom: 20px;">📰 시장 이벤트</h3>';
+
+            // Current event
+            if (gameState.currentEvent && Date.now() < gameState.eventEndTime) {
+                const event = marketEvents.find(e => e.id === gameState.currentEvent);
+                const remaining = Math.ceil((gameState.eventEndTime - Date.now()) / 1000);
+                content += `
+                    <div class="event-banner">
+                        ${event.name}<br>
+                        <small>${event.desc}</small><br>
+                        <span>⏰ ${remaining}초 남음</span>
+                    </div>
+                `;
+            } else {
+                content += `<p style="color: #888; text-align: center; margin: 20px 0;">이벤트 대기 중...</p>`;
+            }
+
+            // Whale alert
+            if (gameState.whaleAlertActive) {
+                content += `
+                    <div class="whale-alert">
+                        <h3>🐋 고래 경보!</h3>
+                        <p>대량 거래가 감지되었습니다! 방향을 예측하세요!</p>
+                        <div style="margin-top: 15px;">
+                            <button class="buy-btn" onclick="actOnWhale('buy')" style="margin-right: 10px;">📈 매수</button>
+                            <button class="buy-btn" onclick="actOnWhale('sell')" style="background: linear-gradient(145deg, #ff6b6b, #ff4444);">📉 매도</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Event history
+            content += `
+                <div style="margin-top: 20px;">
+                    <h4>📊 이벤트 종류</h4>
+                    ${marketEvents.map(e => `
+                        <div class="feature-item" style="padding: 10px;">
+                            <span>${e.name}</span>
+                            <span style="color: #888; font-size: 0.9em;">${e.desc}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            container.innerHTML = content;
+        }
+
+        function renderStaking() {
+            const container = document.getElementById('stakingContent');
+
+            if (!isUnlocked('staking')) {
+                container.innerHTML = renderLockedPanel('staking');
+                return;
+            }
+
+            let content = '<h3 style="margin-bottom: 20px;">💎 스테이킹</h3>';
+
+            stakingOptions.forEach(option => {
+                const staked = gameState.stakedCoins[option.id] || 0;
+                const startTime = gameState.stakingStartTime[option.id];
+                const daysStaked = startTime ? (Date.now() - startTime) / (1000 * 60 * 60 * 24) : 0;
+                const currentReward = staked * (option.apy / 100) * (daysStaked / 365);
+                const canUnstake = staked > 0 && (option.lockDays === 0 || daysStaked >= option.lockDays);
+
+                content += `
+                    <div class="staking-item ${staked > 0 ? 'active' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <h4>${option.icon} ${option.name}</h4>
+                                <p style="color: #888;">${option.desc}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #00ff88; font-size: 1.5em;">${option.apy}% APY</div>
+                            </div>
+                        </div>
+                        ${staked > 0 ? `
+                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                                <p>스테이킹: ${formatNumber(staked)} ${coinTypes[gameState.selectedCoin].symbol}</p>
+                                <p style="color: #00ff88;">예상 보상: +${formatNumber(currentReward)} ${coinTypes[gameState.selectedCoin].symbol}</p>
+                                <p style="color: #888;">기간: ${daysStaked.toFixed(2)}일</p>
+                            </div>
+                            <button class="buy-btn" onclick="unstakeCoins('${option.id}')" ${!canUnstake ? 'style="background: #555;"' : ''}>
+                                ${canUnstake ? '출금하기' : `${(option.lockDays - daysStaked).toFixed(1)}일 남음`}
+                            </button>
+                        ` : `
+                            <div style="display: flex; gap: 10px;">
+                                <button class="buy-btn" onclick="stakeCoins('${option.id}', gameState.coins * 0.25)" ${gameState.coins <= 0 ? 'disabled' : ''}>25%</button>
+                                <button class="buy-btn" onclick="stakeCoins('${option.id}', gameState.coins * 0.5)" ${gameState.coins <= 0 ? 'disabled' : ''}>50%</button>
+                                <button class="buy-btn" onclick="stakeCoins('${option.id}', gameState.coins)" ${gameState.coins <= 0 ? 'disabled' : ''}>전액</button>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = content;
+        }
+
+        function renderSecurity() {
+            const container = document.getElementById('securityContent');
+
+            if (!isUnlocked('security')) {
+                container.innerHTML = renderLockedPanel('security');
+                return;
+            }
+
+            const secLevel = calculateSecurityLevel();
+            let content = `
+                <h3 style="margin-bottom: 20px;">🔐 보안 시스템</h3>
+                <div class="security-status ${secLevel < 30 ? 'danger' : ''}">
+                    <span style="font-size: 2em;">🛡️</span>
+                    <div>
+                        <h4>보안 레벨: ${secLevel}%</h4>
+                        <p style="color: ${secLevel < 30 ? '#ff4444' : secLevel < 70 ? '#ffaa00' : '#00ff88'};">
+                            ${secLevel < 30 ? '위험! 해킹에 취약합니다.' : secLevel < 70 ? '보통. 추가 보안 권장.' : '안전! 잘 보호되고 있습니다.'}
+                        </p>
+                    </div>
+                </div>
+                <div style="margin: 20px 0;">
+                    <p>총 해킹 손실: ${formatNumber(gameState.totalHackLoss)} ${coinTypes[gameState.selectedCoin].symbol}</p>
+                    <p>방어 성공: ${gameState.hackDefended}회</p>
+                </div>
+                <h4 style="margin-bottom: 15px;">🔧 보안 업그레이드</h4>
+            `;
+
+            securityUpgrades.forEach(upgrade => {
+                const owned = gameState.securityUpgrades[upgrade.id];
+                const canBuy = !owned && gameState.usd >= upgrade.price;
+
+                content += `
+                    <div class="feature-item ${owned ? 'unlocked' : ''}">
+                        <div class="miner-info">
+                            <div class="miner-icon">${upgrade.icon}</div>
+                            <div class="miner-details">
+                                <h3>${upgrade.name}</h3>
+                                <p>${upgrade.desc}</p>
+                                <p style="color: #00ff88;">+${upgrade.security}% 보안</p>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="buy-btn" ${!canBuy ? 'disabled' : ''} onclick="buySecurityUpgrade('${upgrade.id}')">
+                                ${owned ? '✅ 활성화' : formatUSD(upgrade.price)}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = content;
+        }
+
+        function renderDeFi() {
+            const container = document.getElementById('defiContent');
+
+            if (!isUnlocked('defi')) {
+                container.innerHTML = renderLockedPanel('defi');
+                return;
+            }
+
+            let content = '<h3 style="margin-bottom: 20px;">🏦 DeFi 풀</h3>';
+
+            defiPools.forEach(pool => {
+                const deposit = gameState.defiPools[pool.id];
+                const deposited = deposit?.amount || 0;
+                const daysDeposited = deposit?.startTime ? (Date.now() - deposit.startTime) / (1000 * 60 * 60 * 24) : 0;
+                const currentReward = deposited * (pool.dailyReturn / 100) * daysDeposited;
+
+                content += `
+                    <div class="defi-pool">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <div>
+                                <h4>${pool.icon} ${pool.name}</h4>
+                                <p style="color: #888;">${pool.desc}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: #00ff88; font-size: 1.3em;">${pool.dailyReturn}%/일</div>
+                                <div style="color: #ff6b6b;">위험: ${pool.risk}%</div>
+                            </div>
+                        </div>
+                        <p style="color: #888; margin-bottom: 10px;">최소 예치: ${formatUSD(pool.minDeposit)}</p>
+                        ${deposited > 0 ? `
+                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                                <p>예치금: ${formatUSD(deposited)}</p>
+                                <p style="color: #00ff88;">예상 수익: +${formatUSD(currentReward)}</p>
+                                <p style="color: #888;">기간: ${daysDeposited.toFixed(2)}일</p>
+                            </div>
+                            <button class="buy-btn" onclick="withdrawDeFi('${pool.id}')">출금 (위험: ${pool.risk}%)</button>
+                        ` : `
+                            <div style="display: flex; gap: 10px;">
+                                <button class="buy-btn" onclick="depositDeFi('${pool.id}', ${pool.minDeposit})" ${gameState.usd < pool.minDeposit ? 'disabled' : ''}>
+                                    ${formatUSD(pool.minDeposit)}
+                                </button>
+                                <button class="buy-btn" onclick="depositDeFi('${pool.id}', ${pool.minDeposit * 5})" ${gameState.usd < pool.minDeposit * 5 ? 'disabled' : ''}>
+                                    ${formatUSD(pool.minDeposit * 5)}
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = content;
         }
 
         function fullRender() {
@@ -1506,27 +2224,11 @@
             renderMiners();
             renderUpgrades();
             renderAchievements();
-        }
-
-        function updateButtonStates() {
-            document.querySelectorAll('#minerList .buy-btn').forEach((btn, i) => {
-                const miner = miners[i];
-                if (!miner) return;
-                const amount = buyAmount === 'max' ? getMaxAffordable(miner) : buyAmount;
-                const price = getMinerPrice(miner, amount);
-                const canBuy = gameState.usd >= price && amount > 0;
-                btn.disabled = !canBuy;
-                btn.textContent = amount > 0 ? `x${amount} - ${formatUSD(price)}` : '구매 불가';
-            });
-
-            document.querySelectorAll('#upgradeList .buy-btn').forEach((btn, i) => {
-                const upgrade = upgrades[i];
-                if (!upgrade) return;
-                const purchased = gameState.upgrades[upgrade.id];
-                const canBuy = !purchased && gameState.usd >= upgrade.price;
-                btn.disabled = !canBuy || purchased;
-                btn.textContent = purchased ? '구매완료' : formatUSD(upgrade.price);
-            });
+            renderEvents();
+            renderStaking();
+            renderSecurity();
+            renderDeFi();
+            updateTabStates();
         }
 
         function updateUI() {
@@ -1537,52 +2239,38 @@
             document.getElementById('hashPower').textContent = formatNumber(gameState.hashPower);
             document.getElementById('hashRate').textContent = formatNumber(gameState.hashRate);
             document.getElementById('tokens').textContent = formatNumber(gameState.tokens);
+            document.getElementById('securityLevel').textContent = gameState.securityLevel;
 
-            // Market
             document.getElementById('marketPrice').textContent = formatNumber(currentPrice);
-            const totalValue = gameState.coins * currentPrice;
-            document.getElementById('totalUSD').textContent = formatNumber(totalValue + gameState.usd);
+            document.getElementById('totalUSD').textContent = formatNumber(gameState.usd);
 
-            // Price change indicator (24h change for live, chart change for simulation)
             const priceChangeEl = document.getElementById('priceChange');
             const displayChange = isLivePrice ? priceChange24h : (priceHistory.length > 1 ? ((currentPrice - priceHistory[0]) / priceHistory[0]) * 100 : 0);
-            const changeLabel = isLivePrice ? '24h ' : '';
-            priceChangeEl.textContent = changeLabel + (displayChange >= 0 ? '▲ +' : '▼ ') + Math.abs(displayChange).toFixed(2) + '%';
+            priceChangeEl.textContent = (displayChange >= 0 ? '▲ +' : '▼ ') + Math.abs(displayChange).toFixed(2) + '%';
             priceChangeEl.className = displayChange >= 0 ? 'price-up' : 'price-down';
 
-            // Sell value
             document.getElementById('sellValue').textContent = formatNumber(gameState.coins * currentPrice);
             document.getElementById('sellBtn').disabled = gameState.coins <= 0;
 
-            // Hashrate bar
             const maxHash = 1000000;
             const hashPercent = Math.min(100, (gameState.hashRate / maxHash) * 100);
             document.getElementById('hashrateFill').style.width = hashPercent + '%';
 
-            // Mining indicator
             const miningIndicator = document.getElementById('miningIndicator');
             miningIndicator.classList.toggle('active', gameState.hashRate > 0);
 
-            // Play time
-            const playSeconds = Math.floor((Date.now() - gameState.sessionStart) / 1000);
-            document.getElementById('playTime').textContent = formatTime(playSeconds);
-
-            // Hard Fork
             const gain = calculateForkGain();
             document.getElementById('forkGain').textContent = formatNumber(gain);
             document.getElementById('forkBonus').textContent = gameState.tokens;
             document.getElementById('forkBtn').disabled = gain <= 0;
             document.getElementById('forkReq').textContent = gain > 0 ? '하드포크 가능!' : `총 ${formatUSD(1000000)} 환전 필요`;
 
-            // Records
             document.getElementById('recordCoins').textContent = formatNumber(gameState.highestCoins) + ' ' + coin.symbol;
             document.getElementById('recordUSD').textContent = formatUSD(gameState.totalUSD);
             document.getElementById('recordClicks').textContent = formatNumber(gameState.totalClicks);
             document.getElementById('recordMined').textContent = formatNumber(gameState.totalMined) + ' ' + coin.symbol;
             document.getElementById('recordForks').textContent = gameState.forkCount;
             document.getElementById('recordAchievements').textContent = Object.keys(gameState.achievements).length + '/' + achievements.length;
-
-            updateButtonStates();
         }
 
         // ==================== GAME LOOP ====================
@@ -1592,8 +2280,14 @@
             gameState.hashRate = calculateHashRate();
 
             if (gameState.hashRate > 0) {
+                let miningMultiplier = 1;
+                if (gameState.currentEvent && Date.now() < gameState.eventEndTime) {
+                    const event = marketEvents.find(e => e.id === gameState.currentEvent);
+                    if (event?.effect.miningMultiplier) miningMultiplier = event.effect.miningMultiplier;
+                }
+
                 const tokenBonus = 1 + (gameState.tokens * 0.01);
-                const earned = (gameState.hashRate * tokenBonus * 0.00001) / 10;
+                const earned = (gameState.hashRate * tokenBonus * 0.00001 * miningMultiplier) / 10;
                 gameState.coins += earned;
                 gameState.totalMined += earned;
 
@@ -1601,7 +2295,6 @@
                     gameState.highestCoins = gameState.coins;
                 }
 
-                // Block found chance
                 blockFindChance += gameState.hashRate * 0.000001;
                 if (Math.random() < blockFindChance / 1000) {
                     const bonus = gameState.hashRate * 0.01;
@@ -1610,6 +2303,17 @@
                     showBlockFound(bonus);
                     blockFindChance = 0;
                 }
+            }
+
+            // Random events
+            triggerMarketEvent();
+            triggerWhaleAlert();
+            triggerHackAttempt();
+
+            // Clear expired event
+            if (gameState.currentEvent && Date.now() >= gameState.eventEndTime) {
+                gameState.currentEvent = null;
+                renderEvents();
             }
 
             checkAchievements();
@@ -1643,11 +2347,11 @@
 
                 document.getElementById('soundToggle').textContent = gameState.soundEnabled ? 'ON' : 'OFF';
 
-                // Initialize price for selected coin
                 currentPrice = coinTypes[gameState.selectedCoin].basePrice;
                 priceHistory = [currentPrice];
 
-                // Offline earnings
+                gameState.securityLevel = calculateSecurityLevel();
+
                 const now = Date.now();
                 const elapsed = (now - gameState.lastSave) / 1000;
 
@@ -1681,17 +2385,24 @@
         }
 
         // ==================== INITIALIZATION ====================
-        // Tabs
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+
+                // Check if locked
+                if (UNLOCK_CONDITIONS[tabName] && !isUnlocked(tabName)) {
+                    const cond = UNLOCK_CONDITIONS[tabName];
+                    showBonusPopup(`🔒 ${cond.desc}`);
+                    return;
+                }
+
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
                 tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
+                document.getElementById(tabName).classList.add('active');
             });
         });
 
-        // Buy amount
         document.querySelectorAll('.amount-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
@@ -1702,28 +2413,25 @@
             });
         });
 
-        // Click handlers
         document.getElementById('mineBtn').addEventListener('click', handleClick);
         document.getElementById('mineBtn').addEventListener('touchstart', (e) => {
             e.preventDefault();
             handleClick(e);
         });
 
-        // Load and start
         loadGame();
         gameState.hashRate = calculateHashRate();
         fullRender();
         updateUI();
 
-        // Fetch initial real prices
         fetchRealPrices();
 
-        // Game loops
         setInterval(gameLoop, 100);
         setInterval(saveGame, 30000);
         setInterval(updatePrice, 2000);
         setInterval(updateChart, 1000);
-        setInterval(fetchRealPrices, 60000); // 1분마다 실시간 시세 갱신
+        setInterval(fetchRealPrices, 60000);
+        setInterval(fullRender, 5000);
     </script>
 </body>
 </html>
