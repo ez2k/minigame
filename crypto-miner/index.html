@@ -923,7 +923,10 @@
                     <span id="priceChange" class="price-up">▲ +0%</span>
                 </div>
                 <div class="usd-value">
-                    💰 USD: $<span id="totalUSD">0</span>
+                    💎 코인가치: $<span id="coinValue">0</span>
+                </div>
+                <div class="usd-value" style="color: #f7931a;">
+                    💰 잔액: $<span id="totalUSD">0</span>
                 </div>
             </div>
             <div class="stats-row">
@@ -2242,6 +2245,7 @@
             document.getElementById('securityLevel').textContent = gameState.securityLevel;
 
             document.getElementById('marketPrice').textContent = formatNumber(currentPrice);
+            document.getElementById('coinValue').textContent = formatNumber(gameState.coins * currentPrice);
             document.getElementById('totalUSD').textContent = formatNumber(gameState.usd);
 
             const priceChangeEl = document.getElementById('priceChange');
