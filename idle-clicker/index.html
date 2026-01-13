@@ -875,9 +875,11 @@
 
         // Game loop
         function gameLoop() {
+            // 매 틱마다 생산량 재계산
+            gameState.perSecond = calculateProduction();
+
             if (gameState.perSecond > 0) {
-                const prestigeBonus = 1 + (gameState.gems * 0.01);
-                const earned = (gameState.perSecond / 10);
+                const earned = gameState.perSecond / 10; // 100ms마다 실행되므로 10으로 나눔
                 gameState.gold += earned;
                 gameState.totalGold += earned;
             }
@@ -985,6 +987,7 @@
         document.getElementById('prestigeBtn').addEventListener('click', doPrestige);
 
         loadGame();
+        gameState.perSecond = calculateProduction(); // 초기 생산량 계산
         updateUI();
 
         // Game loops
