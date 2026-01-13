@@ -870,16 +870,555 @@
         }
 
         /* Responsive */
+        /* ==================== MOBILE OPTIMIZATION ==================== */
         @media (max-width: 600px) {
-            .header h1 { font-size: 1.8em; }
-            .coin-display { font-size: 1.5em; }
-            .mine-button { width: 150px; height: 150px; }
-            .mine-button::after { font-size: 60px; }
-            .stats-row { flex-direction: column; gap: 5px; }
-            .miner-item, .upgrade-item, .feature-item { flex-direction: column; gap: 15px; text-align: center; }
-            .miner-right { text-align: center; }
-            .tab { padding: 8px 3px; font-size: 0.65em; min-width: 50px; }
-            .market-display { flex-direction: column; gap: 10px; }
+            body {
+                padding-bottom: 80px; /* Space for bottom nav */
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            /* Header - Compact Mode */
+            .header {
+                padding: 12px 0;
+                margin-bottom: 12px;
+            }
+
+            .header h1 {
+                font-size: 1.6em;
+                margin-bottom: 8px;
+            }
+
+            .coin-display {
+                font-size: 1.8em;
+                margin: 8px 0;
+                padding: 10px;
+                background: rgba(247, 147, 26, 0.1);
+                border-radius: 12px;
+                border: 1px solid rgba(247, 147, 26, 0.3);
+            }
+
+            .coin-display .amount {
+                font-size: 1.2em;
+            }
+
+            /* Market Display - Grid Layout */
+            .market-display {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                padding: 8px;
+                font-size: 0.85em;
+            }
+
+            .market-display > div {
+                padding: 8px;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 8px;
+                text-align: center;
+            }
+
+            .live-indicator {
+                grid-column: span 2;
+                justify-content: center;
+            }
+
+            .price-tag {
+                flex-direction: column;
+                gap: 2px !important;
+            }
+
+            .usd-value {
+                font-size: 0.95em;
+            }
+
+            /* Stats Row - Horizontal Scroll */
+            .stats-row {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 12px;
+                padding: 10px 0;
+                margin: 10px -12px;
+                padding-left: 12px;
+                padding-right: 12px;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .stats-row::-webkit-scrollbar {
+                display: none;
+            }
+
+            .stat {
+                flex-shrink: 0;
+                padding: 8px 12px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 20px;
+                font-size: 0.8em;
+                white-space: nowrap;
+            }
+
+            /* Hashrate Bar */
+            .hashrate-bar {
+                height: 6px;
+                margin-top: 10px;
+            }
+
+            /* Mining Button - Larger Touch Target */
+            .clicker-area {
+                padding: 20px 0;
+            }
+
+            .mine-button {
+                width: 140px;
+                height: 140px;
+                border-width: 4px;
+            }
+
+            .mine-button::after {
+                font-size: 55px;
+            }
+
+            /* Bottom Navigation Tabs */
+            .tabs {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 0;
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(180deg, rgba(10, 10, 26, 0.95) 0%, rgba(10, 10, 26, 1) 100%);
+                border-top: 1px solid rgba(0, 255, 136, 0.2);
+                border-radius: 0;
+                z-index: 1000;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+
+            .tab {
+                flex: 0 0 auto;
+                min-width: 60px;
+                padding: 12px 8px 16px;
+                border-radius: 0;
+                font-size: 0.7em;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                border-bottom: none;
+                background: transparent;
+                transition: all 0.2s ease;
+            }
+
+            .tab::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%) scaleX(0);
+                width: 30px;
+                height: 3px;
+                background: #00ff88;
+                border-radius: 0 0 3px 3px;
+                transition: transform 0.2s ease;
+            }
+
+            .tab.active::before {
+                transform: translateX(-50%) scaleX(1);
+            }
+
+            .tab.active {
+                background: rgba(0, 255, 136, 0.1);
+                color: #00ff88;
+                border-bottom: none;
+            }
+
+            .tab.locked {
+                opacity: 0.4;
+            }
+
+            .tab .unlock-hint {
+                font-size: 0.6em;
+            }
+
+            /* Panel Styles */
+            .panel {
+                border-radius: 15px;
+                padding: 12px;
+                margin-bottom: 20px;
+                min-height: auto;
+            }
+
+            /* Miner/Upgrade Items - Card Style */
+            .miner-item, .upgrade-item, .feature-item, .achievement-item {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+                padding: 16px;
+                border-radius: 16px;
+                margin-bottom: 12px;
+            }
+
+            .miner-info, .upgrade-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .miner-icon, .upgrade-icon {
+                font-size: 2.2em;
+                width: auto;
+            }
+
+            .miner-details h3 {
+                font-size: 1.1em;
+            }
+
+            .miner-details p {
+                font-size: 0.85em;
+            }
+
+            .miner-right {
+                text-align: center;
+                width: 100%;
+            }
+
+            /* Buy Buttons - Full Width */
+            .buy-btn {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 1em;
+                min-height: 48px;
+                border-radius: 12px;
+            }
+
+            /* Buy Amount Selector */
+            .buy-amount {
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 16px !important;
+                flex-wrap: wrap;
+            }
+
+            .amount-btn {
+                padding: 10px 16px;
+                font-size: 0.9em;
+                min-height: 44px;
+                border-radius: 10px;
+            }
+
+            /* Market Panel */
+            .coin-selector {
+                gap: 8px;
+            }
+
+            .coin-option {
+                min-width: calc(33% - 6px);
+                padding: 12px 8px;
+            }
+
+            .coin-option .coin-icon {
+                font-size: 1.6em;
+            }
+
+            .coin-option .coin-name {
+                font-size: 0.85em;
+            }
+
+            .coin-option .coin-price {
+                font-size: 0.75em;
+            }
+
+            .price-chart {
+                height: 150px;
+                padding: 12px;
+            }
+
+            .exchange-area {
+                flex-direction: column;
+            }
+
+            .exchange-btn {
+                padding: 16px;
+                font-size: 1.1em;
+                min-height: 54px;
+            }
+
+            /* Staking Items */
+            .staking-item {
+                padding: 16px;
+            }
+
+            .staking-item h4 {
+                font-size: 1em;
+            }
+
+            /* DeFi Pools */
+            .defi-pool {
+                padding: 16px;
+            }
+
+            /* Security Status */
+            .security-status {
+                padding: 12px;
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            /* Event Banner */
+            .event-banner {
+                padding: 12px;
+                font-size: 0.95em;
+            }
+
+            .whale-alert {
+                padding: 12px;
+            }
+
+            /* Prestige Area */
+            .prestige-area {
+                padding: 16px;
+            }
+
+            .prestige-info {
+                padding: 20px 16px;
+            }
+
+            .prestige-tokens {
+                font-size: 1.6em;
+            }
+
+            .prestige-btn {
+                width: 100%;
+                padding: 16px;
+            }
+
+            /* Settings */
+            .setting-item {
+                padding: 14px;
+            }
+
+            .setting-btn {
+                min-height: 44px;
+                padding: 12px 20px;
+            }
+
+            /* Records */
+            .record-item {
+                padding: 14px;
+            }
+
+            /* Locked Panel */
+            .locked-panel {
+                padding: 30px 16px;
+            }
+
+            .locked-panel .lock-icon {
+                font-size: 3em;
+            }
+
+            /* Popups */
+            .popup-content {
+                margin: 16px;
+                padding: 24px 16px;
+                max-width: calc(100% - 32px);
+            }
+
+            .popup-earnings {
+                font-size: 1.6em;
+            }
+
+            .popup-btn {
+                width: 100%;
+                padding: 16px;
+            }
+
+            /* Bonus Popup */
+            .bonus-popup {
+                padding: 16px 24px;
+                font-size: 1.2em;
+                width: calc(100% - 32px);
+                max-width: 300px;
+            }
+
+            /* Block Found */
+            .block-found {
+                padding: 20px 30px;
+                font-size: 1.4em;
+            }
+
+            /* Click Text */
+            .click-text {
+                font-size: 1.2em;
+            }
+
+            /* Achievement Items */
+            .achievement-item {
+                padding: 14px;
+            }
+
+            .achievement-icon {
+                font-size: 1.8em;
+                width: 45px;
+            }
+
+            /* Hack Popup */
+            .hack-popup {
+                margin: 16px;
+                padding: 24px 16px;
+                max-width: calc(100% - 32px);
+            }
+
+            /* Mining Indicator */
+            .mining-indicator {
+                font-size: 0.8em;
+                padding: 4px 12px;
+            }
+        }
+
+        /* Extra Small Devices */
+        @media (max-width: 360px) {
+            .header h1 {
+                font-size: 1.4em;
+            }
+
+            .coin-display {
+                font-size: 1.5em;
+            }
+
+            .mine-button {
+                width: 120px;
+                height: 120px;
+            }
+
+            .mine-button::after {
+                font-size: 45px;
+            }
+
+            .tab {
+                min-width: 50px;
+                padding: 10px 6px 14px;
+                font-size: 0.6em;
+            }
+
+            .market-display {
+                grid-template-columns: 1fr;
+            }
+
+            .live-indicator {
+                grid-column: span 1;
+            }
+
+            .stat {
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+        }
+
+        /* Landscape Mode on Mobile */
+        @media (max-width: 900px) and (orientation: landscape) {
+            body {
+                padding-bottom: 60px;
+            }
+
+            .header {
+                padding: 8px 0;
+            }
+
+            .header h1 {
+                font-size: 1.4em;
+            }
+
+            .coin-display {
+                font-size: 1.4em;
+                margin: 6px 0;
+            }
+
+            .clicker-area {
+                padding: 10px 0;
+            }
+
+            .mine-button {
+                width: 100px;
+                height: 100px;
+            }
+
+            .mine-button::after {
+                font-size: 40px;
+            }
+
+            .tabs {
+                position: fixed;
+                bottom: 0;
+            }
+
+            .tab {
+                padding: 8px 10px 12px;
+            }
+
+            .market-display {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+        }
+
+        /* Touch Device Optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .mine-button:hover {
+                transform: none;
+            }
+
+            .mine-button:active {
+                transform: scale(0.95);
+            }
+
+            .buy-btn:hover:not(:disabled) {
+                transform: none;
+            }
+
+            .buy-btn:active:not(:disabled) {
+                transform: scale(0.98);
+            }
+
+            .tab:hover {
+                background: transparent;
+            }
+
+            .tab:active {
+                background: rgba(0, 255, 136, 0.1);
+            }
+
+            .miner-item:hover, .upgrade-item:hover, .feature-item:hover {
+                transform: none;
+                background: rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        /* Safe Area for Notched Devices */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            @media (max-width: 600px) {
+                body {
+                    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+                }
+
+                .tabs {
+                    padding-bottom: env(safe-area-inset-bottom);
+                }
+            }
         }
     </style>
 </head>
