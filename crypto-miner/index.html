@@ -80,6 +80,46 @@
         .price-up { color: #00ff88; }
         .price-down { color: #ff4444; }
 
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            font-weight: bold;
+        }
+
+        .live-indicator.live {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .live-indicator.offline {
+            background: rgba(255, 170, 0, 0.2);
+            color: #ffaa00;
+        }
+
+        .live-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        .live-indicator.live .dot {
+            background: #00ff88;
+        }
+
+        .live-indicator.offline .dot {
+            background: #ffaa00;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
         .usd-value {
             color: #00ff88;
             font-size: 1.1em;
@@ -718,6 +758,10 @@
                 ₿ <span class="amount" id="coinAmount">0</span> <span id="coinSymbol">BTC</span>
             </div>
             <div class="market-display">
+                <div class="live-indicator live" id="liveIndicator">
+                    <span class="dot"></span>
+                    <span id="liveStatus">실시간</span>
+                </div>
                 <div class="price-tag">
                     💵 시세: $<span id="marketPrice">50000</span>
                     <span id="priceChange" class="price-up">▲ +0%</span>
@@ -887,6 +931,14 @@
         let priceHistory = [];
         let currentPrice = 50000;
         let priceDirection = 1;
+        let isLivePrice = false;
+        let priceChange24h = 0;
+        let realPrices = {
+            btc: { usd: 50000, usd_24h_change: 0 },
+            eth: { usd: 3000, usd_24h_change: 0 },
+            doge: { usd: 0.15, usd_24h_change: 0 }
+        };
+        let lastApiCall = 0;
 
         // ==================== COIN DATA ====================
         const coinTypes = {
@@ -997,17 +1049,81 @@
             return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
         }
 
-        // ==================== PRICE SIMULATION ====================
+        // ==================== REAL-TIME PRICE API ====================
+        const COINGECKO_API = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,dogecoin&vs_currencies=usd&include_24hr_change=true';
+        const API_COOLDOWN = 60000; // 1분마다 API 호출
+
+        async function fetchRealPrices() {
+            const now = Date.now();
+            if (now - lastApiCall < API_COOLDOWN) return;
+            lastApiCall = now;
+
+            try {
+                const response = await fetch(COINGECKO_API);
+                if (!response.ok) throw new Error('API Error');
+
+                const data = await response.json();
+
+                realPrices = {
+                    btc: {
+                        usd: data.bitcoin.usd,
+                        usd_24h_change: data.bitcoin.usd_24h_change || 0
+                    },
+                    eth: {
+                        usd: data.ethereum.usd,
+                        usd_24h_change: data.ethereum.usd_24h_change || 0
+                    },
+                    doge: {
+                        usd: data.dogecoin.usd,
+                        usd_24h_change: data.dogecoin.usd_24h_change || 0
+                    }
+                };
+
+                isLivePrice = true;
+                updateLiveIndicator(true);
+                renderCoinSelector(); // 코인 선택기 가격 업데이트
+                console.log('✅ 실시간 시세 업데이트:', realPrices);
+
+            } catch (error) {
+                console.warn('⚠️ API 호출 실패, 시뮬레이션 모드:', error.message);
+                isLivePrice = false;
+                updateLiveIndicator(false);
+            }
+        }
+
+        function updateLiveIndicator(isLive) {
+            const indicator = document.getElementById('liveIndicator');
+            const status = document.getElementById('liveStatus');
+
+            if (isLive) {
+                indicator.className = 'live-indicator live';
+                status.textContent = '실시간';
+            } else {
+                indicator.className = 'live-indicator offline';
+                status.textContent = '시뮬레이션';
+            }
+        }
+
         function updatePrice() {
             const coin = coinTypes[gameState.selectedCoin];
-            const change = (Math.random() - 0.5) * coin.volatility * currentPrice;
 
-            // Add trend momentum
-            if (Math.random() < 0.1) priceDirection *= -1;
-            currentPrice += change + (priceDirection * coin.volatility * currentPrice * 0.1);
+            if (isLivePrice) {
+                // 실시간 가격 사용
+                currentPrice = realPrices[gameState.selectedCoin].usd;
+                priceChange24h = realPrices[gameState.selectedCoin].usd_24h_change;
+            } else {
+                // 시뮬레이션 폴백
+                const change = (Math.random() - 0.5) * coin.volatility * currentPrice;
+                if (Math.random() < 0.1) priceDirection *= -1;
+                currentPrice += change + (priceDirection * coin.volatility * currentPrice * 0.1);
+                currentPrice = Math.max(coin.basePrice * 0.3, Math.min(coin.basePrice * 3, currentPrice));
 
-            // Keep price within bounds
-            currentPrice = Math.max(coin.basePrice * 0.3, Math.min(coin.basePrice * 3, currentPrice));
+                // 시뮬레이션에서 24h 변동률 계산
+                if (priceHistory.length > 0) {
+                    const oldPrice = priceHistory[0];
+                    priceChange24h = ((currentPrice - oldPrice) / oldPrice) * 100;
+                }
+            }
 
             priceHistory.push(currentPrice);
             if (priceHistory.length > 60) priceHistory.shift();
@@ -1189,7 +1305,9 @@
 
         function selectCoin(coinId) {
             gameState.selectedCoin = coinId;
-            currentPrice = coinTypes[coinId].basePrice;
+            // 실시간 가격이 있으면 사용, 없으면 기본값
+            currentPrice = isLivePrice ? realPrices[coinId].usd : coinTypes[coinId].basePrice;
+            priceChange24h = isLivePrice ? realPrices[coinId].usd_24h_change : 0;
             priceHistory = [currentPrice];
             renderCoinSelector();
             updateUI();
@@ -1291,13 +1409,20 @@
         // ==================== RENDERING ====================
         function renderCoinSelector() {
             const container = document.getElementById('coinSelector');
-            container.innerHTML = Object.entries(coinTypes).map(([id, coin]) => `
-                <div class="coin-option ${gameState.selectedCoin === id ? 'active' : ''}" onclick="selectCoin('${id}')">
-                    <span class="coin-icon">${coin.icon}</span>
-                    <div class="coin-name">${coin.name}</div>
-                    <div class="coin-price">${coin.symbol}</div>
-                </div>
-            `).join('');
+            container.innerHTML = Object.entries(coinTypes).map(([id, coin]) => {
+                const price = isLivePrice ? realPrices[id].usd : coin.basePrice;
+                const change = isLivePrice ? realPrices[id].usd_24h_change : 0;
+                const changeClass = change >= 0 ? 'price-up' : 'price-down';
+                const changeText = isLivePrice ? `<span class="${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(1)}%</span>` : '';
+
+                return `
+                    <div class="coin-option ${gameState.selectedCoin === id ? 'active' : ''}" onclick="selectCoin('${id}')">
+                        <span class="coin-icon">${coin.icon}</span>
+                        <div class="coin-name">${coin.name}</div>
+                        <div class="coin-price">$${formatNumber(price)} ${changeText}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function renderMiners() {
@@ -1418,14 +1543,12 @@
             const totalValue = gameState.coins * currentPrice;
             document.getElementById('totalUSD').textContent = formatNumber(totalValue + gameState.usd);
 
-            // Price change indicator
-            const priceChange = document.getElementById('priceChange');
-            if (priceHistory.length > 1) {
-                const oldPrice = priceHistory[0];
-                const change = ((currentPrice - oldPrice) / oldPrice) * 100;
-                priceChange.textContent = (change >= 0 ? '▲ +' : '▼ ') + change.toFixed(2) + '%';
-                priceChange.className = change >= 0 ? 'price-up' : 'price-down';
-            }
+            // Price change indicator (24h change for live, chart change for simulation)
+            const priceChangeEl = document.getElementById('priceChange');
+            const displayChange = isLivePrice ? priceChange24h : (priceHistory.length > 1 ? ((currentPrice - priceHistory[0]) / priceHistory[0]) * 100 : 0);
+            const changeLabel = isLivePrice ? '24h ' : '';
+            priceChangeEl.textContent = changeLabel + (displayChange >= 0 ? '▲ +' : '▼ ') + Math.abs(displayChange).toFixed(2) + '%';
+            priceChangeEl.className = displayChange >= 0 ? 'price-up' : 'price-down';
 
             // Sell value
             document.getElementById('sellValue').textContent = formatNumber(gameState.coins * currentPrice);
@@ -1592,11 +1715,15 @@
         fullRender();
         updateUI();
 
+        // Fetch initial real prices
+        fetchRealPrices();
+
         // Game loops
         setInterval(gameLoop, 100);
         setInterval(saveGame, 30000);
         setInterval(updatePrice, 2000);
         setInterval(updateChart, 1000);
+        setInterval(fetchRealPrices, 60000); // 1분마다 실시간 시세 갱신
     </script>
 </body>
 </html>
