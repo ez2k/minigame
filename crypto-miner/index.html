@@ -643,6 +643,30 @@
             50% { box-shadow: 0 0 20px rgba(0, 204, 255, 0.5); }
         }
 
+        /* Staking Layout (Desktop) */
+        .staking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .staking-apy {
+            text-align: right;
+        }
+
+        .staking-stats {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .staking-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
         /* Security */
         .security-status {
             display: flex;
@@ -672,6 +696,35 @@
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 15px;
+        }
+
+        /* DeFi Layout (Desktop) */
+        .defi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .defi-rate {
+            text-align: right;
+        }
+
+        .defi-min-deposit {
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .defi-stats {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .defi-buttons {
+            display: flex;
+            gap: 10px;
         }
 
         /* Prestige */
@@ -1325,61 +1378,113 @@
                 box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
             }
 
-            /* ===== SPECIAL PANELS ===== */
+            /* ===== STAKING PANEL MOBILE ===== */
             .staking-item {
                 padding: 16px;
                 border-radius: var(--mobile-radius);
             }
 
-            /* Staking Item Inner Layout */
-            .staking-item > div:first-child {
-                flex-direction: column !important;
+            /* Staking Header - flex row on desktop, column on mobile */
+            .staking-header {
+                display: flex;
+                flex-direction: column;
                 gap: 12px;
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            .staking-info {
                 text-align: center;
             }
 
-            .staking-item > div:first-child > div:last-child {
-                text-align: center !important;
-            }
-
-            .staking-item h4 {
+            .staking-info h4 {
                 font-size: 1.1em;
                 margin-bottom: 4px;
             }
 
-            .staking-item > div:last-child {
-                flex-direction: column !important;
-                gap: 8px !important;
-            }
-
-            .staking-item > div:last-child .buy-btn {
-                width: 100%;
-            }
-
-            /* Staking Info Box */
-            .staking-item > div[style*="background: rgba(0,0,0,0.2)"] {
+            .staking-apy {
                 text-align: center;
             }
 
+            /* Staking Stats (when staked) */
+            .staking-stats {
+                background: rgba(0, 0, 0, 0.2);
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                text-align: center;
+            }
+
+            .staking-stats p {
+                margin: 4px 0;
+            }
+
+            /* Staking Buttons (when not staked) */
+            .staking-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .staking-buttons .buy-btn {
+                width: 100%;
+                min-height: var(--touch-min);
+            }
+
+            /* ===== DEFI POOL MOBILE ===== */
             .defi-pool {
                 padding: 16px;
                 border-radius: var(--mobile-radius);
             }
 
-            /* DeFi Pool Inner Layout */
-            .defi-pool > div:first-child {
-                flex-direction: column !important;
+            .defi-header {
+                display: flex;
+                flex-direction: column;
                 gap: 10px;
+                text-align: center;
+                margin-bottom: 15px;
+            }
+
+            .defi-info {
                 text-align: center;
             }
 
-            .defi-pool > div:first-child > div:last-child {
-                text-align: center !important;
+            .defi-info h4 {
+                font-size: 1.1em;
+                margin-bottom: 4px;
             }
 
-            .defi-pool > div:last-child {
-                flex-direction: column !important;
-                gap: 8px !important;
+            .defi-rate {
+                text-align: center;
+            }
+
+            .defi-min-deposit {
+                color: #888;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+
+            .defi-stats {
+                background: rgba(0, 0, 0, 0.2);
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                text-align: center;
+            }
+
+            .defi-stats p {
+                margin: 4px 0;
+            }
+
+            .defi-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .defi-buttons .buy-btn {
+                width: 100%;
+                min-height: var(--touch-min);
             }
 
             .security-status {
@@ -2932,17 +3037,17 @@
 
                 content += `
                     <div class="staking-item ${staked > 0 ? 'active' : ''}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div>
+                        <div class="staking-header">
+                            <div class="staking-info">
                                 <h4>${option.icon} ${option.name}</h4>
                                 <p style="color: #888;">${option.desc}</p>
                             </div>
-                            <div style="text-align: right;">
+                            <div class="staking-apy">
                                 <div style="color: #00ff88; font-size: 1.5em;">${option.apy}% APY</div>
                             </div>
                         </div>
                         ${staked > 0 ? `
-                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                            <div class="staking-stats">
                                 <p>스테이킹: ${formatNumber(staked)} ${coinTypes[gameState.selectedCoin].symbol}</p>
                                 <p style="color: #00ff88;">예상 보상: +${formatNumber(currentReward)} ${coinTypes[gameState.selectedCoin].symbol}</p>
                                 <p style="color: #888;">기간: ${daysStaked.toFixed(2)}일</p>
@@ -2951,7 +3056,7 @@
                                 ${canUnstake ? '출금하기' : `${(option.lockDays - daysStaked).toFixed(1)}일 남음`}
                             </button>
                         ` : `
-                            <div style="display: flex; gap: 10px;">
+                            <div class="staking-buttons">
                                 <button class="buy-btn" onclick="stakeCoins('${option.id}', gameState.coins * 0.25)" ${gameState.coins <= 0 ? 'disabled' : ''}>25%</button>
                                 <button class="buy-btn" onclick="stakeCoins('${option.id}', gameState.coins * 0.5)" ${gameState.coins <= 0 ? 'disabled' : ''}>50%</button>
                                 <button class="buy-btn" onclick="stakeCoins('${option.id}', gameState.coins)" ${gameState.coins <= 0 ? 'disabled' : ''}>전액</button>
@@ -3035,26 +3140,26 @@
 
                 content += `
                     <div class="defi-pool">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <div>
+                        <div class="defi-header">
+                            <div class="defi-info">
                                 <h4>${pool.icon} ${pool.name}</h4>
                                 <p style="color: #888;">${pool.desc}</p>
                             </div>
-                            <div style="text-align: right;">
+                            <div class="defi-rate">
                                 <div style="color: #00ff88; font-size: 1.3em;">${pool.dailyReturn}%/일</div>
                                 <div style="color: #ff6b6b;">위험: ${pool.risk}%</div>
                             </div>
                         </div>
-                        <p style="color: #888; margin-bottom: 10px;">최소 예치: ${formatUSD(pool.minDeposit)}</p>
+                        <p class="defi-min-deposit">최소 예치: ${formatUSD(pool.minDeposit)}</p>
                         ${deposited > 0 ? `
-                            <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                            <div class="defi-stats">
                                 <p>예치금: ${formatUSD(deposited)}</p>
                                 <p style="color: #00ff88;">예상 수익: +${formatUSD(currentReward)}</p>
                                 <p style="color: #888;">기간: ${daysDeposited.toFixed(2)}일</p>
                             </div>
                             <button class="buy-btn" onclick="withdrawDeFi('${pool.id}')">출금 (위험: ${pool.risk}%)</button>
                         ` : `
-                            <div style="display: flex; gap: 10px;">
+                            <div class="defi-buttons">
                                 <button class="buy-btn" onclick="depositDeFi('${pool.id}', ${pool.minDeposit})" ${gameState.usd < pool.minDeposit ? 'disabled' : ''}>
                                     ${formatUSD(pool.minDeposit)}
                                 </button>
