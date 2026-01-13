@@ -1331,9 +1331,55 @@
                 border-radius: var(--mobile-radius);
             }
 
+            /* Staking Item Inner Layout */
+            .staking-item > div:first-child {
+                flex-direction: column !important;
+                gap: 12px;
+                text-align: center;
+            }
+
+            .staking-item > div:first-child > div:last-child {
+                text-align: center !important;
+            }
+
+            .staking-item h4 {
+                font-size: 1.1em;
+                margin-bottom: 4px;
+            }
+
+            .staking-item > div:last-child {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            .staking-item > div:last-child .buy-btn {
+                width: 100%;
+            }
+
+            /* Staking Info Box */
+            .staking-item > div[style*="background: rgba(0,0,0,0.2)"] {
+                text-align: center;
+            }
+
             .defi-pool {
                 padding: 16px;
                 border-radius: var(--mobile-radius);
+            }
+
+            /* DeFi Pool Inner Layout */
+            .defi-pool > div:first-child {
+                flex-direction: column !important;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .defi-pool > div:first-child > div:last-child {
+                text-align: center !important;
+            }
+
+            .defi-pool > div:last-child {
+                flex-direction: column !important;
+                gap: 8px !important;
             }
 
             .security-status {
