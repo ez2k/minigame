@@ -648,6 +648,7 @@
 
         // Format number
         function formatNumber(num) {
+            if (num < 1) return num.toFixed(1); // 0.1 같은 소수 표시
             if (num < 1000) return Math.floor(num).toLocaleString();
 
             const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc'];
