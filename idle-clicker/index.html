@@ -906,6 +906,25 @@
             renderUpgrades();
         }
 
+        // 자동 생산 애니메이션 타이머
+        let autoAnimationTimer = 0;
+
+        // 자동 생산 플로팅 텍스트
+        function showAutoEarning(amount) {
+            const coinBtn = document.getElementById('coinBtn');
+            const rect = coinBtn.getBoundingClientRect();
+
+            const text = document.createElement('div');
+            text.className = 'click-text';
+            text.textContent = '+' + formatNumber(amount);
+            text.style.left = (rect.left + rect.width / 2 + (Math.random() - 0.5) * 60) + 'px';
+            text.style.top = (rect.top + rect.height / 2 + (Math.random() - 0.5) * 40) + 'px';
+            text.style.fontSize = '18px';
+            text.style.color = '#90EE90'; // 연두색으로 구분
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 1000);
+        }
+
         // Game loop
         function gameLoop() {
             // 매 틱마다 생산량 재계산
@@ -915,6 +934,13 @@
                 const earned = gameState.perSecond / 10; // 100ms마다 실행되므로 10으로 나눔
                 gameState.gold += earned;
                 gameState.totalGold += earned;
+
+                // 0.5초마다 애니메이션 표시
+                autoAnimationTimer += 100;
+                if (autoAnimationTimer >= 500) {
+                    showAutoEarning(gameState.perSecond / 2); // 0.5초치 표시
+                    autoAnimationTimer = 0;
+                }
             }
             updateUI();
         }
