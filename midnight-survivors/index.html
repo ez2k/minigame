@@ -70,6 +70,9 @@
   .card{pointer-events:auto;width:100%;background:#150c26;border:2px solid var(--violet);
     padding:14px 16px;cursor:pointer;text-align:left;color:var(--bone);font-family:inherit;border-radius:3px}
   .card:active{border-color:var(--gold)}
+  .card.evo{border-color:var(--gold);background:linear-gradient(#241634,#1a1020);
+    box-shadow:0 0 18px rgba(233,180,76,.35)}
+  .card.evo .nm{color:var(--gold)}
   .card .nm{font-weight:bold;font-size:15px;letter-spacing:.06em}
   .card .nm span{color:var(--gold);font-size:11px;margin-left:8px}
   .card .ds{font-size:12px;color:#9b8fb8;margin-top:4px;line-height:1.5}
@@ -168,7 +171,9 @@ const fmt=t=>{const m=Math.floor(t/60),s=Math.floor(t%60);return (m<10?'0':'')+m
 /* ---------- 게임 상태 ---------- */
 let state='title'; // title | play | levelup | over
 let player, enemies, gems, knives, orbs, floats, particles;
+let bolts, fires, burns, novas;
 let camX=0, camY=0, gameTime=0, kills=0, spawnAcc=0, lastTs=0;
+let bossAcc=0, bossActive=false;
 let myId = 'p' + Math.random().toString(36).slice(2,9);
 let nick = '';
 let ghosts = {};           // id -> {x,y,lv,nick,seen}
@@ -206,26 +211,46 @@ const joyEnd=e=>{ for(const t of e.changedTouches){ if(t.identifier===joy.id){ j
 window.addEventListener('touchend', joyEnd, {passive:true});
 window.addEventListener('touchcancel', joyEnd, {passive:true});
 
-/* ---------- 업그레이드 정의 ---------- */
+/* ---------- 업그레이드 정의 ----------
+   tag:'wpn' 무기 / 'pas' 패시브 — 진화 조건 판정에 사용 */
 const UP = {
-  knife:  {nm:'은빛 단검', max:6, ds:lv=>`단검 ${lv}개를 가장 가까운 적에게 던집니다.`},
-  rate:   {nm:'재장전 술식', max:5, ds:lv=>`공격 속도 +${lv*15}%`},
-  power:  {nm:'성수 강화', max:5, ds:lv=>`모든 피해 +${lv*20}%`},
-  orb:    {nm:'위성 성물', max:4, ds:lv=>`주위를 도는 성물 ${lv}개. 닿은 적에게 피해.`},
-  aura:   {nm:'마늘 결계', max:5, ds:lv=>`주변 결계가 지속 피해. 반경 +${lv*12}%`},
-  speed:  {nm:'늑대의 다리', max:4, ds:lv=>`이동 속도 +${lv*10}%`},
-  hp:     {nm:'강철 심장', max:4, ds:lv=>`최대 체력 +${lv*25}. 즉시 30 회복.`},
-  magnet: {nm:'영혼 자석', max:4, ds:lv=>`경험치 흡수 반경 +${lv*35}%`},
-  regen:  {nm:'재생의 피', max:3, ds:lv=>`초당 체력 ${lv*1.5} 회복`},
+  // 무기
+  knife:  {tag:'wpn', nm:'은빛 단검', max:8, ds:lv=>`단검 ${lv}개를 가장 가까운 적에게 던집니다.`},
+  orb:    {tag:'wpn', nm:'위성 성물', max:6, ds:lv=>`주위를 도는 성물 ${lv}개. 닿은 적에게 피해.`},
+  aura:   {tag:'wpn', nm:'마늘 결계', max:6, ds:lv=>`주변 결계가 지속 피해. 반경·피해 +${lv*12}%`},
+  bolt:   {tag:'wpn', nm:'사슬 번개', max:6, ds:lv=>`${1+lv}마리에게 튕기는 번개를 주기적으로 떨어뜨립니다.`},
+  fire:   {tag:'wpn', nm:'화염구', max:6, ds:lv=>`폭발하며 불바닥을 남기는 화염구 ${lv}발.`},
+  nova:   {tag:'wpn', nm:'성스러운 폭발', max:6, ds:lv=>`주기적으로 사방으로 빛의 파동을 터뜨립니다.`},
+  // 패시브
+  rate:   {tag:'pas', nm:'재장전 술식', max:6, ds:lv=>`공격 속도 +${lv*15}%`},
+  power:  {tag:'pas', nm:'성수 강화', max:6, ds:lv=>`모든 피해 +${lv*18}%`},
+  crit:   {tag:'pas', nm:'급소 간파', max:5, ds:lv=>`치명타 확률 ${lv*8}% · 피해 2.2배`},
+  area:   {tag:'pas', nm:'확장의 룬', max:5, ds:lv=>`범위·투사체 크기 +${lv*12}%`},
+  speed:  {tag:'pas', nm:'늑대의 다리', max:5, ds:lv=>`이동 속도 +${lv*10}%`},
+  hp:     {tag:'pas', nm:'강철 심장', max:5, ds:lv=>`최대 체력 +${lv*25}. 즉시 40 회복.`},
+  magnet: {tag:'pas', nm:'영혼 자석', max:4, ds:lv=>`경험치 흡수 반경 +${lv*35}%`},
+  regen:  {tag:'pas', nm:'재생의 피', max:4, ds:lv=>`초당 체력 ${lv*1.5} 회복`},
+};
+
+/* ---------- 무기 진화 ----------
+   무기 만렙 + 짝 패시브 만렙 → 진화. 강력한 종결 보상. */
+const EVO = {
+  knife: {need:'rate',  nm:'무한 칼날폭풍', ds:'사방으로 칼날이 끊임없이 회전 발사됩니다.'},
+  orb:   {need:'area',  nm:'천체 궤도',     ds:'거대한 성물이 이중 궤도로 돕니다.'},
+  aura:  {need:'power', nm:'심판의 성역',   ds:'결계가 거대해지고 피해가 폭증합니다.'},
+  bolt:  {need:'crit',  nm:'천둥의 진노',   ds:'번개가 더 많은 적에게, 더 자주 떨어집니다.'},
+  fire:  {need:'power', nm:'지옥불 비',     ds:'화염구가 하늘에서 비처럼 쏟아집니다.'},
 };
 
 /* ---------- 초기화 ---------- */
 function newGame(){
   player = {x:0,y:0,r:13,hp:100,maxhp:100,spd:170,xp:0,lv:1,xpNeed:6,
-    up:{knife:1,rate:0,power:0,orb:0,aura:0,speed:0,hp:0,magnet:0,regen:0},
-    fireCd:0, auraTick:0, hurtCd:0, face:1};
+    up:{knife:1,rate:0,power:0,orb:0,aura:0,bolt:0,fire:0,nova:0,crit:0,area:0,speed:0,hp:0,magnet:0,regen:0},
+    evo:{}, awaken:0,
+    fireCd:0, auraTick:0, boltCd:0, fbCd:0, novaCd:0, hurtCd:0, face:1};
   enemies=[]; gems=[]; knives=[]; orbs=[]; floats=[]; particles=[];
-  gameTime=0; kills=0; spawnAcc=0; camX=0; camY=0;
+  bolts=[]; fires=[]; burns=[]; novas=[];
+  gameTime=0; kills=0; spawnAcc=0; camX=0; camY=0; bossAcc=0; bossActive=false; pendingLU=0;
 }
 
 /* ---------- 적 ---------- */
@@ -235,85 +260,169 @@ const E_TYPES=[
   {nm:'skel',  r:11, hp:18, spd:70, dmg:8,  xp:2, c:'#cfc6ae', from:75},
   {nm:'ghoul', r:15, hp:60, spd:55, dmg:14, xp:4, c:'#c8273a', from:150},
   {nm:'wrai',  r:12, hp:40, spd:110,dmg:12, xp:4, c:'#49c9d4', from:240},
+  {nm:'brute', r:18, hp:140,spd:48, dmg:20, xp:7, c:'#b5532a', from:330},
+  {nm:'phant', r:13, hp:90, spd:135,dmg:16, xp:7, c:'#d4d4ff', from:420},
 ];
+// 시간에 따른 배율 — 후반에 폭주하지 않도록 √ 곡선 사용
+function hpScale(t){ return 1 + Math.pow(t/60, 0.85)*1.05; }
+function dmgScale(t){ return 1 + Math.pow(t/120, 0.8)*0.9; }
 function spawnEnemy(){
   const t = gameTime;
   const pool = E_TYPES.filter(e=>t>=e.from);
   const tp = pool[Math.floor(Math.random()*pool.length)];
   const ang = Math.random()*Math.PI*2;
   const R = Math.hypot(W,H)/2 + 60;
-  const hpMul = 1 + t/90, dmgMul = 1 + t/240;
-  const elite = (Math.random() < 0.02 + t/4000);
+  const hpMul=hpScale(t), dmgMul=dmgScale(t);
+  const elite = (Math.random() < 0.018 + t/5000);
   enemies.push({
     x: player.x + Math.cos(ang)*R, y: player.y + Math.sin(ang)*R,
-    r: tp.r*(elite?1.7:1), hp: tp.hp*hpMul*(elite?6:1), maxhp: tp.hp*hpMul*(elite?6:1),
-    spd: tp.spd*(elite?0.85:1), dmg: tp.dmg*dmgMul*(elite?2:1),
-    xp: tp.xp*(elite?8:1), c: tp.c, elite, hit:0, wob:Math.random()*7
+    r: tp.r*(elite?1.6:1), hp: tp.hp*hpMul*(elite?6:1), maxhp: tp.hp*hpMul*(elite?6:1),
+    spd: tp.spd*(elite?0.85:1), dmg: tp.dmg*dmgMul*(elite?1.8:1),
+    xp: tp.xp*(elite?7:1), c: tp.c, elite, boss:false, hit:0, wob:Math.random()*7
   });
+}
+const BOSS_NAMES=['핏빛 군주','뼈의 대공','심연의 포식자','종말의 그림자','자정의 왕'];
+function spawnBoss(){
+  bossActive=true;
+  const idx=Math.min(BOSS_NAMES.length-1, Math.floor(gameTime/90));
+  const ang=Math.random()*Math.PI*2;
+  const R=Math.hypot(W,H)/2 + 80;
+  const hpMul=hpScale(gameTime);
+  enemies.push({
+    x:player.x+Math.cos(ang)*R, y:player.y+Math.sin(ang)*R,
+    r:34, hp:1400*hpMul*(1+idx*0.6), maxhp:1400*hpMul*(1+idx*0.6),
+    spd:46+idx*4, dmg:26*dmgScale(gameTime), xp:120+idx*40,
+    c:'#8b1d3a', elite:false, boss:true, name:BOSS_NAMES[idx], hit:0, wob:Math.random()*7
+  });
+  floats.push({x:player.x,y:player.y-60,t:1.6,txt:'⚠ '+BOSS_NAMES[idx]+' 등장',c:'#e9b44c'});
 }
 
 /* ---------- 레벨업 ---------- */
+let pendingLU=0;
 function gainXp(n){
   player.xp += n;
   while(player.xp >= player.xpNeed){
     player.xp -= player.xpNeed;
     player.lv++;
     player.xpNeed = Math.floor(5 + player.lv*7.5);
-    openLevelUp();
+    pendingLU++;
   }
+  if(pendingLU>0 && state==='play') openLevelUp();
 }
 function openLevelUp(){
   state='levelup';
-  const keysAvail = Object.keys(UP).filter(k=>player.up[k] < UP[k].max);
   const picks=[];
+
+  // 진화 가능한 무기를 우선 후보로
+  const evoReady = Object.keys(EVO).filter(k=>
+    !player.evo[k] && player.up[k]>=UP[k].max && player.up[EVO[k].need]>=UP[EVO[k].need].max);
+
+  let keysAvail = Object.keys(UP).filter(k=>player.up[k] < UP[k].max);
+
+  if(evoReady.length){
+    const k=evoReady[Math.floor(Math.random()*evoReady.length)];
+    picks.push({type:'evo', key:k});
+  }
   while(picks.length<3 && keysAvail.length){
     const i=Math.floor(Math.random()*keysAvail.length);
-    picks.push(keysAvail.splice(i,1)[0]);
+    picks.push({type:'up', key:keysAvail.splice(i,1)[0]});
   }
+  // 더 이상 올릴 게 없으면 각성(영구 스택) 보상으로 채움
+  while(picks.length<3) picks.push({type:'awaken'});
+
   const box=$('cards'); box.innerHTML='';
-  picks.forEach(k=>{
-    const next = player.up[k]+1;
-    const b=document.createElement('button');
-    b.className='card';
-    b.innerHTML=`<div class="nm">${UP[k].nm}<span>Lv.${next}</span></div><div class="ds">${UP[k].ds(next)}</div>`;
-    b.onclick=()=>{ applyUp(k); $('levelup').classList.remove('on'); state='play'; lastTs=performance.now(); };
+  picks.forEach(p=>{
+    const b=document.createElement('button'); b.className='card';
+    if(p.type==='evo'){
+      const e=EVO[p.key];
+      b.classList.add('evo');
+      b.innerHTML=`<div class="nm">★ ${e.nm}<span>진화</span></div><div class="ds">${e.ds}</div>`;
+      b.onclick=()=>chooseLU(()=>{ player.evo[p.key]=true;
+        floats.push({x:player.x,y:player.y-30,t:1.4,txt:'★ '+e.nm,c:'#e9b44c'});
+        if(p.key==='orb') rebuildOrbs(); });
+    } else if(p.type==='awaken'){
+      b.innerHTML=`<div class="nm">각성 <span>+영구</span></div><div class="ds">모든 피해 +6%, 최대 체력 +12. 계속 누적됩니다. (현재 ${player.awaken}중첩)</div>`;
+      b.onclick=()=>chooseLU(()=>{ player.awaken++; player.maxhp+=12; player.hp=Math.min(player.maxhp,player.hp+12); });
+    } else {
+      const k=p.key, next=player.up[k]+1, evolved=player.evo[k];
+      b.innerHTML=`<div class="nm">${UP[k].nm}${evolved?' ★':''}<span>Lv.${next}</span></div><div class="ds">${UP[k].ds(next)}</div>`;
+      b.onclick=()=>chooseLU(()=>applyUp(k));
+    }
     box.appendChild(b);
   });
-  if(!picks.length){ // 만렙: 보상으로 회복
-    player.hp=player.maxhp; state='play'; return;
-  }
   $('levelup').classList.add('on');
+}
+function chooseLU(fn){
+  fn(); pendingLU--;
+  if(pendingLU>0){ openLevelUp(); }   // 남은 레벨업 이어서
+  else { $('levelup').classList.remove('on'); state='play'; lastTs=performance.now(); }
 }
 function applyUp(k){
   player.up[k]++;
-  if(k==='hp'){ player.maxhp += 25; player.hp = Math.min(player.maxhp, player.hp+30); }
+  if(k==='hp'){ player.maxhp += 25; player.hp = Math.min(player.maxhp, player.hp+40); }
   if(k==='orb'){ rebuildOrbs(); }
 }
 function rebuildOrbs(){
-  orbs=[]; const n=player.up.orb;
-  for(let i=0;i<n;i++) orbs.push({ang: i*(Math.PI*2/n), hits:{}});
+  orbs=[]; let n=player.up.orb;
+  if(player.evo.orb) n*=2;            // 천체 궤도: 이중 궤도
+  for(let i=0;i<n;i++) orbs.push({ang: i*(Math.PI*2/n), ring:(player.evo.orb&&i>=player.up.orb)?1:0, hits:{}});
+}
+// 공격력 공통 배율 (성수 + 각성)
+function dmgMul(){ return (1+player.up.power*0.18) * (1+player.awaken*0.06); }
+// 범위 공통 배율 (확장의 룬)
+function areaMul(){ return 1+player.up.area*0.12; }
+// 치명타 적용
+function rollDmg(base){
+  if(player.up.crit && Math.random()<player.up.crit*0.08) return {d:base*2.2, crit:true};
+  return {d:base, crit:false};
+}
+function nearestEnemy(){
+  let best=null,bd=1e9;
+  for(const e of enemies){ const d=dist2(e.x,e.y,player.x,player.y); if(d<bd){bd=d;best=e;} }
+  return best;
 }
 
 /* ---------- 전투 ---------- */
 function fireKnives(){
-  const n = player.up.knife;
-  if(n<=0 || !enemies.length) return;
-  // 가까운 적 정렬
+  let n = player.up.knife;
+  if(n<=0) return;
+  const sz=areaMul(), spd=520;
+  if(player.evo.knife){
+    // 무한 칼날폭풍: 적 유무와 상관없이 사방 회전 발사
+    const base=Math.atan2((knives.length%7)-3, 1) + gameTime*4;
+    const count=n+4;
+    for(let i=0;i<count;i++){
+      const a=base + i*(Math.PI*2/count);
+      knives.push({x:player.x,y:player.y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:0.9,
+        dmg:11*dmgMul(), sz, pierce:2});
+    }
+    return;
+  }
+  if(!enemies.length) return;
   const sorted = enemies.slice().sort((a,b)=>dist2(a.x,a.y,player.x,player.y)-dist2(b.x,b.y,player.x,player.y));
   for(let i=0;i<n;i++){
     const tgt = sorted[Math.min(i, sorted.length-1)];
     const a = Math.atan2(tgt.y-player.y, tgt.x-player.x) + rand(-.06,.06);
-    knives.push({x:player.x,y:player.y,vx:Math.cos(a)*520,vy:Math.sin(a)*520,life:1.1,
-      dmg:10*(1+player.up.power*0.2)});
+    knives.push({x:player.x,y:player.y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,life:1.1,
+      dmg:10*dmgMul(), sz, pierce:0});
   }
 }
-function damageEnemy(e, dmg, kx, ky){
+function damageEnemy(e, dmg, kx, ky, crit){
   e.hp -= dmg; e.hit = .12;
-  floats.push({x:e.x+rand(-6,6), y:e.y-e.r, t:.6, txt:Math.round(dmg), c:'#fff'});
+  floats.push({x:e.x+rand(-6,6), y:e.y-e.r, t:.6, txt:Math.round(dmg), c:crit?'#e9b44c':'#fff'});
   if(e.hp<=0){
     kills++;
-    gems.push({x:e.x,y:e.y,v:e.xp,r:5+Math.min(e.xp,8)});
-    for(let i=0;i<6;i++) particles.push({x:e.x,y:e.y,vx:rand(-90,90),vy:rand(-90,90),t:rand(.2,.5),c:e.c});
+    if(e.boss){
+      // 보스 처치: 큰 보석 다수 + 회복
+      for(let i=0;i<8;i++) gems.push({x:e.x+rand(-30,30),y:e.y+rand(-30,30),v:Math.ceil(e.xp/8),r:8});
+      player.hp=Math.min(player.maxhp, player.hp+player.maxhp*0.3);
+      floats.push({x:player.x,y:player.y-40,t:1.4,txt:'BOSS 처치! +30% HP',c:'#3fae6a'});
+      bossActive=false;
+      for(let i=0;i<24;i++) particles.push({x:e.x,y:e.y,vx:rand(-200,200),vy:rand(-200,200),t:rand(.4,.9),c:'#e9b44c'});
+    } else {
+      gems.push({x:e.x,y:e.y,v:e.xp,r:5+Math.min(e.xp,8)});
+      for(let i=0;i<6;i++) particles.push({x:e.x,y:e.y,vx:rand(-90,90),vy:rand(-90,90),t:rand(.2,.5),c:e.c});
+    }
     const idx=enemies.indexOf(e); if(idx>=0) enemies.splice(idx,1);
   } else if(kx!==undefined){ e.x+=kx; e.y+=ky; }
 }
@@ -344,9 +453,15 @@ function update(dt){
   player.hurtCd = Math.max(0, player.hurtCd-dt);
 
   // --- 스폰 ---
-  const rate = 1.1 + gameTime/45;             // 초당 스폰 수 증가
+  const rate = 1.0 + Math.pow(gameTime/50,0.9)*1.3;   // 완만한 증가
   spawnAcc += dt*rate;
-  while(spawnAcc>=1 && enemies.length<260){ spawnAcc--; spawnEnemy(); }
+  while(spawnAcc>=1 && enemies.length<300){ spawnAcc--; spawnEnemy(); }
+
+  // --- 보스 (90초마다) ---
+  if(!bossActive){
+    bossAcc += dt;
+    if(bossAcc>=90 && gameTime>60){ bossAcc=0; spawnBoss(); }
+  }
 
   // --- 단검 발사 ---
   player.fireCd -= dt;
@@ -360,27 +475,36 @@ function update(dt){
     const k=knives[i];
     k.x+=k.vx*dt; k.y+=k.vy*dt; k.life-=dt;
     if(k.life<=0){knives.splice(i,1);continue;}
+    const kr=5*(k.sz||1);
     for(const e of enemies){
-      if(dist2(k.x,k.y,e.x,e.y) < (e.r+5)*(e.r+5)){
-        damageEnemy(e,k.dmg);
-        knives.splice(i,1); break;
+      if(k._hit && k._hit.has(e)) continue;
+      if(dist2(k.x,k.y,e.x,e.y) < (e.r+kr)*(e.r+kr)){
+        const r=rollDmg(k.dmg);
+        damageEnemy(e,r.d,undefined,undefined,r.crit);
+        if(k.pierce>0){ k.pierce--; (k._hit||(k._hit=new Set())).add(e); }
+        else { knives.splice(i,1); }
+        break;
       }
     }
   }
 
   // --- 위성 성물 ---
   if(orbs.length){
-    const R=58+player.up.orb*6, av=2.6;
+    const base=58+player.up.orb*6;
+    const av=2.6, sz=areaMul();
     for(const o of orbs){
       o.ang+=av*dt;
+      const R=(o.ring? base+46 : base)*sz;
       o.x=player.x+Math.cos(o.ang)*R; o.y=player.y+Math.sin(o.ang)*R;
+      const hitR=(10+(player.evo.orb?6:0))*sz;
       for(const e of enemies){
-        if(dist2(o.x,o.y,e.x,e.y)<(e.r+10)*(e.r+10)){
+        if(dist2(o.x,o.y,e.x,e.y)<(e.r+hitR)*(e.r+hitR)){
           const key=enemies.indexOf(e);
           if(!o.hits[key] || o.hits[key]<gameTime){
             o.hits[key]=gameTime+0.5;
             const a=Math.atan2(e.y-player.y,e.x-player.x);
-            damageEnemy(e, 14*(1+player.up.power*0.2), Math.cos(a)*14, Math.sin(a)*14);
+            const r=rollDmg((player.evo.orb?22:14)*dmgMul());
+            damageEnemy(e, r.d, Math.cos(a)*14, Math.sin(a)*14, r.crit);
           }
         }
       }
@@ -390,15 +514,102 @@ function update(dt){
   // --- 마늘 결계 ---
   if(player.up.aura){
     player.auraTick-=dt;
+    const evo=player.evo.aura;
     if(player.auraTick<=0){
-      player.auraTick=0.4;
-      const R=70*(1+player.up.aura*0.12);
+      player.auraTick=evo?0.25:0.4;
+      const R=(evo?120:70)*(1+player.up.aura*0.12)*areaMul();
+      const dps=(evo?16:5)*dmgMul();
       for(let i=enemies.length-1;i>=0;i--){
         const e=enemies[i];
-        if(dist2(e.x,e.y,player.x,player.y)<(R+e.r)*(R+e.r))
-          damageEnemy(e, 5*(1+player.up.power*0.2));
+        if(dist2(e.x,e.y,player.x,player.y)<(R+e.r)*(R+e.r)){
+          const r=rollDmg(dps); damageEnemy(e, r.d, undefined,undefined, r.crit);
+        }
       }
     }
+  }
+
+  // --- 사슬 번개 ---
+  if(player.up.bolt){
+    player.boltCd-=dt;
+    const evo=player.evo.bolt;
+    if(player.boltCd<=0 && enemies.length){
+      player.boltCd = evo?0.7:1.3;
+      let chains = player.up.bolt+1+(evo?3:0);
+      let from={x:player.x,y:player.y};
+      const struck=new Set();
+      for(let c=0;c<chains;c++){
+        // 가장 가까운 안 맞은 적
+        let best=null,bd=1e9;
+        for(const e of enemies){ if(struck.has(e))continue;
+          const d=dist2(e.x,e.y,from.x,from.y); if(d<bd){bd=d;best=e;} }
+        if(!best || bd>360*360) break;
+        struck.add(best);
+        bolts.push({ax:from.x,ay:from.y,bx:best.x,by:best.y,t:0.18});
+        const r=rollDmg((evo?26:18)*dmgMul());
+        damageEnemy(best, r.d, undefined,undefined, r.crit);
+        from={x:best.x,y:best.y};
+      }
+    }
+  }
+
+  // --- 화염구 ---
+  if(player.up.fire){
+    player.fbCd-=dt;
+    const evo=player.evo.fire;
+    if(player.fbCd<=0){
+      player.fbCd = 1.6/(1+player.up.rate*0.1);
+      const shots=player.up.fire+(evo?3:0);
+      for(let s=0;s<shots;s++){
+        let tx,ty;
+        if(evo){ tx=player.x+rand(-260,260); ty=player.y+rand(-200,200); }
+        else { const e=nearestEnemy(); if(!e){break;} tx=e.x; ty=e.y; }
+        fires.push({x:player.x,y:player.y,tx,ty,t:0,dur:0.5});
+      }
+    }
+  }
+  for(let i=fires.length-1;i>=0;i--){
+    const f=fires[i]; f.t+=dt;
+    const k=Math.min(1,f.t/f.dur);
+    f.cx=f.x+(f.tx-f.x)*k; f.cy=f.y+(f.ty-f.y)*k - Math.sin(k*Math.PI)*60;
+    if(k>=1){
+      // 폭발 + 불바닥
+      const R=46*areaMul();
+      for(const e of enemies) if(dist2(e.x,e.y,f.tx,f.ty)<(R+e.r)*(R+e.r)){
+        const r=rollDmg(30*dmgMul()); damageEnemy(e,r.d,undefined,undefined,r.crit);
+      }
+      burns.push({x:f.tx,y:f.ty,r:R,t:3,tick:0});
+      for(let j=0;j<10;j++) particles.push({x:f.tx,y:f.ty,vx:rand(-120,120),vy:rand(-120,120),t:rand(.3,.6),c:'#e0742a'});
+      fires.splice(i,1);
+    }
+  }
+  // 불바닥 지속 피해
+  for(let i=burns.length-1;i>=0;i--){
+    const b=burns[i]; b.t-=dt; b.tick-=dt;
+    if(b.tick<=0){ b.tick=0.3;
+      for(const e of enemies) if(dist2(e.x,e.y,b.x,b.y)<(b.r+e.r)*(b.r+e.r))
+        damageEnemy(e, 6*dmgMul());
+    }
+    if(b.t<=0) burns.splice(i,1);
+  }
+
+  // --- 성스러운 폭발(노바) ---
+  if(player.up.nova){
+    player.novaCd-=dt;
+    if(player.novaCd<=0){
+      player.novaCd = 2.4/(1+player.up.rate*0.08);
+      const maxR=160*areaMul()*(1+player.up.nova*0.12);
+      novas.push({r:8,maxR,dmg:20*dmgMul(),hit:new Set()});
+    }
+  }
+  for(let i=novas.length-1;i>=0;i--){
+    const nv=novas[i]; nv.r+=520*dt;
+    for(const e of enemies){
+      if(nv.hit.has(e)) continue;
+      const d=Math.hypot(e.x-player.x,e.y-player.y);
+      if(d<nv.r && d>nv.r-30){ nv.hit.add(e);
+        const r=rollDmg(nv.dmg); damageEnemy(e,r.d,undefined,undefined,r.crit); }
+    }
+    if(nv.r>=nv.maxR) novas.splice(i,1);
   }
 
   // --- 적 이동 + 접촉 피해 ---
@@ -432,6 +643,7 @@ function update(dt){
   if(gems.length>300) gems.splice(0,gems.length-300);
 
   // --- 이펙트 ---
+  for(let i=bolts.length-1;i>=0;i--){bolts[i].t-=dt;if(bolts[i].t<=0)bolts.splice(i,1);}
   for(let i=floats.length-1;i>=0;i--){const f=floats[i];f.t-=dt;f.y-=30*dt;if(f.t<=0)floats.splice(i,1);}
   for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.t-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.t<=0)particles.splice(i,1);}
 
@@ -457,12 +669,21 @@ function draw(){
     if(h%29===0){ ctx.fillStyle='#1c1430'; ctx.fillRect(gx*T+ox+24, gy*T+oy+24, 6,6); }
   }
 
+  // 불바닥
+  for(const b of burns){
+    ctx.globalAlpha=clamp(b.t/3,0,1)*0.5;
+    ctx.fillStyle='#e0742a';
+    ctx.beginPath(); ctx.arc(b.x+ox,b.y+oy,b.r,0,7); ctx.fill();
+    ctx.globalAlpha=1;
+  }
+
   // 결계
   if(player.up.aura){
-    const R=70*(1+player.up.aura*0.12);
+    const evo=player.evo.aura;
+    const R=(evo?120:70)*(1+player.up.aura*0.12)*areaMul();
     ctx.beginPath(); ctx.arc(player.x+ox,player.y+oy,R,0,7);
-    ctx.fillStyle='rgba(63,174,106,.07)'; ctx.fill();
-    ctx.strokeStyle='rgba(63,174,106,.35)'; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle=evo?'rgba(233,180,76,.09)':'rgba(63,174,106,.07)'; ctx.fill();
+    ctx.strokeStyle=evo?'rgba(233,180,76,.5)':'rgba(63,174,106,.35)'; ctx.lineWidth=2; ctx.stroke();
   }
 
   // 보석
@@ -497,7 +718,7 @@ function draw(){
   // 적
   for(const e of enemies){
     const x=e.x+ox, y=e.y+oy;
-    if(x<-40||x>W+40||y<-40||y>H+40) continue;
+    if(x<-60||x>W+60||y<-60||y>H+60) continue;
     const bob=Math.sin(e.wob)*2;
     ctx.fillStyle = e.hit>0 ? '#ffffff' : e.c;
     ctx.beginPath(); ctx.arc(x,y+bob,e.r,0,7); ctx.fill();
@@ -505,20 +726,61 @@ function draw(){
     ctx.fillStyle='#0b0712';
     ctx.fillRect(x-e.r*.45,y+bob-e.r*.25,e.r*.3,e.r*.3);
     ctx.fillRect(x+e.r*.15,y+bob-e.r*.25,e.r*.3,e.r*.3);
-    if(e.elite){
+    if(e.boss){
+      ctx.strokeStyle='#e9b44c'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(x,y+bob,e.r+5,0,7); ctx.stroke();
+      // 왕관
+      ctx.fillStyle='#e9b44c';
+      ctx.beginPath(); ctx.moveTo(x-e.r*.6,y-e.r-2); ctx.lineTo(x-e.r*.3,y-e.r-12);
+      ctx.lineTo(x,y-e.r-3); ctx.lineTo(x+e.r*.3,y-e.r-12); ctx.lineTo(x+e.r*.6,y-e.r-2);
+      ctx.closePath(); ctx.fill();
+      // 이름 + 체력바
+      ctx.fillStyle='#e9b44c'; ctx.font='bold 12px monospace'; ctx.textAlign='center';
+      ctx.fillText(e.name, x, y-e.r-20);
+      ctx.fillStyle='#000'; ctx.fillRect(x-e.r-6,y-e.r-16,(e.r+6)*2,5);
+      ctx.fillStyle='#c8273a'; ctx.fillRect(x-e.r-6,y-e.r-16,(e.r+6)*2*(e.hp/e.maxhp),5);
+    } else if(e.elite){
       ctx.strokeStyle='#e9b44c'; ctx.lineWidth=2;
       ctx.beginPath(); ctx.arc(x,y+bob,e.r+4,0,7); ctx.stroke();
-      // 체력바
       ctx.fillStyle='#000'; ctx.fillRect(x-e.r,y-e.r-10,e.r*2,4);
       ctx.fillStyle='#c8273a'; ctx.fillRect(x-e.r,y-e.r-10,e.r*2*(e.hp/e.maxhp),4);
     }
   }
 
+  // 번개
+  for(const z of bolts){
+    ctx.globalAlpha=clamp(z.t/0.18,0,1);
+    ctx.strokeStyle='#bfe3ff'; ctx.lineWidth=2.5;
+    ctx.beginPath();
+    const segs=5, ax=z.ax+ox,ay=z.ay+oy,bx=z.bx+ox,by=z.by+oy;
+    ctx.moveTo(ax,ay);
+    for(let s=1;s<segs;s++){const k=s/segs;ctx.lineTo(ax+(bx-ax)*k+rand(-7,7),ay+(by-ay)*k+rand(-7,7));}
+    ctx.lineTo(bx,by); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
+  // 화염구
+  for(const f of fires){
+    ctx.fillStyle='#e9b44c';
+    ctx.beginPath(); ctx.arc((f.cx||f.x)+ox,(f.cy||f.y)+oy,7,0,7); ctx.fill();
+    ctx.fillStyle='#e0742a';
+    ctx.beginPath(); ctx.arc((f.cx||f.x)+ox,(f.cy||f.y)+oy,4,0,7); ctx.fill();
+  }
+
+  // 노바 파동
+  for(const nv of novas){
+    ctx.globalAlpha=clamp(1-nv.r/nv.maxR,0,1)*0.8;
+    ctx.strokeStyle='#fff3c4'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.arc(player.x+ox,player.y+oy,nv.r,0,7); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
   // 단검
   ctx.fillStyle='#dfe6f2';
   for(const k of knives){
+    const s=k.sz||1;
     ctx.save(); ctx.translate(k.x+ox,k.y+oy); ctx.rotate(Math.atan2(k.vy,k.vx));
-    ctx.fillRect(-7,-2,14,4); ctx.restore();
+    ctx.fillRect(-7*s,-2*s,14*s,4*s); ctx.restore();
   }
 
   // 성물
